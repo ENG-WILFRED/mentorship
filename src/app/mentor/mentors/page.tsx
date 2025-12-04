@@ -1,10 +1,12 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { mentors } from "../../data";
+
 export default function MentorsPage() {
-  const router = typeof window !== "undefined" ? require("next/navigation").useRouter() : null;
+  const router = useRouter();
   function handleBack() {
-    if (router) router.push("/mentor/dashboard");
+    router.push("/mentor/dashboard");
   }
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden">

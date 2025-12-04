@@ -82,7 +82,7 @@ export default function MentorshipHeader() {
               Wisdom Mentorship Program
             </h1>
             <p className="text-sm text-gray-200 italic animate-pulse">
-              "Raising Leaders through Faith & Wisdom"
+              &quot;Raising Leaders through Faith &amp; Wisdom&quot;
             </p>
           </div>
         </div>

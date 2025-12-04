@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
 
 const slides = [
@@ -26,7 +27,7 @@ const slides = [
 
 export default function RegisterPage() {
   // Next.js router for navigation
-  const router = require('next/navigation').useRouter();
+  const router = useRouter();
   // State for form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -88,8 +89,9 @@ export default function RegisterPage() {
                   setToast({ type: 'error', message: result.error || 'Registration failed.' });
                   console.error("Registration error:", result.error);
                 }
-              } catch (err: any) {
-                setToast({ type: 'error', message: err.message || 'Registration failed.' });
+              } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Registration failed.';
+                setToast({ type: 'error', message: errorMessage });
                 console.error("Registration exception:", err);
               }
               setLoading(false);

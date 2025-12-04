@@ -18,12 +18,13 @@ export default function AddMentorForm() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  function handleChange(e: { target: { name: any; value: any; }; }) {
-    const { name, value } = e.target;
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+    const { name, value } = target;
     setForm({ ...form, [name]: value });
   }
 
-  function handleSubmit(e: { preventDefault: () => void; }) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitted(true);
     setTimeout(() => {

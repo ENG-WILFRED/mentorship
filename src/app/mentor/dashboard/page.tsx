@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
 import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
@@ -9,8 +10,8 @@ export default function DashboardPage() {
 
   const totalMissions = missions.length;
   const totalSchools = schools.length;
-  const totalStudents = schools.reduce((a: number, s: typeof schools[0]) => a + s.students, 0);
-  const nextMission = missions.find((m: typeof missions[0]) => m.status === "Upcoming");
+  const totalStudents = schools.reduce((a: number, s: { students: number }) => a + s.students, 0);
+  const nextMission = missions.find((m: { status: string }) => m.status === "Upcoming");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
@@ -28,7 +29,7 @@ export default function DashboardPage() {
         <section className="mb-12">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Timeline</h2>
           <div className="border-l-4 border-purple-300 pl-6">
-            {missions.map((m: typeof missions[0], i: number) => (
+            {missions.map((m: { date: string; status: string; schools: string[]; topic: string; mentors: string[]; students: number }, i: number) => (
               <div key={i} className="mb-6 relative">
                 <div className="absolute -left-7 top-2 w-4 h-4 bg-purple-400 rounded-full border-2 border-white"></div>
                 <div className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-4">
@@ -133,7 +134,7 @@ export default function DashboardPage() {
 }
 
 /* COMPONENTS */
-function StatCard({ icon, label, value }: { icon: string; label: string; value: any }) {
+function StatCard({ icon, label, value }: { icon: string; label: string; value: string | number }) {
   return (
     <div className="bg-white/70 border border-purple-200 rounded-xl shadow flex flex-col items-center py-6 px-4">
       <span className="text-3xl mb-2">{icon}</span>
@@ -144,9 +145,9 @@ function StatCard({ icon, label, value }: { icon: string; label: string; value: 
 }
 
 function ActionButton({ label }: { label: string }) {
-  const router = typeof window !== "undefined" ? require("next/navigation").useRouter() : null;
+  const router = useRouter();
   function handleClick() {
-    if (label === "New Mission" && router) {
+    if (label === "New Mission") {
       router.push("/mentor/missions");
     } else if (label === "view Schools" && router) {
       router.push("/mentor/schools");
@@ -164,7 +165,7 @@ function ActionButton({ label }: { label: string }) {
   );
 }
 
-function SchoolCard({ school }: { school: any }) {
+function SchoolCard({ school }: { school: { logo?: string; name: string; location: string; students: number; contact?: string } }) {
   return (
     <div className="bg-white/70 border border-purple-200 rounded-2xl shadow-xl p-6 flex flex-col gap-2 hover:scale-105 transition-transform">
       <div className="flex items-center gap-3 mb-2">
@@ -182,7 +183,7 @@ function SchoolCard({ school }: { school: any }) {
   );
 }
 
-function MentorCard({ mentor }: { mentor: any }) {
+function MentorCard({ mentor }: { mentor: { img: string; name: string; role: string; phone: string; missions?: string | number } }) {
   return (
     <div className="bg-white/70 border border-purple-200 rounded-2xl shadow-xl p-6 flex flex-col items-center w-64 hover:scale-105 transition-transform">
       <img src={mentor.img} alt={mentor.name} className="w-20 h-20 rounded-full border-2 border-purple-400 mb-3 shadow-md object-cover" />

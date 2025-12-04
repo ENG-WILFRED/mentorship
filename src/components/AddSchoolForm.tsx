@@ -12,7 +12,7 @@ export default function AddSchoolForm() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  function handleChange(e: { target: { name: any; value: any; }; }) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   }

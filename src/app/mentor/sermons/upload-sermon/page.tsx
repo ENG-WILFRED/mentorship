@@ -34,8 +34,9 @@ export default function UploadSermonPage() {
       setTitle("");
       setDescription("");
       setVideo(null);
-    } catch (err: any) {
-      setError(err.message || "Upload failed");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }

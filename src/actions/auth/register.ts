@@ -22,7 +22,7 @@ export async function registerUser({ firstName, lastName, email, phone, descript
 	phone: string;
 	description: string;
 	password: string;
-}): Promise<{ success: boolean; user?: any; memorableId?: string; error?: string }> {
+}): Promise<{ success: boolean; user?: Record<string, unknown>; memorableId?: string; error?: string }> {
 	const hashedPassword = await bcrypt.hash(password, 10);
 	const memorableId = generateMemorableId();
 	try {

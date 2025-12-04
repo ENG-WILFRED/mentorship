@@ -54,7 +54,14 @@ const reactionsList = ["👍", "🙏", "❤️", "👏", "🔥"];
 export default function SermonsPage() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedAuthor, setSelectedAuthor] = useState("");
-  const [currentSermon, setCurrentSermon] = useState<any>(null);
+  const [currentSermon, setCurrentSermon] = useState<{
+    id?: number;
+    title?: string;
+    author?: string;
+    topic?: string;
+    url?: string;
+    captions?: Array<{ start: number; end: number; text: string }>;
+  } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -66,7 +73,7 @@ export default function SermonsPage() {
 
   // Captions logic
   const currentCaption = currentSermon?.captions?.find(
-    (cap: any) => currentTime >= cap.start && currentTime < cap.end
+    (cap: { start: number; end: number; text: string }) => currentTime >= cap.start && currentTime < cap.end
   )?.text;
 
   // Unique topics & authors
@@ -449,8 +456,9 @@ function SermonUpload({ userId, onClose }: { userId: number; onClose?: () => voi
         };
         xhr.send(formData);
       });
-    } catch (err: any) {
-      setError(err.message || "Upload failed");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+      setError(errorMessage);
     } finally {
       setUploading(false);
       setProgress(0);

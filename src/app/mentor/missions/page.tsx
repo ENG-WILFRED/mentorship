@@ -1,15 +1,14 @@
 "use client";
 
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key } from "react";
+import { useRouter } from "next/navigation";
 import MissionForm from "../../../components/MissionForm";
+import { missions } from "../../data";
 
-// Load missions
 export default function NewMissionPage() {
-  const { missions } = require("../../data");
-  const router = typeof window !== "undefined" ? require("next/navigation").useRouter() : null;
+  const router = useRouter();
 
   function handleBack() {
-    if (router) router.push("/mentor/dashboard");
+    router.push("/mentor/dashboard");
   }
 
   return (
@@ -46,7 +45,7 @@ export default function NewMissionPage() {
               outcomes?: string;
               notes?: string;
             },
-            i: Key
+            i: number
           ) => (
             <div
               key={i}
