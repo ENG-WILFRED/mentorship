@@ -69,7 +69,9 @@ export default function SermonsPage() {
   const [comments, setComments] = useState<string[]>([]);
   const [reactions, setReactions] = useState<Record<string, number>>({});
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Captions logic
   const currentCaption = currentSermon?.captions?.find(
@@ -84,10 +86,12 @@ export default function SermonsPage() {
 
   // Filter sermons
   const filteredSermons = dummySermons.filter((s) => {
-    return (
-      (!selectedTopic || s.topic === selectedTopic) &&
-      (!selectedAuthor || s.author === selectedAuthor)
-    );
+    const matchesTopic = !selectedTopic || s.topic === selectedTopic;
+    const matchesAuthor = !selectedAuthor || s.author === selectedAuthor;
+    const matchesSearch = !searchQuery || 
+      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.author.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTopic && matchesAuthor && matchesSearch;
   });
 
   // Controls
@@ -138,171 +142,262 @@ export default function SermonsPage() {
   const showVideoPlayer = !!currentSermon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex flex-col">
       <Header pageName="Sermons" userEmail={user.email} />
 
-      {/* Hero Banner */}
-      <section className="relative w-full h-72 flex items-center justify-center text-center bg-gradient-to-r from-purple-700 to-pink-600 text-white">
-        <div>
-          <h1 className="text-5xl font-extrabold mb-2">Explore Our Sermons</h1>
-          <p className="text-lg italic opacity-90">
-            “Faith comes by hearing the word of Christ.” – Romans 10:17
+      {/* Hero Banner with dynamic background */}
+      <section className="relative w-full h-80 md:h-96 flex items-center justify-center text-center overflow-hidden">
+        <div className="absolute inset-0" style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=2000&q=80')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/90 via-purple-950/70 to-transparent" />
+        <div className="relative z-10">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-3 text-white drop-shadow-lg">✨ Explore Our Sermons</h1>
+          <p className="text-lg md:text-xl italic opacity-90 text-gray-100 drop-shadow-md">
+            &quot;Faith comes by hearing the word of Christ.&quot; – Romans 10:17
           </p>
+          <p className="text-sm md:text-base mt-4 opacity-80 text-gray-200">{filteredSermons.length} sermons available</p>
         </div>
       </section>
 
-      <main className="flex flex-col px-4 md:px-12 lg:px-24 -mt-12 z-10">
-        {/* Sermon Upload Section (shown only when upload button is clicked) */}
+      <main className="flex flex-col px-4 md:px-8 lg:px-16 -mt-16 z-10 pb-12">
+        {/* Sermon Upload Section */}
         {(user.role === "ADMIN" || user.role === "PASTOR" || user.role === "MENTOR") && showUpload && (
           <SermonUpload userId={user.id} onClose={() => setShowUpload(false)} />
         )}
-        {/* Filter Section */}
-        <section className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 mb-12 items-center justify-center">
-          <div className="flex gap-2 items-center">
-            <span className="text-purple-700 font-semibold">📖 Topic:</span>
-            <select
-              value={selectedTopic}
-              onChange={(e) => {
-                setSelectedTopic(e.target.value);
-                setSelectedAuthor("");
-                setCurrentSermon(null);
-              }}
-              className="border rounded px-3 py-2 shadow-sm focus:ring-2 focus:ring-purple-400 text-gray-800"
-            >
-              <option value="">All</option>
-              {topics.map((topic) => (
-                <option key={topic} value={topic}>
-                  {topic}
-                </option>
-              ))}
-            </select>
-          </div>
-          {showVideos && (
-            <div className="flex gap-2 items-center">
-              <span className="text-purple-700 font-semibold">👤 Author:</span>
-              <select
-                value={selectedAuthor}
-                onChange={(e) => setSelectedAuthor(e.target.value)}
-                className="border rounded px-3 py-2 shadow-sm focus:ring-2 focus:ring-purple-400 text-gray-800"
-              >
-                <option value="">All</option>
-                {authors.map((author) => (
-                  <option key={author} value={author}>
-                    {author}
-                  </option>
-                ))}
-              </select>
+        
+        {/* Filter & Search Section */}
+        <section className="bg-gradient-to-r from-purple-800/80 via-pink-800/70 to-indigo-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-16 border border-white/10">
+          <div className="flex flex-col gap-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="🔍 Search sermons by title or author..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-6 py-4 rounded-xl bg-white/10 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/20 transition-all backdrop-blur-sm"
+              />
             </div>
-          )}
+            
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-white font-semibold text-sm">📖 Filter by Topic</label>
+                <select
+                  value={selectedTopic}
+                  onChange={(e) => {
+                    setSelectedTopic(e.target.value);
+                    setSelectedAuthor("");
+                    setCurrentSermon(null);
+                  }}
+                  className="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/20 transition-all"
+                >
+                  <option value="" className="text-gray-900">All Topics</option>
+                  {topics.map((topic) => (
+                    <option key={topic} value={topic} className="text-gray-900">
+                      {topic}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {showVideos && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-white font-semibold text-sm">👤 Filter by Author</label>
+                  <select
+                    value={selectedAuthor}
+                    onChange={(e) => setSelectedAuthor(e.target.value)}
+                    className="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-900">All Authors</option>
+                    {authors.map((author) => (
+                      <option key={author} value={author} className="text-gray-900">
+                        {author}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
         </section>
 
         {/* Topic Grid */}
         {showTopicsOnly && (
-          <section className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {topics.map((topic) => (
-              <div
-                key={topic}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl p-8 cursor-pointer transition-transform hover:scale-105 text-center"
-                onClick={() => setSelectedTopic(topic)}
-              >
-                <h2 className="text-2xl font-bold text-purple-700 mb-2 hover:text-pink-600 transition">
-                  {topic}
-                </h2>
-                <p className="text-gray-600">
-                  View sermons about <span className="font-semibold">{topic}</span>
-                </p>
-              </div>
-            ))}
+          <section className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {topics.map((topic, idx) => {
+              const icons = ["📖", "🙏", "✝️"];
+              const colors = [
+                "from-purple-600 to-pink-600",
+                "from-pink-600 to-red-600",
+                "from-blue-600 to-purple-600"
+              ];
+              return (
+                <div
+                  key={topic}
+                  className="group relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl shadow-xl hover:shadow-2xl p-8 cursor-pointer transition-all hover:scale-105 border border-white/10 hover:border-white/30 backdrop-blur-sm"
+                  onClick={() => setSelectedTopic(topic)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity" />
+                  <div className={`bg-gradient-to-br ${colors[idx % colors.length]} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform`}>
+                    {icons[idx % icons.length]}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-pink-300 transition">
+                    {topic}
+                  </h2>
+                  <p className="text-gray-300 mb-4">
+                    {dummySermons.filter(s => s.topic === topic).length} sermons
+                  </p>
+                  <p className="text-gray-400 text-sm">Explore spiritual growth through {topic.toLowerCase()}</p>
+                </div>
+              );
+            })}
           </section>
         )}
 
         {/* Sermon Cards */}
         {showVideos && !showVideoPlayer && (
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {filteredSermons.map((s) => (
-              <div
-                key={s.id}
-                className="bg-white rounded-2xl shadow-xl hover:shadow-2xl overflow-hidden cursor-pointer transition-transform hover:scale-105"
-                onClick={() => setCurrentSermon(s)}
-              >
-                <div className="h-40 bg-gradient-to-r from-purple-200 to-pink-200 flex items-center justify-center text-3xl font-bold text-purple-700">
-                  🎥
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {filteredSermons.length > 0 ? (
+              filteredSermons.map((s) => (
+                <div
+                  key={s.id}
+                  className="group relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl shadow-xl hover:shadow-2xl overflow-hidden cursor-pointer transition-all hover:scale-105 border border-white/10 hover:border-white/30 backdrop-blur-sm"
+                  onClick={() => setCurrentSermon(s)}
+                >
+                  <div className="relative h-48 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-5xl overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-pink-500/40 group-hover:from-purple-400/60 group-hover:to-pink-400/60 transition-all" />
+                    <div className="relative z-10 group-hover:scale-125 transition-transform">🎥</div>
+                  </div>
+                  <div className="p-6 relative z-10">
+                    <div className="inline-block bg-pink-500/30 text-pink-200 px-3 py-1 rounded-full text-xs font-semibold mb-3 backdrop-blur-sm">
+                      {s.topic}
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-3 group-hover:text-pink-300 transition line-clamp-2">{s.title}</h2>
+                    <div className="flex items-center gap-2 text-gray-300 text-sm mb-2">
+                      <span>👤</span>
+                      <span className="font-semibold">{s.author}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                      <span className="text-xs text-gray-400">Click to watch</span>
+                      <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <h2 className="text-xl font-bold text-purple-700 mb-2">{s.title}</h2>
-                  <p className="text-gray-600">👤 {s.author}</p>
-                  <p className="text-gray-500 text-sm">📖 {s.topic}</p>
-                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-400 text-lg">No sermons found matching your filters</p>
               </div>
-            ))}
+            )}
           </section>
         )}
 
         {/* Video Player */}
         {showVideoPlayer && (
           <section className="w-full flex flex-col justify-center items-center mb-16">
-            <div className="w-full bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center">
-              <h2 className="text-3xl font-extrabold text-purple-700 mb-2 text-center">
+            <button
+              onClick={() => setCurrentSermon(null)}
+              className="self-start mb-4 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all border border-white/20 font-semibold backdrop-blur-sm"
+            >
+              ← Back to Sermons
+            </button>
+            <div className="w-full bg-gradient-to-br from-white/10 to-white/5 rounded-2xl shadow-2xl p-8 flex flex-col items-center border border-white/10 backdrop-blur-sm">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-2 text-center drop-shadow-lg">
                 {currentSermon.title}
               </h2>
-              <h3 className="text-lg text-gray-600 mb-6 font-semibold text-center">
-                By {currentSermon.author}
+              <h3 className="text-lg text-gray-300 mb-2 font-semibold text-center">
+                By <span className="text-pink-300">{currentSermon.author}</span>
               </h3>
+              <div className="inline-block bg-gradient-to-r from-pink-500/40 to-purple-500/40 text-pink-200 px-4 py-2 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm border border-white/10">
+                📖 {currentSermon.topic}
+              </div>
 
-              <div className="relative w-full flex justify-center">
+              <div className="relative w-full flex justify-center rounded-2xl overflow-hidden shadow-2xl">
                 <video
                   ref={videoRef}
                   src={currentSermon.url}
-                  className="w-full h-[70vh] max-h-[700px] rounded-xl shadow-lg bg-black object-contain"
+                  className="w-full h-[60vh] md:h-[70vh] max-h-[700px] bg-black object-contain"
                   controls={false}
-                  onTimeUpdate={(e) =>
-                    setCurrentTime((e.target as HTMLVideoElement).currentTime)
-                  }
+                  onTimeUpdate={(e) => {
+                    setCurrentTime((e.target as HTMLVideoElement).currentTime);
+                    setDuration((e.target as HTMLVideoElement).duration);
+                  }}
                 />
                 {currentCaption && (
-                  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-4 py-2 rounded text-lg font-semibold">
+                  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-xl text-base md:text-lg font-semibold backdrop-blur-sm border border-white/20">
                     {currentCaption}
                   </div>
                 )}
               </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full mt-6 flex flex-col gap-2">
+                <div className="w-full bg-white/10 rounded-full h-2 cursor-pointer group">
+                  <div
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full transition-all group-hover:h-3"
+                    style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                    onClick={(e) => {
+                      if (videoRef.current) {
+                        const bounds = e.currentTarget.getBoundingClientRect();
+                        const percent = (e.clientX - bounds.left) / bounds.width;
+                        videoRef.current.currentTime = percent * duration;
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-300">
+                  <span>{Math.floor(currentTime)}s</span>
+                  <span>{Math.floor(duration)}s</span>
+                </div>
+              </div>
 
               {/* Controls */}
-              <div className="flex gap-4 items-center mt-6 flex-wrap justify-center">
+              <div className="flex gap-3 md:gap-4 items-center mt-8 flex-wrap justify-center">
                 <button
                   onClick={() => handleSeek(-10)}
-                  className="bg-purple-600 text-white p-3 rounded-full hover:bg-purple-700"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-full hover:scale-110 transition-transform shadow-lg"
+                  title="Rewind 10s"
                 >
-                  <FaBackward />
+                  <FaBackward className="text-lg" />
                 </button>
                 <button
                   onClick={handlePlayPause}
-                  className="bg-purple-600 text-white p-3 rounded-full hover:bg-purple-700"
+                  className="bg-gradient-to-r from-pink-600 to-red-600 text-white p-4 rounded-full hover:scale-110 transition-transform shadow-lg"
+                  title={playing ? "Pause" : "Play"}
                 >
-                  {playing ? <FaPause /> : <FaPlay />}
+                  {playing ? <FaPause className="text-xl" /> : <FaPlay className="text-xl" />}
                 </button>
                 <button
                   onClick={() => handleSeek(10)}
-                  className="bg-purple-600 text-white p-3 rounded-full hover:bg-purple-700"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-full hover:scale-110 transition-transform shadow-lg"
+                  title="Forward 10s"
                 >
-                  <FaForward />
+                  <FaForward className="text-lg" />
                 </button>
+                <div className="w-px h-8 bg-white/20" />
                 <button
                   onClick={handleFullScreen}
-                  className="bg-pink-600 text-white p-3 rounded-full hover:bg-pink-700"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-full hover:scale-110 transition-transform shadow-lg"
+                  title="Fullscreen"
                 >
-                  <FaExpand />
+                  <FaExpand className="text-lg" />
                 </button>
 
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="font-semibold">Speed:</span>
+                <div className="flex items-center gap-2 flex-wrap justify-center">
+                  <span className="font-semibold text-white text-sm md:text-base">Speed:</span>
                   {[0.5, 1, 1.5, 2].map((s) => (
                     <button
                       key={s}
                       onClick={() => handleSpeedChange(s)}
-                      className={`px-3 py-1 rounded font-semibold ${
+                      className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                         speed === s
-                          ? "bg-purple-500 text-white"
-                          : "bg-gray-200 text-purple-700 hover:bg-gray-300"
+                          ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg scale-110"
+                          : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
                       }`}
                     >
                       {s}x
@@ -314,13 +409,14 @@ export default function SermonsPage() {
               {/* Reactions */}
               {user.isLoggedIn && (
                 <div className="flex gap-3 mt-8 flex-wrap justify-center">
+                  <span className="text-white font-semibold mr-2 self-center">React:</span>
                   {reactionsList.map((r) => (
                     <button
                       key={r}
                       onClick={() => handleReaction(r)}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-xl"
+                      className="px-4 py-2 bg-gradient-to-r from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-full text-lg font-semibold transition-all border border-white/20 hover:border-white/40 backdrop-blur-sm"
                     >
-                      {r} {reactions[r] || 0}
+                      {r} <span className="text-gray-300 ml-1">{reactions[r] || 0}</span>
                     </button>
                   ))}
                 </div>
@@ -328,43 +424,46 @@ export default function SermonsPage() {
 
               {/* Comments */}
               {user.isLoggedIn && (
-                <div className="flex flex-col bg-gray-50 rounded-2xl shadow-xl p-6 mt-10 w-full max-w-3xl">
-                  <h3 className="text-2xl font-bold text-purple-700 mb-4 text-center">
-                    Comments
+                <div className="flex flex-col bg-gradient-to-br from-white/10 to-white/5 rounded-2xl shadow-xl p-8 mt-12 w-full max-w-3xl border border-white/10 backdrop-blur-sm">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center flex items-center justify-center gap-2">
+                    💬 Community Insights
                   </h3>
-                  <form onSubmit={handleComment} className="flex gap-2 mb-4">
+                  <form onSubmit={handleComment} className="flex gap-3 mb-6 flex-col sm:flex-row">
                     <input
                       type="text"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Add a comment..."
-                      className="border border-gray-300 rounded px-4 py-2 w-full focus:ring-2 focus:ring-purple-400 outline-none text-gray-900 placeholder-gray-600"
+                      placeholder="Share your thoughts..."
+                      className="border border-white/20 rounded-lg px-4 py-3 w-full bg-white/10 focus:bg-white/15 focus:ring-2 focus:ring-pink-400 outline-none text-white placeholder-gray-300 backdrop-blur-sm transition-all"
                     />
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-lg font-bold hover:opacity-90"
+                      className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all whitespace-nowrap"
                     >
                       Post
                     </button>
                   </form>
                   <div>
                     {comments.length > 0 ? (
-                      <ul className="space-y-3">
+                      <ul className="space-y-4">
                         {comments.map((c, i) => (
                           <li
                             key={i}
-                            className="flex items-start gap-3 bg-gray-100 rounded-xl px-4 py-2 text-gray-900"
+                            className="flex items-start gap-3 bg-white/10 rounded-xl px-4 py-3 text-white border border-white/10 hover:border-white/30 transition-all backdrop-blur-sm"
                           >
-                            <div className="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 mt-1">
                               {user.email[0].toUpperCase()}
                             </div>
-                            <span>{c}</span>
+                            <div className="flex-1">
+                              <p className="font-semibold text-pink-300 text-sm mb-1">{user.email}</p>
+                              <p className="text-gray-100">{c}</p>
+                            </div>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-700 italic text-center">
-                        No comments yet. Be the first to comment!
+                      <p className="text-gray-300 italic text-center py-8 text-lg">
+                        ✨ No comments yet. Start the conversation!
                       </p>
                     )}
                   </div>

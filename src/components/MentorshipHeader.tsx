@@ -31,9 +31,9 @@ const popoverData = {
     </div>
   ),
   contact: (
-    <div className="w-64 text-left">
+    <div className="w-75 text-left">
       <h3 className="text-base font-semibold text-purple-700 mb-1">Contact</h3>
-      <p className="text-sm text-gray-700">Email: mentorship@wisdom.org<br />Phone: +254 712 345 678<br />Location: ICC CTC Church, Nairobi</p>
+      <p className="text-sm text-gray-700 whitespace-nowrap">Email: wisdommentorshipsociety@gmail.com<br />Phone: +254702913856<br />Location: Mentorship Church, Nairobi</p>
     </div>
   ),
 };

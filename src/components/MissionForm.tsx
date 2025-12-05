@@ -56,34 +56,38 @@ export default function MissionForm() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
-      {/* Mentorship-relevant image background with overlay */}
-      <div className="absolute inset-0 -z-10">
-        <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1600&q=80" alt="Mentorship" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-indigo-800/70 to-pink-900/80 opacity-80" />
-      </div>
+    <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Full-screen background image with overlay */}
+      <div 
+        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-20"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000&q=80')",
+          backgroundAttachment: 'fixed'
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-950/90 via-indigo-900/85 to-pink-950/90 -z-10" />
 
-      {/* Form Card with enhanced glassmorphism and gradient overlay */}
+      {/* Form Card with enhanced glassmorphism */}
       <form
         onSubmit={handleSubmit}
-        className="bg-gradient-to-br from-purple-700/60 via-pink-400/40 to-indigo-300/60 backdrop-blur-3xl rounded-3xl shadow-2xl p-12 flex flex-col gap-8 border-2 border-purple-700 max-w-2xl w-full relative z-10"
+        className="bg-gradient-to-br from-purple-700/70 via-pink-500/50 to-indigo-600/70 backdrop-blur-3xl rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col gap-6 md:gap-8 border border-purple-400/30 max-w-2xl w-full mx-4 relative z-10"
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', border: '1px solid rgba(255,255,255,0.18)' }}
       >
-        <h2 className="text-4xl font-extrabold text-purple-900 mb-2 text-center tracking-tight flex items-center justify-center gap-3 drop-shadow-lg">
-          <span className="text-pink-500">🚀</span> Create Mission <span className="text-pink-500">✨</span>
+        <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-2 text-center tracking-tight flex items-center justify-center gap-2 md:gap-3 drop-shadow-lg">
+          <span className="text-pink-300">🚀</span> Create Mission <span className="text-pink-300">✨</span>
         </h2>
-        <p className="text-center text-gray-800 mb-6 text-lg font-medium">
+        <p className="text-center text-gray-100 mb-4 md:mb-6 text-base md:text-lg font-medium">
           Fill in details of the mentorship mission
         </p>
 
         {/* Mission Name */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Mission Name</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Mission Name</label>
           <select
             name="name"
             value={form.name}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
             required
           >
             <option value="">Select Mission Name</option>
@@ -95,12 +99,12 @@ export default function MissionForm() {
 
         {/* Description */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Description</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Description</label>
           <select
             name="description"
             value={form.description}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
             required
           >
             <option value="">Select Description</option>
@@ -112,20 +116,20 @@ export default function MissionForm() {
 
         {/* Date */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Date</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Date</label>
           <input
             type="date"
             name="date"
             value={form.date}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
             required
           />
         </div>
 
         {/* Schools - interactive list */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Schools</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Schools</label>
           {/* Available schools to add */}
           <div className="flex flex-wrap gap-2 mb-4">
             {schoolsList.filter((s) => !form.schools.includes(s)).map((s) => (
@@ -133,7 +137,7 @@ export default function MissionForm() {
                 type="button"
                 key={s}
                 onClick={() => handleAddItem("schools", s)}
-                className="px-3 py-1 rounded-full border-2 font-semibold transition-colors duration-150 bg-white text-purple-900 border-purple-600 hover:bg-purple-100 hover:border-pink-400"
+                className="px-3 py-1 rounded-full border-2 font-semibold transition-colors duration-150 bg-white/80 text-purple-900 border-purple-300 hover:bg-pink-200 hover:border-pink-400 text-xs md:text-sm"
               >
                 + {s}
               </button>
@@ -142,14 +146,14 @@ export default function MissionForm() {
           {/* Space between lists */}
           <div className="h-2" />
           {/* Selected schools */}
-          <div className="flex flex-wrap gap-3 mt-2">
+          <div className="flex flex-wrap gap-2 md:gap-3 mt-2">
             {form.schools.map((s) => (
-              <span key={s} className="flex items-center bg-purple-100 text-purple-900 font-semibold px-3 py-1 rounded-full border border-purple-400 shadow">
+              <span key={s} className="flex items-center bg-white/20 text-white font-semibold px-3 py-1 rounded-full border border-white/40 shadow text-xs md:text-sm">
                 {s}
                 <button
                   type="button"
                   onClick={() => handleRemoveItem("schools", s)}
-                  className="ml-2 text-pink-600 hover:text-red-700 font-bold"
+                  className="ml-2 text-pink-200 hover:text-red-300 font-bold"
                   aria-label={`Remove ${s}`}
                 >
                   ×
@@ -161,24 +165,24 @@ export default function MissionForm() {
 
         {/* Topic */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Topic</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Topic</label>
           <select
             name="topic"
             value={form.topic}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
             required
           >
             <option value="">Select Topic</option>
             {topicsList.map((t) => (
-              <option key={t} value={t} className="text-purple-900 font-semibold">{t}</option>
+              <option key={t} value={t} className="text-gray-900 font-semibold">{t}</option>
             ))}
           </select>
         </div>
 
         {/* Mentors - interactive list */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Mentors</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Mentors</label>
           {/* Available mentors to add */}
           <div className="flex flex-wrap gap-2 mb-4">
             {mentorsList.filter((m) => !form.mentors.includes(m)).map((m) => (
@@ -186,7 +190,7 @@ export default function MissionForm() {
                 type="button"
                 key={m}
                 onClick={() => handleAddItem("mentors", m)}
-                className="px-3 py-1 rounded-full border-2 font-semibold transition-colors duration-150 bg-white text-purple-900 border-purple-600 hover:bg-purple-100 hover:border-pink-400"
+                className="px-3 py-1 rounded-full border-2 font-semibold transition-colors duration-150 bg-white/80 text-purple-900 border-purple-300 hover:bg-pink-200 hover:border-pink-400 text-xs md:text-sm"
               >
                 + {m}
               </button>
@@ -195,14 +199,14 @@ export default function MissionForm() {
           {/* Space between lists */}
           <div className="h-2" />
           {/* Selected mentors */}
-          <div className="flex flex-wrap gap-3 mt-2">
+          <div className="flex flex-wrap gap-2 md:gap-3 mt-2">
             {form.mentors.map((m) => (
-              <span key={m} className="flex items-center bg-purple-100 text-purple-900 font-semibold px-3 py-1 rounded-full border border-purple-400 shadow">
+              <span key={m} className="flex items-center bg-white/20 text-white font-semibold px-3 py-1 rounded-full border border-white/40 shadow text-xs md:text-sm">
                 {m}
                 <button
                   type="button"
                   onClick={() => handleRemoveItem("mentors", m)}
-                  className="ml-2 text-pink-600 hover:text-red-700 font-bold"
+                  className="ml-2 text-pink-200 hover:text-red-300 font-bold"
                   aria-label={`Remove ${m}`}
                 >
                   ×
@@ -214,53 +218,53 @@ export default function MissionForm() {
 
         {/* Students Impacted */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Students Impacted</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Students Impacted</label>
           <select
             name="students"
             value={form.students}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
             required
           >
             <option value="">Select Range</option>
             {studentsList.map((s) => (
-              <option key={s} value={s} className="text-purple-900 font-semibold">{s}</option>
+              <option key={s} value={s} className="text-gray-900 font-semibold">{s}</option>
             ))}
           </select>
         </div>
 
         {/* Status */}
         <div>
-          <label className="block text-purple-900 font-bold mb-2">Status</label>
+          <label className="block text-white font-bold mb-2 text-sm md:text-base">Status</label>
           <select
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border-2 border-purple-600 focus:outline-none focus:ring-4 focus:ring-pink-400/40 bg-purple-50 text-purple-900 font-semibold shadow"
+            className="w-full px-4 py-3 rounded-lg border-2 border-purple-300/40 focus:outline-none focus:ring-4 focus:ring-pink-300/50 bg-white/90 text-gray-900 font-semibold shadow-md focus:bg-white transition-colors"
           >
             <option value="Upcoming">Upcoming</option>
             <option value="Completed">Completed</option>
           </select>
         </div>
 
-        <div className="flex gap-4 mt-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mt-4 justify-center">
           <button
             type="submit"
-            className="bg-gradient-to-r from-pink-600 to-purple-800 text-white font-bold py-3 px-6 rounded-lg shadow-xl hover:scale-105 hover:shadow-2xl transition-transform text-lg tracking-wide"
+            className="bg-gradient-to-r from-pink-500 to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-xl hover:scale-105 hover:shadow-2xl transition-transform text-base md:text-lg tracking-wide w-full sm:w-auto"
           >
             🚀 Create Mission
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            className="bg-gradient-to-r from-gray-300 to-purple-400 text-purple-900 font-bold py-3 px-6 rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform text-lg tracking-wide border border-purple-300"
+            className="bg-gradient-to-r from-gray-400 to-purple-500 text-white font-bold py-3 px-6 rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform text-base md:text-lg tracking-wide border border-white/30 w-full sm:w-auto"
           >
             Cancel
           </button>
         </div>
 
         {submitted && (
-          <div className="text-green-700 font-bold mt-4 text-center animate-pulse">
+          <div className="text-green-300 font-bold mt-4 text-center animate-pulse text-sm md:text-base">
             Mission created! Redirecting to dashboard...
           </div>
         )}
