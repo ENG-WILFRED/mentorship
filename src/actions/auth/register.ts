@@ -15,11 +15,10 @@ function generateMemorableId() {
 	return id;
 }
 
-export async function registerUser({ firstName, lastName, email, phone, description, password }: {
+export async function registerUser({ firstName, lastName, email, description, password }: {
 	firstName: string;
 	lastName: string;
 	email: string;
-	phone: string;
 	description: string;
 	password: string;
 }): Promise<{ success: boolean; user?: Record<string, unknown>; memorableId?: string; error?: string }> {

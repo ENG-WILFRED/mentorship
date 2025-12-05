@@ -70,11 +70,11 @@ export default function RegisterPage() {
               e.preventDefault();
               setLoading(true);
               setToast(null);
-              console.log("Submitting registration:", { firstName, lastName, email, phone, description });
+              console.log("Submitting registration:", { firstName, lastName, email, description });
               try {
                 // Dynamically import registerUser action
                 const { registerUser } = await import("../../../actions/auth/register");
-                const result = await registerUser({ firstName, lastName, email, phone, description, password });
+                const result = await registerUser({ firstName, lastName, email, description, password });
                 console.log("Registration result:", result);
                 if (result.success) {
                   setToast({ type: 'success', message: 'Registration successful! Redirecting to login...'});

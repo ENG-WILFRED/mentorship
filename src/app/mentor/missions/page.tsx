@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import MissionForm from "../../../components/MissionForm";
 import { missions } from "../../data";
 
 export default function NewMissionPage() {
