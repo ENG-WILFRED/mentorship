@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import MentorshipHeader from "@/components/MentorshipHeader";
+import GalleryPage from '@/components/gallery/Gallerypage';
+
 
 const slides = [
   {
@@ -132,6 +134,11 @@ export default function LoginPage() {
               />
             ))}
           </div>
+        </section>
+
+        <section>
+
+          <GalleryPage/>
         </section>
       </main>
       {/* Small CSS animation */}
