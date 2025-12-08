@@ -1,7 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import MentorshipHeader from "@/components/MentorshipHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/Toast";
 
 const slides = [
   {
@@ -25,9 +28,13 @@ const slides = [
 ];
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login, isLoading, error } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loginError, setLoginError] = useState("");
 
   // Auto slide
   useEffect(() => {
@@ -37,6 +44,19 @@ export default function LoginPage() {
     );
     return () => clearInterval(interval);
   }, []);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      await login(email, password);
+      toast("Login successful! Welcome back ✨", "success");
+      router.push("/mentor/dashboard");
+    } catch {
+      const errorMsg = error || "Login failed. Please try again.";
+      setLoginError(errorMsg);
+      toast(errorMsg, "error");
+    }
+  };
 
   return (
     <>
@@ -46,11 +66,17 @@ export default function LoginPage() {
       <main className="min-h-screen flex flex-col md:flex-row relative">
         {/* Left: Login form */}
         <section className="relative flex items-center justify-center w-full md:w-1/2 p-8 bg-gradient-to-br from-indigo-800 via-purple-700 to-pink-700">
-          <form className="backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-2xl p-8 w-full max-w-md flex flex-col gap-6 text-white animate-fadeIn">
+          <form onSubmit={handleSubmit} className="backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-2xl p-8 w-full max-w-md flex flex-col gap-6 text-white animate-fadeIn">
             <h1 className="text-3xl font-bold drop-shadow-lg">Sign In</h1>
             <p className="text-gray-200 mb-4">
               Welcome back to the mentorship journey ✨
             </p>
+
+            {loginError && (
+              <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg text-sm">
+                {loginError}
+              </div>
+            )}
 
             <input
               type="email"
@@ -58,7 +84,8 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none"
+              disabled={isLoading}
+              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none disabled:opacity-50"
             />
             <input
               type="password"
@@ -66,18 +93,17 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none"
+              disabled={isLoading}
+              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none disabled:opacity-50"
             />
 
-              <Link href="/mentor/dashboard" >
             <button
               type="submit"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105"
+              disabled={isLoading}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-
-                Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
-              </Link>
 
             <div className="text-center text-sm text-gray-200 mt-2">
               <a href="#" className="text-pink-300 hover:underline font-semibold">

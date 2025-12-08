@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
+import { useAuth } from "../../../hooks/useAuth";
+import { useToast } from "../../../components/Toast";
 
 const slides = [
   {
@@ -26,24 +28,16 @@ const slides = [
 ];
 
 export default function RegisterPage() {
-  // Next.js router for navigation
   const router = useRouter();
-  // State for form fields
+  const { register, isLoading, error } = useAuth();
+  const toast = useToast();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [description, setDescription] = useState("");
   const [password, setPassword] = useState("");
-  // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
-  // State for carousel
   const [currentSlide, setCurrentSlide] = useState(0);
-  // State for loading and feedback
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  // State for memorable ID display
-  const [memorableId, setMemorableId] = useState<string | null>(null);
+  const [registerError, setRegisterError] = useState("");
 
   // Auto slide
   useEffect(() => {
@@ -65,42 +59,30 @@ export default function RegisterPage() {
         <section className="relative flex items-center justify-center w-full md:w-1/2 p-8 bg-gradient-to-br from-indigo-800 via-purple-700 to-pink-700">
           <form
             className="backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-2xl p-8 w-full max-w-md flex flex-col gap-6 text-white"
-            // Handle registration form submission
             onSubmit={async (e) => {
               e.preventDefault();
-              setLoading(true);
-              setToast(null);
-              console.log("Submitting registration:", { firstName, lastName, email, description });
+              setRegisterError("");
               try {
-                // Dynamically import registerUser action
-                const { registerUser } = await import("../../../actions/auth/register");
-                const result = await registerUser({ firstName, lastName, email, description, password });
-                console.log("Registration result:", result);
-                if (result.success) {
-                  setToast({ type: 'success', message: 'Registration successful! Redirecting to login...'});
-                  setMemorableId(result.memorableId ?? null);
-                  // Reset form fields
-                  setFirstName(""); setLastName(""); setEmail(""); setPhone(""); setDescription(""); setPassword("");
-                  // Redirect to login after short delay
-                  setTimeout(() => {
-                    router.push('/auth/login');
-                  }, 1800);
-                } else {
-                  setToast({ type: 'error', message: result.error || 'Registration failed.' });
-                  console.error("Registration error:", result.error);
-                }
-              } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Registration failed.';
-                setToast({ type: 'error', message: errorMessage });
-                console.error("Registration exception:", err);
+                await register(firstName, lastName, email, password);
+                toast("Account created successfully! Welcome aboard ✨", "success");
+                router.push("/mentor/dashboard");
+              } catch {
+                const errorMsg = error || "Registration failed. Please try again.";
+                setRegisterError(errorMsg);
+                toast(errorMsg, "error");
               }
-              setLoading(false);
             }}
           >
             <h1 className="text-3xl font-bold drop-shadow-lg">Create Account</h1>
             <p className="text-gray-200 mb-4">
               Join the mentorship journey today ✨
             </p>
+
+            {registerError && (
+              <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg text-sm">
+                {registerError}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <input
@@ -109,7 +91,8 @@ export default function RegisterPage() {
                 required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-1/2"
+                disabled={isLoading}
+                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-1/2 disabled:opacity-50"
               />
               <input
                 type="text"
@@ -117,7 +100,8 @@ export default function RegisterPage() {
                 required
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-1/2"
+                disabled={isLoading}
+                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-1/2 disabled:opacity-50"
               />
             </div>
             <input
@@ -125,22 +109,9 @@ export default function RegisterPage() {
               placeholder="Email"
               required
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none"
-            />
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              required
-              value={phone}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none"
-            />
-            <textarea
-              placeholder="Tell us about yourself..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none h-24 resize-none"
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none disabled:opacity-50"
             />
             <div className="relative">
               <input
@@ -149,7 +120,8 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-full pr-12"
+                disabled={isLoading}
+                className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none w-full pr-12 disabled:opacity-50"
               />
               <button
                 type="button"
@@ -164,23 +136,11 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105"
-              disabled={loading}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Registering...' : 'Sign Up'}
+              {isLoading ? "Creating account..." : "Create Account"}
             </button>
-            {/* Toast notification for feedback */}
-            {toast && (
-              <div className={`mt-4 text-center font-bold px-4 py-2 rounded-lg ${toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>{toast.message}</div>
-            )}
-            {/* Display memorable ID after successful registration */}
-            {memorableId && (
-              <div className="mt-4 text-center text-lg font-bold text-purple-300">
-                Your memorable ID: <span className="bg-white/30 px-3 py-1 rounded-lg text-purple-900 tracking-widest">{memorableId}</span><br/>
-                <span className="text-sm text-gray-200">Keep this safe! It will be used by the admin to upgrade your role.</span>
-              </div>
-            )}
-
             <p className="text-center text-sm text-gray-200 mt-4">
               Already have an account?{" "}
               <Link href="/auth/login" className="text-pink-300 hover:underline">

@@ -135,6 +135,7 @@ model Sermon {
   title       String
   description String?
   videoUrl    String?
+  youtubeId   String?            @unique
   audioUrl    String?
   coverImage  String?
   topic       String?
