@@ -24,7 +24,7 @@ export default function VideoModal({ video, isOpen, onClose }: VideoModalProps) 
 
   if (!video) return null;
 
-  const modalVariants = {
+  const modalVariants: any = {
     hidden: { scale: 0.9, opacity: 0 },
     visible: {
       scale: 1,
@@ -147,7 +147,7 @@ export default function VideoModal({ video, isOpen, onClose }: VideoModalProps) 
               <div className="flex items-center gap-3">
                 <Tag size={20} className="text-cyan-400" />
                 <div className="flex flex-wrap gap-2">
-                  {video.tags.map(tag => (
+                  {video.tags.map((tag: string) => (
                     <span
                       key={tag}
                       className="px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-white rounded-full text-sm"

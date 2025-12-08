@@ -58,13 +58,13 @@ export default function GalleryPage({
   }, []);
 
   // Filtering pipeline (single source of truth)
-  const applyFilters = useCallback((items: Array<ImageItem | VideoItem>) => {
+  const applyFilters = useCallback(<T extends ImageItem | VideoItem>(items: T[]) => {
     return items
       .filter(item => !filters.category || item.category === filters.category)
-      .filter(item => filters.tags.length === 0 || filters.tags.every(tag => item.tags.includes(tag)))
+      .filter(item => filters.tags.length === 0 || filters.tags.every((tag: string) => item.tags.includes(tag)))
       .filter(item => 
         item.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase()))
+        item.tags.some((tag: string) => tag.toLowerCase().includes(filters.search.toLowerCase()))
       )
       .sort((a, b) => {
         if (filters.time === "newest") {
@@ -125,10 +125,10 @@ export default function GalleryPage({
 
   // Handle tag toggle
   const handleTagToggle = (tag: string) => {
-    setFilters(prev => ({
+    setFilters((prev: FilterState) => ({
       ...prev,
       tags: prev.tags.includes(tag) 
-        ? prev.tags.filter(t => t !== tag)
+        ? prev.tags.filter((t: string) => t !== tag)
         : [...prev.tags, tag]
     }));
     setCurrentPage(1);
@@ -228,8 +228,8 @@ export default function GalleryPage({
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
           <SearchBar
             value={filters.search}
-            onChange={(value) => {
-              setFilters(prev => ({ ...prev, search: value }));
+            onChange={(value: string) => {
+              setFilters((prev: FilterState) => ({ ...prev, search: value }));
               setCurrentPage(1);
             }}
           />
@@ -237,8 +237,8 @@ export default function GalleryPage({
           <div className="mt-6">
             <GalleryFilters
               filters={filters}
-              onFilterChange={(key, value) => {
-                setFilters(prev => ({ ...prev, [key]: value }));
+              onFilterChange={(key: keyof FilterState, value: any) => {
+                setFilters((prev: FilterState) => ({ ...prev, [key]: value } as FilterState));
                 setCurrentPage(1);
               }}
             />
@@ -249,7 +249,7 @@ export default function GalleryPage({
               selectedTags={filters.tags}
               onTagToggle={handleTagToggle}
               onClearTags={() => {
-                setFilters(prev => ({ ...prev, tags: [] }));
+                setFilters((prev: FilterState) => ({ ...prev, tags: [] }));
                 setCurrentPage(1);
               }}
             />

@@ -28,7 +28,7 @@ export default function TagFilters({ selectedTags, onTagToggle, onClearTags }: T
       </div>
       
       <div className="flex flex-wrap gap-2">
-        {ALL_TAGS.map(tag => (
+        {ALL_TAGS.map((tag: string) => (
           <button
             key={tag}
             onClick={() => onTagToggle(tag)}

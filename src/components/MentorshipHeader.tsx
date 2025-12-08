@@ -1,4 +1,10 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from 'next/navigation';
+import GalleryPage from '@/components/gallery/Gallerypage';
+
 
 import React, { useState } from "react";
 // ...existing code...
@@ -36,6 +42,17 @@ const popoverData = {
       <p className="text-sm text-gray-700 whitespace-nowrap">Email: wisdommentorshipsociety@gmail.com<br />Phone: +254702913856<br />Location: Mentorship Church, Nairobi</p>
     </div>
   ),
+  gallery: (
+  <Link href="/gallery" className="block w-full h-full">
+    <div className="w-64 text-left hover:bg-purple-50/30 rounded-lg p-2 cursor-pointer">
+      <h3 className="text-base font-semibold text-purple-700 mb-1">Gallery</h3>
+      <p className="text-sm text-gray-700">
+        Explore moments from our mentorship journeys, events, and community gatherings.
+      </p>
+    </div>
+  </Link>
+)
+
 };
 
 function NavPopover({ label, popoverKey }: { label: string; popoverKey: keyof typeof popoverData }) {
@@ -65,6 +82,7 @@ function NavPopover({ label, popoverKey }: { label: string; popoverKey: keyof ty
 }
 
 export default function MentorshipHeader() {
+  const pathname = usePathname();
   return (
     <header className="relative z-50 w-full bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-pink-900/60 backdrop-blur-md text-white">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4">
@@ -88,11 +106,18 @@ export default function MentorshipHeader() {
         </div>
 
         {/* Nav / Motto Extra */}
-        <nav className="mt-4 md:mt-0 flex gap-6 text-sm font-medium">
+        <nav className="mt-4 md:mt-0 flex gap-6 text-sm font-medium items-center">
           <NavPopover label="About" popoverKey="about" />
           <NavPopover label="Mentors" popoverKey="mentors" />
           <NavPopover label="Events" popoverKey="events" />
           <NavPopover label="Contact" popoverKey="contact" />
+          <Link
+            href="/gallery"
+            className={`px-2 py-1 rounded transition-transform duration-200 hover:scale-105 ${pathname?.startsWith('/gallery') ? 'bg-white/10 text-white ring-1 ring-white/20' : 'hover:text-pink-300'}`}
+            aria-current={pathname?.startsWith('/gallery') ? 'page' : undefined}
+          >
+            Gallery
+          </Link>
         </nav>
       </div>
       <style jsx>{`

@@ -13,7 +13,7 @@ interface LightboxModalProps {
 export default function LightboxModal({ image, isOpen, onClose }: LightboxModalProps) {
   if (!image) return null;
 
-  const modalVariants = {
+  const modalVariants: any = {
     hidden: { scale: 0.9, opacity: 0 },
     visible: {
       scale: 1,
@@ -81,7 +81,7 @@ export default function LightboxModal({ image, isOpen, onClose }: LightboxModalP
               <div className="flex items-center gap-3 mb-6">
                 <Tag size={20} className="text-cyan-400" />
                 <div className="flex flex-wrap gap-2">
-                  {image.tags.map(tag => (
+                  {image.tags.map((tag: string) => (
                     <span
                       key={tag}
                       className="px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-white rounded-full text-sm"

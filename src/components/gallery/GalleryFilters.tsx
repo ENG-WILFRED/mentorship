@@ -32,7 +32,7 @@ export default function GalleryFilters({ filters, onFilterChange }: GalleryFilte
             >
               All
             </button>
-            {CATEGORIES.map(cat => (
+            {CATEGORIES.map((cat: string) => (
               <button
                 key={cat}
                 onClick={() => onFilterChange('category', cat)}

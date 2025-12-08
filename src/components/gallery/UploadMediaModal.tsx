@@ -68,13 +68,15 @@ export default function UploadMediaModal({ isOpen, onClose, onSubmit }: UploadMe
       transition: { duration: 0.2 }
     }
   };
+  // loosen type to satisfy framer-motion types in this small component
+  const _modalVariants: any = modalVariants;
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
           <motion.div
-            variants={modalVariants}
+            variants={_modalVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -150,7 +152,7 @@ export default function UploadMediaModal({ isOpen, onClose, onSubmit }: UploadMe
                   Category
                 </label>
                 <div className="flex gap-2">
-                  {CATEGORIES.map(cat => (
+                  {CATEGORIES.map((cat: MediaCategory) => (
                     <button
                       type="button"
                       key={cat}
@@ -174,7 +176,7 @@ export default function UploadMediaModal({ isOpen, onClose, onSubmit }: UploadMe
                   Tags
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {ALL_TAGS.map(tag => (
+                    {ALL_TAGS.map((tag: string) => (
                     <button
                       type="button"
                       key={tag}
