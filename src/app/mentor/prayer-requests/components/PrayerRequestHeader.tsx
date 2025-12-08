@@ -54,7 +54,7 @@ export default function PrayerRequestHeader({
           <p
             className="
               text-xs sm:text-sm md:text-base lg:text-lg
-              text-gray-600 max-w-2xl mx-auto leading-relaxed
+              text-white max-w-2xl mx-auto leading-relaxed
             "
           >
             A sacred space for your spiritual support. Share your prayer

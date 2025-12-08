@@ -27,7 +27,7 @@ export default function SelectField({
         required={required}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
+        className={`w-full px-3 py-2 text-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
       >
         <option value="">Select {label}</option>
         {options.map((option, index) => (
