@@ -24,7 +24,7 @@ export default function DetailedRequestModal({
   if (!selectedRequest) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" >
       {/* Request Information */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
         <div className="flex items-center justify-between mb-3">

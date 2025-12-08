@@ -2,15 +2,21 @@
 import React from "react";
 
 interface SelectFieldProps {
-  label: string;
+  label?: string;
   options: string[];
   required?: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  className?: string;
 }
 
 export default function SelectField({
   label,
   options,
   required = false,
+  value,
+  onChange,
+  className = "", 
 }: SelectFieldProps) {
   return (
     <div>
@@ -19,7 +25,9 @@ export default function SelectField({
       </label>
       <select
         required={required}
-        className="w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        value={value}
+        onChange={onChange}
+        className={`w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
       >
         <option value="">Select {label}</option>
         {options.map((option, index) => (

@@ -21,14 +21,48 @@ export default function StatCard({
   iconBgClass,
 }: StatCardProps) {
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-4 border border-white/30">
+    <div
+      className="
+        bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30
+        p-3 
+        w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg
+      "
+    >
       <div className="flex items-center">
-        <div className={`p-2 rounded-lg ${iconBgClass}`}>
-          <Icon className={`h-5 w-5 ${colorClass}`} />
+        {/* Icon */}
+        <div
+          className={`
+            p-2
+            rounded-lg
+            ${iconBgClass}
+          `}
+        >
+          <Icon
+            className={`
+              h-5 w-5 
+              ${colorClass}
+            `}
+          />
         </div>
-        <div className="ml-3">
-          <p className="text-xs font-medium text-gray-600">{title}</p>
-          <p className="text-xl font-bold text-gray-900">{value}</p>
+
+        {/* Text */}
+        <div className="ml-3 sm:ml-4 md:ml-5">
+          <p
+            className="
+              text-xs sm:text-sm
+              font-medium text-gray-600
+            "
+          >
+            {title}
+          </p>
+          <p
+            className="
+                text-sm sm:text-base
+              font-bold text-gray-900
+            "
+          >
+            {value}
+          </p>
         </div>
       </div>
     </div>

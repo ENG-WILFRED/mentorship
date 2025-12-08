@@ -4,7 +4,7 @@ interface ButtonProps {
   type: 'submit' | 'button';
   children: ReactNode;
   className?: string;
-  onClick?: () => void;
+   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }
 
@@ -15,19 +15,30 @@ interface ButtonProps {
 
 export default function Button({
   children,
-  className,
-  type,
+  className = "",
+  type = "button",
   onClick,
   disabled = false,
 }: ButtonProps) {
   return (
     <button
-     type={type}
+      type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`py-2 px-4 focus:outline-none transition-all duration-300 ${className} ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
-      }`}
+      className={`
+        /* Mobile-first */
+        text-xs py-1.5 px-3
+
+        /* Tablet (sm) */
+        sm:text-sm
+
+        /* Larger Tablets (md) */
+        md:text-base
+
+        focus:outline-none transition-all duration-300
+        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+        ${className}
+      `}
     >
       {children}
     </button>

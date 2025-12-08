@@ -12,6 +12,7 @@ import React from "react";
 import StatusBadge from "../StatusBadge";
 import PriorityBadge from "../PriorityBadge";
 import { PrayerRequest } from "../../types";
+import Button from "../Button";
 
 interface RequestCardProps {
   request: PrayerRequest;
@@ -49,13 +50,22 @@ export default function RequestCard({
   } = request;
 
   return (
-    <div className="break-inside-avoid bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30 hover:shadow-md transition-all duration-200 cursor-pointer transform hover:scale-[1.02]">
-      <div className="p-4">
+    <div
+      onClick={() => onViewDetails(request)}
+      className="
+        break-inside-avoid bg-white/70 backdrop-blur-sm rounded-xl shadow-sm
+        border border-white/30 hover:shadow-md transition-all duration-200
+        cursor-pointer transform hover:scale-[1.02]
+      "
+    >
+      <div className="p-3 sm:p-4 md:p-5 lg:p-6">
         {/* Header: Name, Email, Status, Priority */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">{name}</h3>
-            <p className="text-sm text-gray-600 mb-2">{email}</p>
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
+              {name}
+            </h3>
+            <p className="text-sm  text-gray-600 mb-2">{email}</p>
             <div className="flex items-center space-x-2 mb-2">
               <StatusBadge status={status} />
               <PriorityBadge priority={priority} />
@@ -63,24 +73,29 @@ export default function RequestCard({
           </div>
           <div className="flex items-center space-x-1">
             <Heart
-              className={`h-4 w-4 ${
-                priority === "high"
-                  ? "text-red-600"
-                  : priority === "medium"
-                  ? "text-yellow-600"
-                  : "text-green-600"
-              }`}
+              className={`
+                h-4 w-4 
+                ${
+                  priority === "high"
+                    ? "text-red-600"
+                    : priority === "medium"
+                    ? "text-yellow-600"
+                    : "text-green-600"
+                }
+              `}
             />
           </div>
         </div>
 
         {/* Main Request Text */}
-        <p className="text-gray-700 mb-3 line-clamp-3">{text}</p>
+        <p className="text-gray-700 mb-3 line-clamp-3 text-sm sm:text-base">
+          {text}
+        </p>
 
         {/* School/Grade/Mentor Info Grid */}
-        <div className="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-3">
+        <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-500 mb-3">
           <div className="flex items-center">
-            <GraduationCap className="h-4 w-4 mr-2 text-purple-600" />
+            <GraduationCap className="h-4 w-4  mr-2 text-purple-600" />
             <span>{grade}</span>
           </div>
           <div className="flex items-center">
@@ -98,19 +113,19 @@ export default function RequestCard({
         </div>
 
         {/* Date and Student ID */}
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs  text-gray-500 mb-3">
           <span className="flex items-center">
-            <Calendar className="h-4 w-4 mr-1" />
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
             {new Date(date).toLocaleDateString()}
           </span>
-          <span className="text-gray-500">ID: {studentId}</span>
+          <span>ID: {studentId}</span>
         </div>
 
         {/* Notes */}
         {notes && (
           <div className="bg-purple-100 border border-purple-200/50 rounded-lg p-2 mb-3">
-            <p className="text-xs text-purple-700">
-              <strong>Note:</strong> {notes}
+            <p className="text-xs sm:text-sm text-purple-700">
+              <span className="font-medium">Note:</span> {notes}
             </p>
           </div>
         )}
@@ -118,12 +133,14 @@ export default function RequestCard({
         {/* Prayed By List */}
         {prayedBy.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs font-medium text-gray-700 mb-1">Prayed by:</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">
+              Prayed by:
+            </p>
             <div className="flex flex-wrap gap-1">
               {prayedBy.map((prayer, index) => (
                 <span
                   key={index}
-                  className="bg-green-100/70 text-green-800 text-xs px-2 py-1 rounded-full"
+                  className="bg-green-100/70 text-green-800 text-xs sm:text-sm px-2 py-1 rounded-full"
                 >
                   {prayer}
                 </span>
@@ -135,39 +152,63 @@ export default function RequestCard({
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2">
           {status !== "fulfilled" && (
-            <button
+            <Button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onPrayNow(id);
               }}
-              className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:from-purple-700 hover:to-pink-700 transition-all"
+              className="
+                flex items-center space-x-1
+                bg-linear-to-r from-purple-600 to-pink-600 text-white
+              rounded-lg
+      
+                hover:from-purple-700 hover:to-pink-700 transition-all
+              "
+              aria-label="Pray Now"
             >
               <Heart className="h-3 w-3" />
               <span>Pray Now</span>
-            </button>
+            </Button>
           )}
           {status === "in-progress" && (
-            <button
+            <Button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onFulfillRequest(id);
               }}
-              className="flex items-center space-x-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+              className="
+                flex items-center space-x-1
+                bg-linear-to-r from-blue-600 to-purple-600 text-white
+               rounded-lg
+              
+                hover:from-blue-700 hover:to-purple-700
+              "
+              aria-label="Fulfill Request"
             >
               <CheckCircle className="h-3 w-3" />
               <span>Fulfill</span>
-            </button>
+            </Button>
           )}
-          <button
+          <Button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails(request);
             }}
-            className="flex items-center space-x-1 bg-gray-100/70 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-200/70 transition-colors"
+            className="
+              flex items-center space-x-1
+              bg-gray-100/70 text-gray-700
+               rounded-lg
+              text-xs sm:text-sm font-medium
+              hover:bg-gray-200/70
+            "
+            aria-label="View Details"
           >
             <Eye className="h-3 w-3" />
             <span>View Details</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

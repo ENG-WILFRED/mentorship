@@ -1,14 +1,16 @@
-import { Filter, Search } from "lucide-react";
+import { Filter as FilterIcon, Search as SearchIcon } from "lucide-react";
 import React from "react";
 import { Status } from "../types";
+import InputField from "./InputField";
+import SelectField from "./SelectField";
 
-type Filter = 'all' | Status
+type FilterType = "all" | Status; // Renamed Filter to FilterType to avoid naming conflict
 
 interface FilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  filterStatus: Filter;
-  onFilterChange: (value: Filter) => void;
+  filterStatus: FilterType;
+  onFilterChange: (value: FilterType) => void;
 }
 
 /**
@@ -22,31 +24,64 @@ export default function FilterBar({
   filterStatus,
   onFilterChange,
 }: FilterBarProps) {
+  const filterOptions = ["all", "pending", "in-progress", "fulfilled"];
+
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-4 mb-6 border border-white/30">
-      <div className="flex flex-col sm:flex-row gap-3 text-gray-600">
-        <div className="flex-1 relative ">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" />
-          <input
+    <div
+      className="
+        bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30
+        p-3 mb-5
+      "
+    >
+      <div
+        className="
+          flex flex-col sm:flex-row items-center
+          gap-3 sm:gap-4 md:gap-5
+          text-gray-600
+        "
+      >
+        {/* Search Input */}
+        <div className="flex-1 relative w-full">
+          <SearchIcon
+            className="
+              absolute left-3 top-1/2 -translate-y-1/2
+              h-4 w-4 sm:h-5 sm:w-5
+              text-gray-500
+            "
+          />
+
+          <InputField
             type="text"
             placeholder="Search by name, student ID, school, or request..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg outline-0 focus:outline-0 focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/80"
+            className="
+              pl-10 pr-4
+              text-xs sm:text-sm md:text-base
+            "
           />
         </div>
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2  h-4 w-4" />
-          <select
+
+        {/* Filter Dropdown */}
+        <div className="relative w-full sm:w-auto">
+          <FilterIcon
+            className="
+              absolute left-3 top-1/2 -translate-y-1/2
+              h-4 w-4 sm:h-5 sm:w-5
+              text-gray-500
+            "
+          />
+
+          <SelectField
+            options={filterOptions}
             value={filterStatus}
-            onChange={(e) => onFilterChange(e.target.value as Filter)}
-            className="pl-8 pr-6 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/80 appearance-none"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="fulfilled">Fulfilled</option>
-          </select>
+            onChange={(e) => onFilterChange(e.target.value as FilterType)}
+            className="
+              pl-10 pr-4
+              text-xs sm:text-sm md:text-base
+              w-full sm:w-auto
+            "
+          />
         </div>
       </div>
     </div>

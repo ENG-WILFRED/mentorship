@@ -26,9 +26,12 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-        status
-      )}`}
+      className={`
+        inline-flex px-1.5 py-1.5
+        font-medium rounded-full
+        ${getStatusColor(status)}
+        text-xs sm:text-sm
+      `}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>

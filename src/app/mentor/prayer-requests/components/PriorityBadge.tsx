@@ -1,5 +1,6 @@
 import React from "react";
 import { Priority } from "../types";
+
 interface PriorityBadgeProps {
   priority: Priority;
 }
@@ -13,19 +14,24 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps) {
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
       case "high":
-        return "text-red-600";
+        return "text-red-400";
       case "medium":
-        return "text-yellow-600";
+        return "text-orange-400";
       case "low":
-        return "text-green-600";
+        return "text-green-400";
       default:
-        return "text-gray-600";
+        return "text-gray-400";
     }
   };
 
   return (
-    <span className={`text-xs font-medium ${getPriorityColor(priority)}`}>
-      {priority.toUpperCase()}
+    <span
+      className={`
+        font-medium ${getPriorityColor(priority)}
+        text-xs sm:text-sm capitalize
+      `}
+    >
+      {priority}
     </span>
   );
 }

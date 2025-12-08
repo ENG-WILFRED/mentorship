@@ -2,10 +2,13 @@
 import React from "react";
 
 interface InputFieldProps {
-  label: string;
-  type: string;
-  placeholder: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
   required?: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
 }
 
 export default function InputField({
@@ -13,6 +16,9 @@ export default function InputField({
   type,
   placeholder,
   required = false,
+  value,
+  onChange,
+  className = "", 
 }: InputFieldProps) {
   return (
     <div>
@@ -22,7 +28,9 @@ export default function InputField({
       <input
         type={type}
         required={required}
-        className="w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        value={value}
+        onChange={onChange}
+        className={`w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
         placeholder={placeholder}
       />
     </div>

@@ -1,5 +1,4 @@
-// src/components/RequestForm.tsx
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../InputField";
 import SelectField from "../SelectField";
 import TextAreaField from "../TextAreaField";
@@ -37,34 +36,107 @@ const priorityOptions = [
   "High - Urgent prayer needed",
 ];
 
-/**
- * Request Card Component
- * Displays a single prayer request in a card format.
- */
-
 export default function RequestForm({ setShowModal }: RequestFormProps) {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    studentId: "",
+    grade: "",
+    school: "",
+    subject: "",
+    prayerRequest: "",
+    priority: "",
+    category: "",
+    additionalNotes: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
+
+  // Handle form input change
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      // Simulate form submission (e.g., API call)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // On success
+      setSuccess(true);
+      setFormData({
+        fullName: "",
+        email: "",
+        studentId: "",
+        grade: "",
+        school: "",
+        subject: "",
+        prayerRequest: "",
+        priority: "",
+        category: "",
+        additionalNotes: "",
+      });
+    } catch (error) {
+      setError("There was an error submitting your request. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       {/* Full Name and Email */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InputField
           label="Full Name *"
           type="text"
           placeholder="Your full name"
+          value={formData.fullName}
+          onChange={handleChange}
           required
         />
         <InputField
           label="Email Address *"
           type="email"
           placeholder="your@email.com"
+          value={formData.email}
+          onChange={handleChange}
           required
         />
       </div>
 
       {/* Student ID and Grade */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InputField label="Student ID" type="text" placeholder="STU-2025-XXX" />
-        <SelectField label="Grade Level *" options={gradeOptions} required />
+        <InputField
+          label="Student ID"
+          type="text"
+          placeholder="STU-2025-XXX"
+          value={formData.studentId}
+          onChange={handleChange}
+        />
+        <SelectField
+          label="Grade Level *"
+          value={formData.grade}
+          options={gradeOptions}
+          onChange={handleChange}
+          required
+        />
       </div>
 
       {/* School/Institution and Subject */}
@@ -73,12 +145,16 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
           label="School/Institution *"
           type="text"
           placeholder="Your school name"
+          value={formData.school}
+          onChange={handleChange}
           required
         />
         <InputField
           label="Subject/Field of Study *"
           type="text"
           placeholder="e.g., Mathematics"
+          value={formData.subject}
+          onChange={handleChange}
           required
         />
       </div>
@@ -86,6 +162,8 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
       {/* Prayer Request */}
       <TextAreaField
         label="Prayer Request *"
+        value={formData.prayerRequest}
+        onChange={handleChange}
         placeholder="What would you like us to pray for?"
         required
       />
@@ -94,17 +172,26 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SelectField
           label="Priority Level *"
+          value={formData.priority}
           options={priorityOptions}
+          onChange={handleChange}
           required
         />
-        <SelectField label="Category *" options={categoryOptions} required />
+        <SelectField
+          label="Category *"
+          value={formData.category}
+          options={categoryOptions}
+          onChange={handleChange}
+          required
+        />
       </div>
 
-       {/* Prayer Request */}
+      {/* Additional Notes */}
       <TextAreaField
         label="Additional Notes"
+        value={formData.additionalNotes}
+        onChange={handleChange}
         placeholder="Any additional information or context"
-        required
       />
 
       {/* Buttons */}
@@ -118,11 +205,19 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
         </Button>
         <Button
           type="submit"
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 flex-1 rounded-lg font-medium py-3 px-4"
+          className="bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 flex-1 rounded-lg font-medium py-3 px-4"
         >
-          Submit Request
+          {loading ? "Submitting..." : "Submit Request"}
         </Button>
       </div>
+
+      {/* Error/Success message */}
+      {error && <p className="text-red-500">{error}</p>}
+      {success && (
+        <p className="text-green-500">
+          Your prayer request was submitted successfully!
+        </p>
+      )}
     </form>
   );
 }
