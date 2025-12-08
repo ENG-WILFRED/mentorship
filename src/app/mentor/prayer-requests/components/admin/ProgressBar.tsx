@@ -20,7 +20,7 @@ export default function ProgressBar({
     <div className="space-y-3 mt-4">
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-700">{label}</span>
-        <span className="text-sm font-medium">{value} requests</span>
+        <span className="text-sm text-gray-400 font-medium">{value} requests</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div

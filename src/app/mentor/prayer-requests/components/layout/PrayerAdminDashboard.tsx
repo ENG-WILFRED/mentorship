@@ -7,6 +7,7 @@ import AdminStatCard from "../AdminStatCard";
 import RequestTable from "../admin/RequestTable";
 import ProgressBar from "../admin/ProgressBar";
 import { PrayerRequest, Status, Tabs } from "../../types";
+import Settings from "../admin/Settings";
 
 interface Stats {
   totalRequests: number;
@@ -48,7 +49,8 @@ export default function PrayerAdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
       <SideBar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -56,37 +58,50 @@ export default function PrayerAdminDashboard() {
         setSidebarCollapsed={setSidebarCollapsed}
       />
 
+      {/* Main Content */}
       <div
-        className={`${
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        } transition-all duration-300 pt-16`}
+        className={`
+          flex-1 transition-all duration-300
+          ${sidebarCollapsed ? "ml-16" : "ml-64"}
+        `}
       >
+        {/* Header */}
         <header
-          className="bg-white shadow-sm border-b p-4 fixed top-0 right-0 left-0 z-0"
-          style={{ marginLeft: sidebarCollapsed ? "16px" : "64px" }}
+          className="bg-white  border-b px-10 py-5.5"
         >
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900 capitalize">
+          <div className="flex items-center justify-between ">
+            <h2 className="text-base md:text-lg lg:text-xl font-semibold text-gray-900 capitalize mb-2 sm:mb-0">
               {activeTab} {activeTab === "requests" && "Management"}
             </h2>
             <div className="flex items-center space-x-4">
-              <Button className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all">
+              <Button
+                type="button"
+                className="
+                  flex items-center space-x-2
+                  bg-linear-to-r from-purple-600 to-pink-600 text-white
+                  rounded-lg font-medium text-xs sm:text-sm md:text-base
+                  hover:from-purple-700 hover:to-pink-700 transition-all
+                "
+              >
                 <span>
                   Notification{" "}
                   {requests.filter((r) => r.status === "pending").length}
                 </span>
               </Button>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-700">Admin</span>
-              </div>
+              <span className="text-gray-700 text-sm sm:text-base md:text-lg">
+                Admin
+              </span>
             </div>
           </div>
         </header>
 
-        <main className="p-6 mt-16">
+        {/* Main Dashboard */}
+        <main className="px-10 py-10">
+          {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 <AdminStatCard
                   title="Total Students"
                   value={stats.totalStudents}
@@ -123,8 +138,10 @@ export default function PrayerAdminDashboard() {
                   iconBgClass="bg-green-100"
                 />
               </div>
-              <div className="bg-white rounded-xl shadow-sm border p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+
+              {/* Recent Requests Table */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8 overflow-x-auto">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4">
                   Recent Prayer Requests
                 </h3>
                 <RequestTable
@@ -136,8 +153,9 @@ export default function PrayerAdminDashboard() {
             </div>
           )}
 
+          {/* Requests Tab */}
           {activeTab === "requests" && (
-            <div className="space-y-6">
+             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8 overflow-x-auto">
               <RequestTable
                 requests={requests}
                 updateRequestStatus={updateRequestStatus}
@@ -146,8 +164,9 @@ export default function PrayerAdminDashboard() {
             </div>
           )}
 
+          {/* Analytics Tab */}
           {activeTab === "analytics" && (
-            <div className="space-y-6">
+             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
               <ProgressBar
                 label="Pending"
                 value={stats.pending}
@@ -163,6 +182,13 @@ export default function PrayerAdminDashboard() {
                 value={stats.fulfilled}
                 colorClass="green-500"
               />
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'settings' && (
+             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
+              <Settings />
             </div>
           )}
         </main>

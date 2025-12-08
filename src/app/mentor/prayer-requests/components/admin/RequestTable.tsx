@@ -56,19 +56,19 @@ export default function RequestTable({
                   <p className="text-sm text-gray-600">{request.studentId}</p>
                 </div>
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 lg:w-1/2">
                 <p className="text-sm text-gray-700 line-clamp-2">
                   {request.request}
                 </p>
               </td>
               <td className="py-3 px-4">
-                <p className="text-sm text-gray-700">{request.school}</p>
+                <p className="text-sm text-gray-500">{request.school}</p>
               </td>
               <td className="py-3 px-4">
                 <StatusBadge status={request.status} />
               </td>
               <td className="py-3 px-4">
-                <span className="text-sm font-medium capitalize">
+                <span className="text-sm font-medium capitalize text-gray-500">
                   {request.priority}
                 </span>
               </td>
@@ -79,7 +79,7 @@ export default function RequestTable({
                     onChange={(e) =>
                       updateRequestStatus(request.id, e.target.value as Status)
                     }
-                    className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+                    className="text-sm border border-gray-300 rounded px-1.5 py-1 bg-white"
                   >
                     <option value="pending">Pending</option>
                     <option value="in-progress">In Progress</option>
