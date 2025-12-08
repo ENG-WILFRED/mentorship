@@ -1,14 +1,32 @@
 "use client";
-import React from "react";
-export default function PrayerRequestsPage() {
+
+import React, { useState } from "react";
+import PrayerRequestsView from "./components/layout/PrayerRequestsView";
+import PrayerAdminDashboard from "./components/layout/PrayerAdminDashboard";
+
+export default function App() {
+  // State to toggle between student and admin views
+  const [view, setView] = useState("requests"); // 'requests' or 'admin'
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-8 flex flex-col items-center">
-      <h1 className="text-4xl font-extrabold text-purple-800 mb-8">Prayer Requests</h1>
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* List prayer requests here */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">Sample Prayer Request</div>
+    <div className="font-sans">
+      {/* Render the selected view component */}
+      {view === "requests" ? <PrayerRequestsView /> : <PrayerAdminDashboard />}
+      {/* Navigation Toggle Button */}
+      <div className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-4 shadow-lg border">
+        <select
+          value={view}
+          onChange={(e) => setView(e.target.value)}
+          className="bg-transparent text-white font-medium focus:ring-2 focus:ring-white focus:ring-offset-2 border-none text-sm"
+        >
+          <option value="requests" className="bg-white text-gray-900">
+            Student View
+          </option>
+          <option value="admin" className="bg-white text-gray-900">
+            Admin Dashboard
+          </option>
+        </select>
       </div>
-      <a href="/submit-prayer" className="mt-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105">Submit Prayer Request</a>
-    </main>
+    </div>
   );
 }
