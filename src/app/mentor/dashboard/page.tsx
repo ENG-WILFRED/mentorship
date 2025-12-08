@@ -1,12 +1,33 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
+import { useAuthContext } from "../../../context/AuthContext";
+import { getAccessToken } from "../../../lib/auth";
 import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
 
 export default function DashboardPage() {
-  // Dummy data (same as yours)
+  const router = useRouter();
+  const { role, user, logout } = useAuthContext();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Check authentication on mount and redirect if needed
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = getAccessToken();
+      if (!token) {
+        router.push("/auth/login");
+      } else {
+        setIsInitialized(true);
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  if (!isInitialized) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   const totalMissions = missions.length;
   const totalSchools = schools.length;
@@ -17,6 +38,29 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
       <MentorshipHeader />
       <main className="flex-1 w-full px-2 md:px-8 lg:px-16 py-6">
+        {/* User Greeting */}
+        <section className="mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">
+                Welcome back, {user?.firstName} {user?.lastName}! 👋
+              </h1>
+              <p className="text-indigo-100 mb-4">
+                Role: <span className="font-semibold bg-white/20 px-3 py-1 rounded-full">{role || 'Loading...'}</span>
+              </p>
+              <p className="text-indigo-100 text-sm">
+                Email: {user?.email}
+              </p>
+            </div>
+            <button
+              onClick={logout}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        </section>
+
         {/* Stats */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <StatCard icon="✅" label="Total Missions" value={totalMissions} />
@@ -51,6 +95,7 @@ export default function DashboardPage() {
           <ActionButton label="New Mission" />
           <ActionButton label="view Schools" />
           <ActionButton label="View Mentors" />
+          <ActionButton label="View Sermons" />
           <ActionButton label="Upload Report" />
         </section>
 
@@ -80,6 +125,31 @@ export default function DashboardPage() {
           <div className="flex gap-4 flex-wrap">
             {programs.map((p: string, i: number) => (
               <span key={i} className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-semibold shadow-sm">{p}</span>
+            ))}
+          </div>
+        </section>
+
+        {/* Sermons */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-purple-700">Latest Sermons</h2>
+            <button onClick={() => window.location.href = '/mentor/sermons'} className="text-purple-600 hover:text-purple-800 font-semibold text-sm">View All →</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transform">
+                <div className="h-40 bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                  <span className="text-5xl">🎙️</span>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-purple-800 mb-2">Sermon Title {i}</h3>
+                  <p className="text-gray-600 text-sm mb-3">By Church Pastor • {Math.floor(Math.random() * 30)} days ago</p>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">A powerful message about faith, growth, and spiritual transformation.</p>
+                  <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-all">
+                    Watch Now
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -153,6 +223,8 @@ function ActionButton({ label }: { label: string }) {
       router.push("/mentor/schools");
     } else if (label === "View Mentors" && router) {
       router.push("/mentor/mentors");
+    } else if (label === "View Sermons" && router) {
+      router.push("/mentor/sermons");
     }
   }
   return (

@@ -4,15 +4,15 @@ import Header from "../../../../components/Header";
 import Footer from "../../../../components/Footer";
 
 export default function UploadSermonPage() {
+  const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [topic, setTopic] = useState("");
-  const [author, setAuthor] = useState("");
-  const [video, setVideo] = useState<File | null>(null);
+  const [preacher, setPreacher] = useState("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,24 +21,22 @@ export default function UploadSermonPage() {
     setSuccess(false);
     setProgress(0);
     
-    if (!title || !description || !topic || !author || !video) {
+    if (!title || !description || !preacher || !file) {
       setError("All fields are required.");
       setUploading(false);
       return;
     }
     
     const formData = new FormData();
+    formData.append("file", file);
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("topic", topic);
-    formData.append("author", author);
-    formData.append("video", video);
-    formData.append("uploadedById", "1");
+    formData.append("preacher", preacher);
     
     try {
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/sermon");
+        xhr.open("POST", `${API_BASE}/sermons/upload`);
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) {
             setProgress(Math.round((e.loaded / e.total) * 100));
@@ -49,13 +47,12 @@ export default function UploadSermonPage() {
             setSuccess(true);
             setTitle("");
             setDescription("");
-            setTopic("");
-            setAuthor("");
-            setVideo(null);
-            setProgress(100);
+            setPreacher("");
+            setFile(null);
+            setProgress(0);
             setTimeout(() => {
               window.location.href = "/mentor/sermons";
-            }, 1500);
+            }, 2000);
             resolve();
           } else {
             setError("Upload failed");
@@ -73,7 +70,6 @@ export default function UploadSermonPage() {
       setError(errorMessage);
     } finally {
       setUploading(false);
-      setProgress(0);
     }
   };
 
@@ -128,52 +124,33 @@ export default function UploadSermonPage() {
               />
             </div>
 
-            {/* Topic & Author Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="text-white font-semibold mb-2 block text-sm md:text-base">Topic</label>
-                <select
-                  value={topic}
-                  onChange={e => setTopic(e.target.value)}
-                  className="w-full border border-white/20 rounded-lg px-4 py-3 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/15 transition-all backdrop-blur-sm"
-                  required
-                >
-                  <option value="" className="text-gray-900">Select a topic</option>
-                  <option value="Faith" className="text-gray-900">🙏 Faith</option>
-                  <option value="Prayer" className="text-gray-900">📖 Prayer</option>
-                  <option value="Service" className="text-gray-900">✝️ Service</option>
-                  <option value="Leadership" className="text-gray-900">🎯 Leadership</option>
-                  <option value="Love" className="text-gray-900">❤️ Love</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-white font-semibold mb-2 block text-sm md:text-base">Author/Speaker</label>
-                <input
-                  type="text"
-                  placeholder="Your name or pastor's name"
-                  value={author}
-                  onChange={e => setAuthor(e.target.value)}
-                  className="w-full border border-white/20 rounded-lg px-4 py-3 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/15 transition-all backdrop-blur-sm"
-                  required
-                />
-              </div>
+            {/* Preacher Field */}
+            <div>
+              <label className="text-white font-semibold mb-2 block text-sm md:text-base">Preacher/Speaker</label>
+              <input
+                type="text"
+                placeholder="Your name or pastor's name"
+                value={preacher}
+                onChange={e => setPreacher(e.target.value)}
+                className="w-full border border-white/20 rounded-lg px-4 py-3 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/15 transition-all backdrop-blur-sm"
+                required
+              />
             </div>
 
             {/* Video Upload */}
             <div>
-              <label className="text-white font-semibold mb-2 block text-sm md:text-base">Video File</label>
-              <div className="relative border-2 border-dashed border-white/30 rounded-lg p-8 text-center hover:border-white/50 transition-all">
+              <label className="text-white font-semibold mb-2 block text-sm md:text-base">Video File (to upload to YouTube)</label>
+              <div className="relative border-2 border-dashed border-white/30 rounded-lg p-8 text-center hover:border-white/50 transition-all cursor-pointer group">
                 <input
                   type="file"
                   accept="video/*"
-                  onChange={e => setVideo(e.target.files?.[0] || null)}
+                  onChange={e => setFile(e.target.files?.[0] || null)}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   required
                 />
-                <div className="text-4xl mb-3">🎬</div>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🎬</div>
                 <p className="text-white font-semibold mb-1">Click to upload or drag and drop</p>
-                <p className="text-gray-400 text-sm">{video ? video.name : "MP4, MOV, AVI (Max 500MB)"}</p>
+                <p className="text-gray-400 text-sm">{file ? file.name : "MP4, MOV, AVI (Max 500MB)"}</p>
               </div>
             </div>
 
@@ -196,7 +173,7 @@ export default function UploadSermonPage() {
               disabled={uploading}
               className="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
             >
-              {uploading ? `Uploading... ${progress}%` : "🚀 Upload Sermon"}
+              {uploading ? `Uploading to YouTube... ${progress}%` : "🚀 Upload Sermon to YouTube"}
             </button>
           </form>
 
@@ -217,7 +194,7 @@ export default function UploadSermonPage() {
           {/* Info Box */}
           <div className="mt-8 p-4 bg-white/10 rounded-lg border border-white/20 backdrop-blur-sm">
             <p className="text-gray-300 text-sm text-center">
-              <span className="font-semibold text-pink-300">📋 Requirements:</span> Clear title, detailed description, valid video file (Max 500MB). Your sermon will be reviewed before publishing.
+              <span className="font-semibold text-pink-300">📋 Requirements:</span> Clear title, detailed description, preacher name, valid video file. Your sermon will be uploaded to YouTube and saved to our database.
             </p>
           </div>
         </div>
