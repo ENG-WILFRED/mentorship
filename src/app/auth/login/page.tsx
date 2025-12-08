@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import MentorshipHeader from "../../../components/MentorshipHeader";
+import MentorshipHeader from "@/components/MentorshipHeader";
 
 const slides = [
   {
@@ -69,15 +69,15 @@ export default function LoginPage() {
               className="rounded px-4 py-3 bg-white/20 border border-white/30 text-lg text-white placeholder:text-gray-200 focus:outline-none"
             />
 
+              <Link href="/mentor/dashboard" >
             <button
               type="submit"
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105"
             >
-              <Link href="/mentor/dashboard" >
 
                 Sign In
-              </Link>
             </button>
+              </Link>
 
             <div className="text-center text-sm text-gray-200 mt-2">
               <a href="#" className="text-pink-300 hover:underline font-semibold">
