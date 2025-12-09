@@ -1,14 +1,45 @@
 "use client";
-import React from "react";
-export default function PrayerRequestsPage() {
+
+import React, { useState } from "react";
+import PrayerRequestsView from "./components/layout/PrayerRequestsView";
+import PrayerAdminDashboard from "./components/layout/PrayerAdminDashboard";
+import Button from "./components/Button";
+
+export default function App() {
+  const [view, setView] = useState<"requests" | "admin">("requests");
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-8 flex flex-col items-center">
-      <h1 className="text-4xl font-extrabold text-purple-800 mb-8">Prayer Requests</h1>
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* List prayer requests here */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">Sample Prayer Request</div>
+    <div className="font-sans min-h-screen relative">
+      {/* Main View */}
+      <div className="transition-all duration-300">
+        {view === "requests" ? <PrayerRequestsView /> : <PrayerAdminDashboard />}
       </div>
-      <a href="/submit-prayer" className="mt-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-transform transform hover:scale-105">Submit Prayer Request</a>
-    </main>
+
+      {/* Floating Toggle */}
+      <div className="fixed bottom-6 right-6 flex bg-white rounded-full shadow-lg overflow-hidden border border-gray-200">
+        <Button
+         type='button'
+          onClick={() => setView("requests")}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            view === "requests"
+              ? "bg-linear-to-r from-purple-600 to-pink-600 text-white"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Student View
+        </Button>
+        <Button
+        type='button'
+          onClick={() => setView("admin")}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            view === "admin"
+              ? "bg-linear-to-r from-purple-600 to-pink-600 text-white"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Admin Dashboard
+        </Button>
+      </div>
+    </div>
   );
 }
