@@ -5,7 +5,6 @@ import { IncomingMessage } from 'http';
 import { google } from 'googleapis';
 import { oauthClientWithRefresh } from '@/lib/google';
 import { prisma } from '@/lib/prisma';
-import type { Prisma } from '@prisma/client';
 
 export const config = {
   api: {
@@ -107,7 +106,7 @@ export async function handleSermonUpload(req: NextApiRequest) {
     author: normalizeField(fields.preacher as string | string[] | undefined) || undefined,
     videoUrl: undefined,
     youtubeId: videoId ?? undefined,
-  } as Prisma.SermonCreateInput;
+  } as any;
 
   const sermon = await prisma.sermon.create({ data: sermonData });
 

@@ -1,10 +1,8 @@
 "use server";
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from "@/lib/prisma";
 import bcrypt from 'bcryptjs';
-import {sendRegistrationEmail} from "../email/email";
-
-const prisma = new PrismaClient();
+import { sendRegistrationEmail } from "../email/email";
 
 function generateMemorableId() {
 	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
