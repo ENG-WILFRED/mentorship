@@ -225,6 +225,8 @@ function ActionButton({ label }: { label: string }) {
       router.push("/mentor/mentors");
     } else if (label === "View Sermons" && router) {
       router.push("/mentor/sermons");
+    } else if (label === "Upload Report" && router) {
+      router.push("/mentor/report/upload");
     }
   }
   return (
