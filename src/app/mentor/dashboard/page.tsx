@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
+// Ensure we import the props-aware gallery (index) rather than the standalone file
+import MediaGallery from '../../../components/MediaGallery/index';
+
 import { useAuthContext } from "../../../context/AuthContext";
 import { getAccessToken } from "../../../lib/auth";
 import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
@@ -147,8 +150,10 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        
+
         {/* Gallery - improved background and less brightness */}
-        <section className="mb-12 relative">
+        {/* <section className="mb-12 relative">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Gallery</h2>
           <div className="absolute inset-0 -z-10 h-full w-full bg-gradient-to-br from-purple-900/60 via-indigo-900/40 to-pink-900/60 opacity-70 rounded-2xl blur-sm"></div>
           <div className="flex gap-8 flex-wrap justify-center py-6">
@@ -156,10 +161,22 @@ export default function DashboardPage() {
               <div key={i} className="bg-white/60 border border-purple-300 rounded-xl shadow-lg p-2 w-56 flex flex-col items-center hover:scale-105 transition-transform backdrop-blur-md">
                 <img src={m.url} alt={m.caption} className="w-52 h-36 object-cover rounded-lg mb-2 shadow" />
                 <span className="text-xs text-purple-900 text-center font-medium drop-shadow">{m.caption}</span>
+       
+
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
+
+          {/* Comprehensive Media Gallery */}
+          <MediaGallery 
+            media={media}
+            title="Mission Gallery"
+            showFilters={true}
+            showStats={true}
+          />
+                  
+        
 
         {/* Future Plans */}
         <section className="mb-12">

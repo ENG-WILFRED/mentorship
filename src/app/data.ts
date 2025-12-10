@@ -1,3 +1,5 @@
+
+
 export const topicsList = [
   "Leadership",
   "Faith & Values",
@@ -87,13 +89,152 @@ export const reports = [
   { school: "Hope Academy", date: "2025-09-22", topic: "Faith", students: 150, outcome: "Improved prayer participation." },
 ];
 
-export const media = [
-  { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", caption: "Leadership Summit at St. Mary's" },
-  { url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80", caption: "Mentors at Hope Academy" },
-  { url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80", caption: "School Outreach" },
-  { url: "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?auto=format&fit=crop&w=600&q=80", caption: "Community Service" },
-];
+
 
 export const plans = [
   { date: "2025-10-10", school: "Grace Girls", topic: "Career Guidance", mentors: ["Pastor John"], goal: "Empower 380 girls for future careers." },
 ];
+// In your data.ts file
+export type MediaType = 'image' | 'video' | 'document';
+export type MediaCategory = 'all' | 'missions' | 'sermons' | 'events' | 'students';
+
+export interface MediaItem {
+  id: string;
+  url: string;
+  thumbnail?: string;
+  caption: string;
+  type: MediaType;
+  category: MediaCategory;
+  date: string;
+  location?: string;
+  uploader: string;
+  likes: number;
+  views: number;
+  tags: string[];
+  description?: string;
+}
+
+// Your actual media data
+export const media: MediaItem[] = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1',
+    thumbnail: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300',
+    caption: 'School Outreach Mission',
+    type: 'image',
+    category: 'missions',
+    date: '2024-01-15',
+    location: 'Nairobi High School',
+    uploader: 'John Doe',
+    likes: 45,
+    views: 230,
+    tags: ['mission', 'school', 'students', 'outreach'],
+    description: 'Annual mission outreach at Nairobi High School with over 200 students'
+  },
+  {
+    id: '2',
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0',
+    thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300',
+    caption: 'Leadership Training Workshop',
+    type: 'image',
+    category: 'missions',
+    date: '2024-01-10',
+    location: 'St. Mary\'s Academy',
+    uploader: 'Sarah Mentor',
+    likes: 32,
+    views: 180,
+    tags: ['workshop', 'leadership', 'training'],
+    description: 'Leadership skills development for student representatives'
+  },
+  {
+    id: '3',
+    url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf',
+    thumbnail: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300',
+    caption: 'Sunday Youth Service',
+    type: 'video',
+    category: 'sermons',
+    date: '2024-01-14',
+    location: 'Main Church Hall',
+    uploader: 'Pastor James',
+    likes: 89,
+    views: 450,
+    tags: ['sermon', 'youth', 'worship', 'service'],
+    description: 'Recording of Sunday youth service with powerful message'
+  },
+  {
+    id: '4',
+    url: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659',
+    thumbnail: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=300',
+    caption: 'Bible Study Session',
+    type: 'image',
+    category: 'missions',
+    date: '2024-01-05',
+    location: 'Community Center',
+    uploader: 'David Leader',
+    likes: 67,
+    views: 320,
+    tags: ['bible', 'study', 'discussion', 'faith'],
+    description: 'Weekly bible study with mentoring group'
+  },
+  {
+    id: '5',
+    url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d',
+    thumbnail: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=300',
+    caption: 'Career Guidance Seminar',
+    type: 'image',
+    category: 'events',
+    date: '2024-01-08',
+    location: 'Tech Institute',
+    uploader: 'Career Counselor',
+    likes: 54,
+    views: 210,
+    tags: ['career', 'seminar', 'guidance', 'future'],
+    description: 'Career guidance and mentorship program'
+  },
+  {
+    id: '6',
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
+    caption: 'Student Testimonies',
+    type: 'video',
+    category: 'students',
+    date: '2024-01-12',
+    location: 'Youth Center',
+    uploader: 'Student Ministry',
+    likes: 78,
+    views: 380,
+    tags: ['testimony', 'students', 'sharing', 'impact'],
+    description: 'Students sharing their experiences from the mentorship program'
+  },
+  {
+    id: '7',
+    url: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94',
+    thumbnail: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=300',
+    caption: 'Community Service Day',
+    type: 'image',
+    category: 'missions',
+    date: '2024-01-03',
+    location: 'Local Community',
+    uploader: 'Community Lead',
+    likes: 91,
+    views: 420,
+    tags: ['community', 'service', 'outreach', 'helping'],
+    description: 'Students participating in community service activities'
+  },
+  {
+    id: '8',
+    url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f8f5be',
+    thumbnail: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f8f5be?w=300',
+    caption: 'Prayer and Worship Night',
+    type: 'video',
+    category: 'sermons',
+    date: '2024-01-07',
+    location: 'Church Auditorium',
+    uploader: 'Worship Team',
+    likes: 112,
+    views: 560,
+    tags: ['prayer', 'worship', 'night', 'spiritual'],
+    description: 'Special prayer and worship night for students'
+  },
+];
+
