@@ -45,26 +45,31 @@ export default function SideBar({
       >
         {/* Branding */}
         <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center space-x-3">
-            <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg shrink-0">
-              <Heart className="h-5 w-5 text-white" />
-            </div>
-            {!sidebarCollapsed && (
+          {!sidebarCollapsed && (
+            <div className="flex items-center space-x-3">
+              <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg shrink-0">
+                <Heart className="h-5 w-5 text-white" />
+              </div>
+
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Prayer Admin</h1>
+                <h1 className="text-lg font-bold text-gray-900">
+                  Prayer Admin
+                </h1>
                 <p className="text-xs text-gray-600">Mentorship System</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
           {/* Collapse Button */}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1 rounded focus:outline-none cursor-pointer"
+            className={`p-${
+              sidebarCollapsed ? "2" : "1"
+            } rounded focus:outline-none cursor-pointer`}
           >
             {sidebarCollapsed ? (
-              <ChevronRight className="h-5 w-5 text-gray-600" />
+              <ChevronRight className="h-7 w-7 text-gray-600 " />
             ) : (
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
+              <ChevronLeft className="h-7 w-7 text-gray-600" />
             )}
           </button>
         </div>
