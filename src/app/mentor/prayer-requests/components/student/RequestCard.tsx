@@ -52,20 +52,22 @@ export default function RequestCard({
   return (
     <div
       onClick={() => onViewDetails(request)}
+      role="button"
+      tabIndex={0}
       className="
-        break-inside-avoid bg-white/70 backdrop-blur-sm rounded-xl shadow-sm
-        border border-white/30 hover:shadow-md transition-all duration-200
-        cursor-pointer transform hover:scale-[1.02]
+        break-inside-avoid bg-gradient-to-br from-white/85 to-white/70 backdrop-blur-md rounded-2xl shadow-md
+        border border-gray-100 hover:shadow-xl transition-all duration-200
+        cursor-pointer transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-purple-300
       "
     >
-      <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+      <div className="p-4 sm:p-5 md:p-6 lg:p-6">
         {/* Header: Name, Email, Status, Priority */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
               {name}
             </h3>
-            <p className="text-sm  text-gray-600 mb-2">{email}</p>
+            <p className="text-sm text-gray-500 mb-2 truncate">{email}</p>
             <div className="flex items-center space-x-2 mb-2">
               <StatusBadge status={status} />
               <PriorityBadge priority={priority} />
@@ -88,7 +90,7 @@ export default function RequestCard({
         </div>
 
         {/* Main Request Text */}
-        <p className="text-gray-700 mb-3 line-clamp-3 text-sm sm:text-base">
+        <p className="text-gray-700 mb-3 line-clamp-4 text-sm sm:text-sm md:text-base">
           {text}
         </p>
 
@@ -113,7 +115,7 @@ export default function RequestCard({
         </div>
 
         {/* Date and Student ID */}
-        <div className="flex items-center justify-between text-xs  text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <span className="flex items-center">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
             {new Date(date).toLocaleDateString()}
@@ -199,10 +201,10 @@ export default function RequestCard({
             }}
             className="
               flex items-center space-x-1
-              bg-gray-100/70 text-gray-700
-               rounded-lg
+              bg-white border border-gray-200 text-gray-700
+               rounded-lg px-3 py-2
               text-xs sm:text-sm font-medium
-              hover:bg-gray-200/70
+              hover:bg-gray-50 shadow-sm
             "
             aria-label="View Details"
           >

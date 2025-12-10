@@ -5,7 +5,11 @@ import SermonPageClient from './client';
 type Params = { params: { id: string } };
 
 export default async function SermonPageServer({ params }: Params) {
-  const id = Number(params.id);
+  // `params` may be a Promise in some Next versions — unwrap before use
+  // See: https://nextjs.org/docs/messages/sync-dynamic-apis
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const resolvedParams: any = await params;
+  const id = Number(resolvedParams.id ?? params.id);
 
   if (Number.isNaN(id)) {
     return (

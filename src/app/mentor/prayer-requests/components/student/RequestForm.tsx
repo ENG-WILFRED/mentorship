@@ -1,4 +1,9 @@
+"use client";
+
 import React, { useState } from "react";
+import { useToast } from "@/components/Toast";
+import { createPrayerRequest } from "@/actions/prayer/createPrayerRequest";
+import { getSession } from "@/lib/session";
 import InputField from "../InputField";
 import SelectField from "../SelectField";
 import TextAreaField from "../TextAreaField";
@@ -37,6 +42,7 @@ const priorityOptions = [
 ];
 
 export default function RequestForm({ setShowModal }: RequestFormProps) {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -74,12 +80,52 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
     setError(null);
     setSuccess(false);
 
-    try {
-      // Simulate form submission (e.g., API call)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Basic client-side validation
+    if (!formData.fullName.trim()) {
+      setError("Please enter your full name.");
+      toast("Please enter your full name.", "error");
+      setLoading(false);
+      return;
+    }
+    if (!formData.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+      setError("Please enter a valid email address.");
+      toast("Please enter a valid email address.", "error");
+      setLoading(false);
+      return;
+    }
+    if (!formData.prayerRequest.trim()) {
+      setError("Please enter your prayer request.");
+      toast("Please enter your prayer request.", "error");
+      setLoading(false);
+      return;
+    }
 
-      // On success
+    try {
+      const session = getSession();
+      // prefer logged-in user's email/name if available
+      const emailToUse = session.email ?? formData.email;
+      const nameToUse = formData.fullName || (session.email ? session.email.split('@')[0] : '');
+      const priority = (formData.priority || "").toLowerCase().includes("high")
+        ? "high"
+        : (formData.priority || "").toLowerCase().includes("low")
+        ? "low"
+        : "medium";
+
+      await createPrayerRequest({
+        request: formData.prayerRequest,
+        name: nameToUse,
+        email: emailToUse,
+        studentId: formData.studentId,
+        grade: formData.grade,
+        school: formData.school,
+        subject: formData.subject,
+        priority: priority as any,
+        category: formData.category,
+        notes: formData.additionalNotes,
+      });
+
       setSuccess(true);
+      toast("Prayer request submitted — thank you!", "success");
       setFormData({
         fullName: "",
         email: "",
@@ -92,8 +138,10 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
         category: "",
         additionalNotes: "",
       });
-    } catch (error) {
-      setError("There was an error submitting your request. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "There was an error submitting your request. Please try again.";
+      setError(msg);
+      toast(msg, "error");
     } finally {
       setLoading(false);
     }

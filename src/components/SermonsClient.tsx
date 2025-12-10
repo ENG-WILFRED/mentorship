@@ -1,6 +1,5 @@
 "use client";
 import React, { useRef, useState } from "react";
-import Header from "./Header";
 import Footer from "./Footer";
 import HeroSection from "./sermon/HeroSection";
 import SearchFilter from "./sermon/SearchFilter";
@@ -135,7 +134,6 @@ export default function SermonsClient({ initialSermons, user }: Props) {
           : "bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"
       }`}
     >
-      <Header pageName="Sermons" userEmail={user.email} />
 
       <main className="flex flex-col px-4 md:px-8 lg:px-16 pt-8 z-10 pb-16">
         <HeroSection showHero={!showVideoPlayer} />

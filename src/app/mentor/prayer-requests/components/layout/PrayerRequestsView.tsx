@@ -23,6 +23,8 @@ export default function PrayerRequestsView() {
   const [selectedRequest, setSelectedRequest] = useState<PrayerRequest | null>(
     null
   );
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [snapshotRequests, setSnapshotRequests] = useState<PrayerRequest[] | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<Filter>("all");
@@ -120,20 +122,48 @@ export default function PrayerRequestsView() {
             onFilterChange={setFilterStatus}
           />
 
-          {/* Request Cards Grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-            {filteredRequests.map((request) => (
-              <RequestCard
-                key={request.id}
-                request={request}
-                onPrayNow={handlePrayNow}
-                onFulfillRequest={handleFulfillRequest}
-                onViewDetails={(req) => {
-                  setSelectedRequest(req);
-                  setShowDetailsModal(true);
-                }}
-              />
-            ))}
+          {/* Responsive layout: sidebar on lg, stacked on mobile */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar: selectable list on large screens */}
+            <aside className="hidden lg:block lg:col-span-1 bg-white/5 rounded-xl p-4 border border-white/10 h-full">
+              <h4 className="text-sm font-semibold text-white/90 mb-3">Requests</h4>
+              <div className="space-y-2 max-h-[60vh] overflow-auto">
+                {filteredRequests.map((req, idx) => (
+                  <button
+                    key={req.id}
+                    onClick={() => { setSelectedIndex(idx); setSelectedRequest(req); setSnapshotRequests(filteredRequests); setShowDetailsModal(true); }}
+                    className={`w-full text-left p-2 rounded-lg transition-colors ${selectedIndex === idx ? 'bg-purple-600/30' : 'hover:bg-white/5'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="truncate">
+                        <div className="text-sm font-semibold text-white truncate">{req.name}</div>
+                        <div className="text-xs text-gray-300 truncate">{req.request.slice(0, 60)}{req.request.length > 60 ? '…' : ''}</div>
+                      </div>
+                      <div className="text-xs text-gray-200 ml-2">{new Date(req.date).toLocaleDateString()}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </aside>
+
+            {/* Cards grid */}
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                {filteredRequests.map((request, idx) => (
+                  <RequestCard
+                    key={request.id}
+                    request={request}
+                    onPrayNow={handlePrayNow}
+                    onFulfillRequest={handleFulfillRequest}
+                    onViewDetails={(req) => {
+                      setSelectedRequest(req);
+                      setSelectedIndex(idx);
+                      setSnapshotRequests(filteredRequests);
+                      setShowDetailsModal(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Empty state */}
@@ -167,6 +197,22 @@ export default function PrayerRequestsView() {
               selectedRequest={selectedRequest}
               handlePrayNow={handlePrayNow}
               onClose={() => setShowDetailsModal(false)}
+              onPrev={() => {
+                if (selectedIndex === null || !snapshotRequests) return;
+                const prev = selectedIndex - 1;
+                if (prev >= 0) {
+                  setSelectedIndex(prev);
+                  setSelectedRequest(snapshotRequests[prev]);
+                }
+              }}
+              onNext={() => {
+                if (selectedIndex === null || !snapshotRequests) return;
+                const next = selectedIndex + 1;
+                if (next < snapshotRequests.length) {
+                  setSelectedIndex(next);
+                  setSelectedRequest(snapshotRequests[next]);
+                }
+              }}
             />
           </Modal>
         )}

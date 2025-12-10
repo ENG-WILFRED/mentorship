@@ -38,28 +38,6 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
       <MentorshipHeader />
       <main className="flex-1 w-full px-2 md:px-8 lg:px-16 py-6">
-        {/* User Greeting */}
-        <section className="mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome back, {user?.firstName} {user?.lastName}! 👋
-              </h1>
-              <p className="text-indigo-100 mb-4">
-                Role: <span className="font-semibold bg-white/20 px-3 py-1 rounded-full">{role || 'Loading...'}</span>
-              </p>
-              <p className="text-indigo-100 text-sm">
-                Email: {user?.email}
-              </p>
-            </div>
-            <button
-              onClick={logout}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-            >
-              Sign Out
-            </button>
-          </div>
-        </section>
 
         {/* Stats */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">

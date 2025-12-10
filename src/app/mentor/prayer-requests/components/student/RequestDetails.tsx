@@ -1,5 +1,6 @@
 // src/components/DetailedRequestModal.tsx
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import { Building2, User, Lightbulb, Heart, X } from "lucide-react";
 import StatusBadge from "../StatusBadge";
 import PriorityBadge from "../PriorityBadge";
@@ -9,6 +10,8 @@ interface DetailedRequestModalProps {
   selectedRequest: PrayerRequest | null;
   onClose: () => void;
   handlePrayNow: (id: number) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 /**
@@ -20,11 +23,46 @@ export default function DetailedRequestModal({
   selectedRequest,
   onClose,
   handlePrayNow,
+  onPrev,
+  onNext,
 }: DetailedRequestModalProps) {
   if (!selectedRequest) return null;
 
+  // Keyboard navigation: left/right arrows for prev/next, Esc to close
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        onPrev && onPrev();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        onNext && onNext();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose && onClose();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onPrev, onNext, onClose]);
+
   return (
     <div className="space-y-6" >
+      {/* Header: navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={onPrev} className="p-2 rounded-md bg-white/10 hover:bg-white/20">
+            ◀ Prev
+          </button>
+          <button onClick={onNext} className="p-2 rounded-md bg-white/10 hover:bg-white/20">
+            Next ▶
+          </button>
+        </div>
+        <div>
+          <button onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+      </div>
+
       {/* Request Information */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
         <div className="flex items-center justify-between mb-3">
