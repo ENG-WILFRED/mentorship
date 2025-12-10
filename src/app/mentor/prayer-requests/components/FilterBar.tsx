@@ -57,7 +57,7 @@ export default function FilterBar({
             onChange={(e) => onSearchChange(e.target.value)}
             className="
               pl-10 pr-4
-              text-xs sm:text-sm md:text-base
+              text-xs sm:text-sm md:text-base border-gray-500
             "
           />
         </div>
@@ -79,6 +79,7 @@ export default function FilterBar({
             className="
               pl-10 pr-4
               text-xs sm:text-sm md:text-base
+              border-gray-500
               w-full sm:w-auto
             "
           />

@@ -10,6 +10,7 @@ import DetailedRequestModal from "../student/RequestDetails";
 import { PrayerRequest, Status } from "../../types";
 import PrayerRequestHeader from "../PrayerRequestHeader";
 import Image from "next/image";
+import { motion } from "framer-motion"; // Import motion for animations
 
 type Filter = "all" | Status;
 
@@ -20,9 +21,7 @@ type Filter = "all" | Status;
 
 export default function PrayerRequestsView() {
   const [requests, setRequests] = useState<PrayerRequest[]>(data);
-  const [selectedRequest, setSelectedRequest] = useState<PrayerRequest | null>(
-    null
-  );
+  const [selectedRequest, setSelectedRequest] = useState<PrayerRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<Filter>("all");
@@ -70,13 +69,13 @@ export default function PrayerRequestsView() {
   return (
     <div className="min-h-screen relative font-sans">
       {/* Background image with overlay */}
-      {/* Background image centered */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Image
           src="/pray2.jpg"
           alt="Background"
           fill
           className="w-full h-full object-cover object-center"
+          priority
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/30" />
@@ -121,20 +120,40 @@ export default function PrayerRequestsView() {
           />
 
           {/* Request Cards Grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-            {filteredRequests.map((request) => (
-              <RequestCard
+          <motion.div
+            className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {
+                opacity: 0,
+                transition: { staggerChildren: 0.2 },
+              },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.2 },
+              },
+            }}
+          >
+            {filteredRequests.map((request, index) => (
+              <motion.div
                 key={request.id}
-                request={request}
-                onPrayNow={handlePrayNow}
-                onFulfillRequest={handleFulfillRequest}
-                onViewDetails={(req) => {
-                  setSelectedRequest(req);
-                  setShowDetailsModal(true);
-                }}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: index * 0.1 }}
+              >
+                <RequestCard
+                  request={request}
+                  onPrayNow={handlePrayNow}
+                  onFulfillRequest={handleFulfillRequest}
+                  onViewDetails={(req) => {
+                    setSelectedRequest(req);
+                    setShowDetailsModal(true);
+                  }}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Empty state */}
           {filteredRequests.length === 0 && (
@@ -150,10 +169,7 @@ export default function PrayerRequestsView() {
 
         {/* Modals */}
         {showModal && (
-          <Modal
-            title="Share Your Prayer Request"
-            onClose={() => setShowModal(false)}
-          >
+          <Modal title="Share Your Prayer Request" onClose={() => setShowModal(false)}>
             <RequestForm setShowModal={setShowModal} />
           </Modal>
         )}

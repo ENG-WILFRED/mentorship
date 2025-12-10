@@ -1,3 +1,5 @@
+import React from "react";
+import { motion } from "framer-motion";  // Import motion from framer-motion
 import {
   BookOpen,
   Building2,
@@ -8,7 +10,6 @@ import {
   Heart,
   User,
 } from "lucide-react";
-import React from "react";
 import StatusBadge from "../StatusBadge";
 import PriorityBadge from "../PriorityBadge";
 import { PrayerRequest } from "../../types";
@@ -50,13 +51,16 @@ export default function RequestCard({
   } = request;
 
   return (
-    <div
+    <motion.div
       onClick={() => onViewDetails(request)}
       className="
         break-inside-avoid bg-white/70 backdrop-blur-sm rounded-xl shadow-sm
         border border-white/30 hover:shadow-md transition-all duration-200
         cursor-pointer transform hover:scale-[1.02]
       "
+      initial={{ opacity: 0, scale: 0.95 }}  // Initial state (invisible and smaller)
+      animate={{ opacity: 1, scale: 1 }}     // End state (fully visible and normal size)
+      transition={{ duration: 0.3 }}         // Duration for the animation
     >
       <div className="p-3 sm:p-4 md:p-5 lg:p-6">
         {/* Header: Name, Email, Status, Priority */}
@@ -65,7 +69,7 @@ export default function RequestCard({
             <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
               {name}
             </h3>
-            <p className="text-sm  text-gray-600 mb-2">{email}</p>
+            <p className="text-sm text-gray-600 mb-2">{email}</p>
             <div className="flex items-center space-x-2 mb-2">
               <StatusBadge status={status} />
               <PriorityBadge priority={priority} />
@@ -74,14 +78,12 @@ export default function RequestCard({
           <div className="flex items-center space-x-1">
             <Heart
               className={`
-                h-4 w-4 
-                ${
-                  priority === "high"
-                    ? "text-red-600"
-                    : priority === "medium"
-                    ? "text-yellow-600"
-                    : "text-green-600"
-                }
+                h-4 w-4
+                ${priority === "high"
+                  ? "text-red-600"
+                  : priority === "medium"
+                  ? "text-yellow-600"
+                  : "text-green-600"}
               `}
             />
           </div>
@@ -95,7 +97,7 @@ export default function RequestCard({
         {/* School/Grade/Mentor Info Grid */}
         <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-500 mb-3">
           <div className="flex items-center">
-            <GraduationCap className="h-4 w-4  mr-2 text-purple-600" />
+            <GraduationCap className="h-4 w-4 mr-2 text-purple-600" />
             <span>{grade}</span>
           </div>
           <div className="flex items-center">
@@ -113,7 +115,7 @@ export default function RequestCard({
         </div>
 
         {/* Date and Student ID */}
-        <div className="flex items-center justify-between text-xs  text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <span className="flex items-center">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
             {new Date(date).toLocaleDateString()}
@@ -158,13 +160,7 @@ export default function RequestCard({
                 e.stopPropagation();
                 onPrayNow(id);
               }}
-              className="
-                flex items-center space-x-1
-                bg-linear-to-r from-purple-600 to-pink-600 text-white
-              rounded-lg
-      
-                hover:from-purple-700 hover:to-pink-700 transition-all
-              "
+              className="flex items-center space-x-1 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
               aria-label="Pray Now"
             >
               <Heart className="h-3 w-3" />
@@ -178,13 +174,7 @@ export default function RequestCard({
                 e.stopPropagation();
                 onFulfillRequest(id);
               }}
-              className="
-                flex items-center space-x-1
-                bg-linear-to-r from-blue-600 to-purple-600 text-white
-               rounded-lg
-              
-                hover:from-blue-700 hover:to-purple-700
-              "
+              className="flex items-center space-x-1 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700"
               aria-label="Fulfill Request"
             >
               <CheckCircle className="h-3 w-3" />
@@ -197,13 +187,7 @@ export default function RequestCard({
               e.stopPropagation();
               onViewDetails(request);
             }}
-            className="
-              flex items-center space-x-1
-              bg-gray-100/70 text-gray-700
-               rounded-lg
-              text-xs sm:text-sm font-medium
-              hover:bg-gray-200/70
-            "
+            className="flex items-center space-x-1 bg-gray-100/70 text-gray-700 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-200/70"
             aria-label="View Details"
           >
             <Eye className="h-3 w-3" />
@@ -211,6 +195,6 @@ export default function RequestCard({
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

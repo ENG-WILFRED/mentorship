@@ -100,9 +100,9 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-2.5 md:space-y-4" onSubmit={handleSubmit}>
       {/* Full Name and Email */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
         <InputField
           label="Full Name *"
           type="text"
@@ -122,7 +122,7 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
       </div>
 
       {/* Student ID and Grade */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
         <InputField
           label="Student ID"
           type="text"
@@ -140,7 +140,7 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
       </div>
 
       {/* School/Institution and Subject */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
         <InputField
           label="School/Institution *"
           type="text"
@@ -169,7 +169,7 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
       />
 
       {/* Priority & Category */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
         <SelectField
           label="Priority Level *"
           value={formData.priority}
@@ -199,13 +199,13 @@ export default function RequestForm({ setShowModal }: RequestFormProps) {
         <Button
           type="button"
           onClick={() => setShowModal(false)}
-          className="bg-gray-100 text-gray-700 hover:bg-gray-200 flex-1 rounded-lg font-medium py-3 px-4"
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200 flex-1 rounded-lg font-medium "
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 flex-1 rounded-lg font-medium py-3 px-4"
+          className="bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 flex-1 rounded-lg font-medium"
         >
           {loading ? "Submitting..." : "Submit Request"}
         </Button>

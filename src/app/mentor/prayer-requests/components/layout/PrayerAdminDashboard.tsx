@@ -49,7 +49,7 @@ export default function PrayerAdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row pb-20 md:pb-0">
       {/* Sidebar */}
       <SideBar
         activeTab={activeTab}
@@ -62,15 +62,13 @@ export default function PrayerAdminDashboard() {
       <div
         className={`
           flex-1 transition-all duration-300
-          ${sidebarCollapsed ? "ml-16" : "ml-64"}
+          ${sidebarCollapsed ? "md:ml-16" : "md:ml-60"}
         `}
       >
         {/* Header */}
-        <header
-          className="bg-white  border-b px-10 py-5.5"
-        >
-          <div className="flex items-center justify-between ">
-            <h2 className="text-base md:text-lg lg:text-xl font-semibold text-gray-900 capitalize mb-2 sm:mb-0">
+        <header className="bg-white border-b px-6 py-4.5">
+          <div className="flex flex-row items-center justify-between gap-3">
+            <h2 className="text-base md:text-lg lg:text-xl font-semibold text-gray-900 capitalize">
               {activeTab} {activeTab === "requests" && "Management"}
             </h2>
             <div className="flex items-center space-x-4">
@@ -79,7 +77,7 @@ export default function PrayerAdminDashboard() {
                 className="
                   flex items-center space-x-2
                   bg-linear-to-r from-purple-600 to-pink-600 text-white
-                  rounded-lg font-medium text-xs sm:text-sm md:text-base
+                  px-3 py-2 rounded-lg font-medium text-xs sm:text-sm
                   hover:from-purple-700 hover:to-pink-700 transition-all
                 "
               >
@@ -88,7 +86,7 @@ export default function PrayerAdminDashboard() {
                   {requests.filter((r) => r.status === "pending").length}
                 </span>
               </Button>
-              <span className="text-gray-700 text-sm sm:text-base md:text-lg">
+              <span className="text-gray-700 text-sm sm:text-base">
                 Admin
               </span>
             </div>
@@ -96,12 +94,12 @@ export default function PrayerAdminDashboard() {
         </header>
 
         {/* Main Dashboard */}
-        <main className="px-10 py-10">
+        <main className="px-6 py-4">
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                 <AdminStatCard
                   title="Total Students"
                   value={stats.totalStudents}
@@ -140,12 +138,29 @@ export default function PrayerAdminDashboard() {
               </div>
 
               {/* Recent Requests Table */}
-              <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8 overflow-x-auto">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4">
-                  Recent Prayer Requests
-                </h3>
+              <div className="bg-white rounded-xl shadow-sm border">
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4">
+                    Recent Prayer Requests
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <RequestTable
+                    requests={requests.slice(0, 5)}
+                    updateRequestStatus={updateRequestStatus}
+                    deleteRequest={deleteRequest}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Requests Tab */}
+          {activeTab === "requests" && (
+            <div className="bg-white rounded-xl shadow-sm border">
+              <div className="overflow-x-auto">
                 <RequestTable
-                  requests={requests.slice(0, 5)}
+                  requests={requests}
                   updateRequestStatus={updateRequestStatus}
                   deleteRequest={deleteRequest}
                 />
@@ -153,20 +168,9 @@ export default function PrayerAdminDashboard() {
             </div>
           )}
 
-          {/* Requests Tab */}
-          {activeTab === "requests" && (
-             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8 overflow-x-auto">
-              <RequestTable
-                requests={requests}
-                updateRequestStatus={updateRequestStatus}
-                deleteRequest={deleteRequest}
-              />
-            </div>
-          )}
-
           {/* Analytics Tab */}
           {activeTab === "analytics" && (
-             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
+            <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
               <ProgressBar
                 label="Pending"
                 value={stats.pending}
@@ -185,9 +189,9 @@ export default function PrayerAdminDashboard() {
             </div>
           )}
 
-          {/* Analytics Tab */}
+          {/* Settings Tab */}
           {activeTab === 'settings' && (
-             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
+            <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
               <Settings />
             </div>
           )}

@@ -21,27 +21,15 @@ export default function RequestTable({
 }: RequestTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full table-auto">
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Student
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Request
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              School
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Status
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Priority
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Actions
-            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">Student</th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">Request</th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">School</th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">Priority</th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -52,12 +40,12 @@ export default function RequestTable({
             >
               <td className="py-3 px-4">
                 <div>
-                  <p className="font-medium text-gray-900">{request.name}</p>
-                  <p className="text-sm text-gray-600">{request.studentId}</p>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">{request.name}</p>
+                  <p className="text-xs text-gray-600">{request.studentId}</p>
                 </div>
               </td>
-              <td className="py-3 px-4 lg:w-1/2">
-                <p className="text-sm text-gray-700 line-clamp-2">
+              <td className="py-3 px-4 sm:w-1/3 lg:w-1/4 xl:w-1/6">
+                <p className="text-sm sm:text-base text-gray-700 line-clamp-2">
                   {request.request}
                 </p>
               </td>
@@ -73,13 +61,13 @@ export default function RequestTable({
                 </span>
               </td>
               <td className="py-3 px-4">
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-2">
                   <select
                     value={request.status}
                     onChange={(e) =>
                       updateRequestStatus(request.id, e.target.value as Status)
                     }
-                    className="text-sm border border-gray-300 rounded px-1.5 py-1 bg-white"
+                    className="text-sm border border-gray-300 rounded px-1.5 py-1 bg-white mb-2 sm:mb-0"
                   >
                     <option value="pending">Pending</option>
                     <option value="in-progress">In Progress</option>
