@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import InputField from "../form fields/InputField";
 import SelectField from "../form fields/SelectField";

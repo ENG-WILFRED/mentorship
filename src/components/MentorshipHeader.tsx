@@ -83,14 +83,17 @@ function UserProfileDropdown() {
 
   return (
     <div className="relative">
-      <button
+        <button
         onClick={() => setShowMenu(!showMenu)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 hover:scale-105"
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center font-bold text-sm text-white shadow-lg">
           {userInitials}
         </div>
-        <span className="text-sm font-semibold hidden md:inline truncate">{user.firstName}</span>
+        <div className="hidden md:flex md:flex-col md:items-start md:truncate">
+          <span className="text-sm font-semibold truncate">{user.firstName}</span>
+          <span className="text-xs text-gray-200 truncate">{user.email}</span>
+        </div>
         <svg className="w-4 h-4 transition-transform" style={{ transform: showMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           <path fill="currentColor" d="M7 10l5 5 5-5z" />
         </svg>

@@ -22,8 +22,9 @@ export default function SermonsGrid({
   const router = useRouter();
   return (
     <section className="mb-16">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        {selectedTopic} Sermons
+      <h2 className="text-2xl font-bold text-white mb-6">
+        <span className="inline-block px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-md mr-3 text-sm font-semibold">{selectedTopic || 'All'}</span>
+        <span className="align-middle">Sermons</span>
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sermons.length > 0 ? (
@@ -34,29 +35,26 @@ export default function SermonsGrid({
                     try {
                       await router.push(`/mentor/sermons/${s.id}`);
                     } catch (err) {
-                      // log navigation/route failure
                       console.error('Navigation error to sermon page', err);
-                      // fallback to full navigation
                       window.location.href = `/mentor/sermons/${s.id}`;
                     }
                   }}
                   role="link"
                   tabIndex={0}
-                  className="group relative bg-sky-50 rounded-2xl shadow-sm hover:shadow-lg overflow-hidden cursor-pointer transition-all hover:scale-105 border border-sky-100"
+                  className="group relative rounded-2xl overflow-hidden cursor-pointer transform transition-all hover:scale-105"
                 >
-              <div className="relative h-48 bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-6xl overflow-hidden">
-                <div className="relative z-10 group-hover:scale-110 transition-transform">
-                  🎬
-                </div>
+              <div className="relative h-48 bg-gradient-to-br from-indigo-700 via-purple-600 to-pink-500 flex items-center justify-center text-6xl overflow-hidden">
+                <div className="absolute inset-0 bg-black/20 mix-blend-overlay" />
+                <div className="relative z-10 group-hover:scale-110 transition-transform text-white">🎬</div>
               </div>
-              <div className="p-6">
-                <div className="inline-block bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold mb-3">
+              <div className="p-6 bg-slate-900/60 backdrop-blur-sm">
+                <div className="inline-block bg-white/10 text-white px-3 py-1 rounded-full text-xs font-semibold mb-3">
                   {s.topic}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition line-clamp-2">
+                <h3 className="text-lg font-bold text-white mb-3 group-hover:text-indigo-300 transition line-clamp-2">
                   {s.title}
                 </h3>
-                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                <div className="flex items-center gap-2 text-white/80 text-sm">
                   <span>👤</span>
                   <span className="font-semibold">{s.author || "Unknown"}</span>
                 </div>

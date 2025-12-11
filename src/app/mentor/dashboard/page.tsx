@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
+// Ensure we import the props-aware gallery (index) rather than the standalone file
+import MediaGallery from '../../../components/MediaGallery/index';
+
 import { useAuthContext } from "../../../context/AuthContext";
 import { getAccessToken } from "../../../lib/auth";
 import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
@@ -38,28 +41,6 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
       <MentorshipHeader />
       <main className="flex-1 w-full px-2 md:px-8 lg:px-16 py-6">
-        {/* User Greeting */}
-        <section className="mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome back, {user?.firstName} {user?.lastName}! 👋
-              </h1>
-              <p className="text-indigo-100 mb-4">
-                Role: <span className="font-semibold bg-white/20 px-3 py-1 rounded-full">{role || 'Loading...'}</span>
-              </p>
-              <p className="text-indigo-100 text-sm">
-                Email: {user?.email}
-              </p>
-            </div>
-            <button
-              onClick={logout}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-            >
-              Sign Out
-            </button>
-          </div>
-        </section>
 
         {/* Stats */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
@@ -169,8 +150,10 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        
+
         {/* Gallery - improved background and less brightness */}
-        <section className="mb-12 relative">
+        {/* <section className="mb-12 relative">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Gallery</h2>
           <div className="absolute inset-0 -z-10 h-full w-full bg-gradient-to-br from-purple-900/60 via-indigo-900/40 to-pink-900/60 opacity-70 rounded-2xl blur-sm"></div>
           <div className="flex gap-8 flex-wrap justify-center py-6">
@@ -178,10 +161,22 @@ export default function DashboardPage() {
               <div key={i} className="bg-white/60 border border-purple-300 rounded-xl shadow-lg p-2 w-56 flex flex-col items-center hover:scale-105 transition-transform backdrop-blur-md">
                 <img src={m.url} alt={m.caption} className="w-52 h-36 object-cover rounded-lg mb-2 shadow" />
                 <span className="text-xs text-purple-900 text-center font-medium drop-shadow">{m.caption}</span>
+       
+
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
+
+          {/* Comprehensive Media Gallery */}
+          <MediaGallery 
+            media={media}
+            title="Mission Gallery"
+            showFilters={true}
+            showStats={true}
+          />
+                  
+        
 
         {/* Future Plans */}
         <section className="mb-12">

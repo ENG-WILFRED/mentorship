@@ -39,31 +39,18 @@ export default function PrayerRequestHeader({
           </div>
 
           {/* Title */}
-          <h1
-            className="
-              font-bold bg-linear-to-r from-purple-600 to-pink-600 
-              bg-clip-text text-transparent
-              text-xl sm:text-2xl md:text-3xl lg:text-4xl
-              mb-3
-            "
-          >
+          <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2">
             Student Prayer Requests
           </h1>
 
           {/* Description */}
-          <p
-            className="
-              text-xs sm:text-sm md:text-base lg:text-lg
-              text-white max-w-2xl mx-auto leading-relaxed
-            "
-          >
-            A sacred space for your spiritual support. Share your prayer
-            requests with our community and connect with mentors on your journey.
+          <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">
+            A sacred space for your spiritual support. Share your prayer requests with our community and connect with mentors on your journey.
           </p>
         </div>
 
         {/* Button */}
-        <div className="flex justify-center">
+          <div className="flex justify-center mt-4">
           <Button
             type="button"
             onClick={() => setShowModal(true)}

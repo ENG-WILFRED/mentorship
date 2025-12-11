@@ -84,6 +84,38 @@ export function useAuth(): AuthContextType {
     initializeAuth();
   }, []);
 
+  // Populate user from token payload if available (so UI shows email/name after refresh)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const accessToken = getAccessToken();
+      if (accessToken) {
+        // Decode safely in browser without bringing in jsonwebtoken
+        const parts = accessToken.split('.');
+        if (parts.length >= 2) {
+          const payload = parts[1];
+          const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+          // decodeURIComponent + escape is a safe way to handle UTF-8
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const obj: any = JSON.parse(decodeURIComponent(escape(json)));
+          if (obj) {
+            setUser((u) => u ?? ({
+              id: obj.userId ?? obj.id ?? null,
+              firstName: obj.firstName ?? obj.given_name ?? '',
+              lastName: obj.lastName ?? obj.family_name ?? '',
+              email: obj.email ?? null,
+              role: obj.role ?? getUserRole() ?? null,
+              memorableId: obj.memorableId ?? '',
+            }));
+            setRole((r) => r ?? (obj.role ?? getUserRole()));
+          }
+        }
+      }
+    } catch (e) {
+      // ignore decode errors
+    }
+  }, []);
+
   // Setup auto-refresh token
   useEffect(() => {
     const setupAutoRefresh = async () => {

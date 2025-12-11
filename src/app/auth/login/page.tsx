@@ -36,6 +36,18 @@ export default function LoginPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loginError, setLoginError] = useState("");
 
+  // If we already have an access token in localStorage, redirect to dashboard
+  useEffect(() => {
+    try {
+      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (accessToken) {
+        router.replace('/mentor/dashboard');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [router]);
+
   // Auto slide
   useEffect(() => {
     const interval = setInterval(

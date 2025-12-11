@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Header from "../../../../components/Header";
 import Footer from "../../../../components/Footer";
 
 export default function UploadSermonPage() {
@@ -75,7 +74,6 @@ export default function UploadSermonPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex flex-col">
-      <Header pageName="Upload Sermon" userEmail="user@email.com" />
       
       {/* Hero Section */}
       <section className="relative w-full h-64 md:h-80 flex items-center justify-center text-center overflow-hidden">

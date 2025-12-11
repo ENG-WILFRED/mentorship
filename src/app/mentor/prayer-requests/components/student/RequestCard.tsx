@@ -52,6 +52,8 @@ export default function RequestCard({
   return (
     <motion.div
       onClick={() => onViewDetails(request)}
+      role="button"
+      tabIndex={0}
       className="
         break-inside-avoid bg-white/75 backdrop-blur-sm rounded-xl shadow-sm
         border border-white/30 hover:shadow-md transition-all duration-200
@@ -61,11 +63,11 @@ export default function RequestCard({
       animate={{ opacity: 1, scale: 1 }}     // End state (fully visible and normal size)
       transition={{ duration: 0.3 }}         // Duration for the animation
     >
-      <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+      <div className="p-4 sm:p-5 md:p-6 lg:p-6">
         {/* Header: Name, Email, Status, Priority */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
               {name}
             </h3>
             <p className="text-sm text-gray-700 mb-2">{email}</p>

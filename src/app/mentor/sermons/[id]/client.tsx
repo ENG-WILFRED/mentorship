@@ -2,8 +2,10 @@
 "use client";
 import React, { useState } from 'react';
 import { useToast } from '../../../../components/Toast';
+import { getSession } from '@/lib/session';
 import Reactions from '../../../../components/sermon/Reactions';
 import Comments from '../../../../components/sermon/Comments';
+import Link from 'next/link';
 
 interface SermonData {
   id: number;
@@ -63,10 +65,14 @@ export default function SermonPageClient({ sermon, user, moreSermons = [] }: Ser
       setComments((c) => [...c, newComment]);
       setNewComment('');
       // persist
+      const session = getSession();
       fetch('/api/sermons/comment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sermonId: sermon.id, userId: user.id, message: newComment }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
+        },
+        body: JSON.stringify({ sermonId: sermon.id, userId: user.id, message: newComment, userEmail: session.email, userRole: session.role }),
       })
         .then(async (r) => {
           if (!r.ok) throw new Error('Failed to post comment');
@@ -82,10 +88,14 @@ export default function SermonPageClient({ sermon, user, moreSermons = [] }: Ser
 
   const handleReaction = (emoji: string) => {
     // optimistic UI: we could update locally but we'll call API and show toast
+    const session = getSession();
     fetch('/api/sermons/reaction', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sermonId: sermon.id, userId: user.id, emoji }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
+      },
+      body: JSON.stringify({ sermonId: sermon.id, userId: user.id, emoji, userEmail: session.email, userRole: session.role }),
     })
       .then(async (r) => {
         if (!r.ok) throw new Error('Failed to toggle reaction');
@@ -103,8 +113,13 @@ export default function SermonPageClient({ sermon, user, moreSermons = [] }: Ser
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950/50 to-slate-950 py-12 px-4">
       {/* Hero */}
       <div className="mb-8 w-full px-6">
-        <div className="inline-block px-3 py-1 mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full text-xs font-semibold text-white">
-          Sermon
+        <div className="flex items-center gap-4 mb-4">
+          <Link href="/mentor/dashboard" className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 text-white hover:bg-white/20 transition">
+            ← Dashboard
+          </Link>
+          <div className="inline-block px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full text-xs font-semibold text-white">
+            Sermon
+          </div>
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{sermon.title}</h1>
         <p className="text-sm text-slate-300">By {sermon.author || 'Unknown author'} • {sermon.createdAt ? new Date(sermon.createdAt).toLocaleDateString() : ''}</p>
