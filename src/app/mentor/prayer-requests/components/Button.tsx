@@ -35,7 +35,7 @@ export default function Button({
         /* Larger Tablets (md) */
         md:text-base
 
-        focus:outline-none transition-all duration-300
+        focus:outline-none cursor-pointer transition-all duration-300
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         ${className}
       `}

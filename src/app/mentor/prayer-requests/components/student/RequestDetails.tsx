@@ -1,15 +1,25 @@
 // src/components/DetailedRequestModal.tsx
-import React from "react";
-import { Building2, User, Lightbulb, Heart, X } from "lucide-react";
+import React, { useEffect } from "react";
+import {
+  Building2,
+  User,
+  Lightbulb,
+  Heart,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import StatusBadge from "../StatusBadge";
 import PriorityBadge from "../PriorityBadge";
-import { PrayerRequest } from "../../types";
+import { PrayerRequest } from "../../lib/types";
 import Button from "../Button";
 
 interface DetailedRequestModalProps {
   selectedRequest: PrayerRequest | null;
   onClose: () => void;
   handlePrayNow: (id: number) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 /**
@@ -21,6 +31,8 @@ export default function DetailedRequestModal({
   selectedRequest,
   onClose,
   handlePrayNow,
+  onPrev,
+  onNext,
 }: DetailedRequestModalProps) {
   if (!selectedRequest) return null;
 
@@ -30,8 +42,35 @@ export default function DetailedRequestModal({
     selectedRequest.category,
   ];
 
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onPrev && onPrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onNext && onNext();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose && onClose();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onPrev, onNext, onClose]);
+
   return (
-    <div className="space-y-2.5 md:space-y-4">
+    <div className="space-y-2">
+      {/* Header: navigation */}
+      <div className="flex items-center justify-between text-gray-500 hover:text-gray-700">
+        <Button type="button" onClick={onPrev} className="flex">
+          <ChevronLeft /> Prev
+        </Button>
+        <Button type="button" onClick={onNext} className="flex">
+          Next
+          <ChevronRight />
+        </Button>
+      </div>
       {/* Request Information */}
       <div className="bg-linear-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
         <div className="flex items-center justify-between mb-3">
@@ -42,31 +81,31 @@ export default function DetailedRequestModal({
             <p className="text-sm text-gray-600">{selectedRequest.email}</p>
           </div>
           <div className="flex items-center space-x-2">
-            <StatusBadge status={selectedRequest.status} />
-            <PriorityBadge priority={selectedRequest.priority} />
+            <StatusBadge status={selectedRequest.status ?? "PENDING"} />
+            <PriorityBadge priority={selectedRequest.priority ?? "MEDIUM"} />
           </div>
         </div>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-3">
           {tags.map((tag, index) => (
-            <Tag key={index} label={tag} />
+            <Tag key={index} label={tag ?? ""} />
           ))}
         </div>
       </div>
 
       {/* School and Mentor Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InfoCard
           title="School Information"
           icon={<Building2 className="h-4 w-4 mr-2 text-purple-600" />}
-          primaryInfo={selectedRequest.school}
-          secondaryInfo={selectedRequest.subject}
+          primaryInfo={selectedRequest.school ?? ""}
+          secondaryInfo={selectedRequest.subject ?? ""}
         />
         <InfoCard
           title="Mentor Information"
           icon={<User className="h-4 w-4 mr-2 text-purple-600" />}
-          primaryInfo={selectedRequest.mentor}
+          primaryInfo={selectedRequest.mentor ?? ""}
           secondaryInfo="Current Mentor"
         />
       </div>
@@ -86,7 +125,9 @@ export default function DetailedRequestModal({
             <Lightbulb className="h-4 w-4 mr-2 " />
             Additional Notes
           </h4>
-          <p className="text-xs sm:text-sm md:text-base text-purple-700">{selectedRequest.notes}</p>
+          <p className="text-xs sm:text-sm md:text-base text-purple-700">
+            {selectedRequest.notes}
+          </p>
         </div>
       )}
 
@@ -95,14 +136,16 @@ export default function DetailedRequestModal({
         <div className="bg-gray-50 p-4 rounded-lg border">
           <h4 className="font-semibold text-gray-800 mb-2">Date Submitted</h4>
           <p className="text-gray-700 text-xs sm:text-sm md:text-base">
-            {new Date(selectedRequest.date).toLocaleDateString()}
+            {selectedRequest.date
+              ? new Date(selectedRequest.date).toLocaleDateString()
+              : "Date not available"}
           </p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg border">
           <h4 className="font-semibold text-gray-800 mb-2">Prayed By</h4>
-          {selectedRequest.prayedBy.length > 0 ? (
+          {(selectedRequest.prayedBy ?? []).length > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {selectedRequest.prayedBy.map((prayer, index) => (
+              {(selectedRequest.prayedBy ?? []).map((prayer, index) => (
                 <span
                   key={index}
                   className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs sm:text-sm md:text-base"
@@ -121,21 +164,21 @@ export default function DetailedRequestModal({
 
       {/* Action Buttons */}
       <div className="flex space-x-3 pt-4">
-        {selectedRequest.status !== "fulfilled" && (
+        {selectedRequest.id && (
           <Button
-          type='submit'
+            type="submit"
             onClick={() => {
-              handlePrayNow(selectedRequest.id);
+              handlePrayNow(selectedRequest.id ?? -1);
               onClose();
             }}
             className="flex-1 bg-linear-to-r from-purple-600  to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all"
           >
             <Heart className="inline h-4 w-4 mr-2" />
-            Pray for This Request
+            Pray
           </Button>
         )}
         <Button
-        type='button'
+          type="button"
           onClick={onClose}
           className="flex-1 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
         >

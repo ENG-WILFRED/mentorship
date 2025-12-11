@@ -10,7 +10,7 @@ export default function PrayerRequestHeader({
   setShowModal,
 }: PrayerRequestHeaderProps) {
   return (
-    <header className="bg-linear-r from pink- via-purple- to-pink-50 backdrop-blur-sm">
+    <header className="bg-linear-to-br from-indigo-500/15 via-purple-500/15 to-pink-400/15 backdrop-blur-sm">
       <div
         className="
           max-w-4xl mx-auto 

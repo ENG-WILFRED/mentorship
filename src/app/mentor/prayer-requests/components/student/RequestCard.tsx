@@ -1,5 +1,4 @@
-import React from "react";
-import { motion } from "framer-motion";  // Import motion from framer-motion
+import { motion } from "framer-motion";
 import {
   BookOpen,
   Building2,
@@ -12,7 +11,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "../StatusBadge";
 import PriorityBadge from "../PriorityBadge";
-import { PrayerRequest } from "../../types";
+import { PrayerRequest } from "../../lib/types";
 import Button from "../Button";
 
 interface RequestCardProps {
@@ -54,7 +53,7 @@ export default function RequestCard({
     <motion.div
       onClick={() => onViewDetails(request)}
       className="
-        break-inside-avoid bg-white/70 backdrop-blur-sm rounded-xl shadow-sm
+        break-inside-avoid bg-white/75 backdrop-blur-sm rounded-xl shadow-sm
         border border-white/30 hover:shadow-md transition-all duration-200
         cursor-pointer transform hover:scale-[1.02]
       "
@@ -69,7 +68,7 @@ export default function RequestCard({
             <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
               {name}
             </h3>
-            <p className="text-sm text-gray-600 mb-2">{email}</p>
+            <p className="text-sm text-gray-700 mb-2">{email}</p>
             <div className="flex items-center space-x-2 mb-2">
               <StatusBadge status={status} />
               <PriorityBadge priority={priority} />
@@ -90,12 +89,12 @@ export default function RequestCard({
         </div>
 
         {/* Main Request Text */}
-        <p className="text-gray-700 mb-3 line-clamp-3 text-sm sm:text-base">
+        <p className="text-gray-800 mb-3 line-clamp-3 text-sm sm:text-base">
           {text}
         </p>
 
         {/* School/Grade/Mentor Info Grid */}
-        <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-500 mb-3">
+        <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-700 mb-3">
           <div className="flex items-center">
             <GraduationCap className="h-4 w-4 mr-2 text-purple-600" />
             <span>{grade}</span>
@@ -115,7 +114,7 @@ export default function RequestCard({
         </div>
 
         {/* Date and Student ID */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-700 mb-3">
           <span className="flex items-center">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
             {new Date(date).toLocaleDateString()}
@@ -152,7 +151,7 @@ export default function RequestCard({
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {status !== "fulfilled" && (
             <Button
               type="button"
@@ -164,7 +163,7 @@ export default function RequestCard({
               aria-label="Pray Now"
             >
               <Heart className="h-3 w-3" />
-              <span>Pray Now</span>
+              <span>Pray</span>
             </Button>
           )}
           {status === "in-progress" && (
@@ -191,7 +190,7 @@ export default function RequestCard({
             aria-label="View Details"
           >
             <Eye className="h-3 w-3" />
-            <span>View Details</span>
+            <span>View</span>
           </Button>
         </div>
       </div>

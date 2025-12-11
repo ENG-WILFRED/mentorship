@@ -3,6 +3,7 @@ import React from "react";
 
 interface TextareaFieldProps {
   label?: string;
+  name: string;
   placeholder?: string;
   required?: boolean;
   value: string;
@@ -12,6 +13,7 @@ interface TextareaFieldProps {
 
 export default function TextAreaField({
   label,
+  name,
   placeholder,
   required = false,
   value,
@@ -27,6 +29,7 @@ export default function TextAreaField({
       )}
       <textarea
         required={required}
+         name={name}
         value={value}
         onChange={onChange}
         rows={2}

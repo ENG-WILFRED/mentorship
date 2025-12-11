@@ -1,10 +1,11 @@
 import { Filter as FilterIcon, Search as SearchIcon } from "lucide-react";
 import React from "react";
-import { Status } from "../types";
-import InputField from "./InputField";
-import SelectField from "./SelectField";
+import { Status } from "../lib/types";
+import InputField from "./form fields/InputField";
+import SelectField from "./form fields/SelectField";
+import { motion } from "framer-motion"; 
 
-type FilterType = "all" | Status; // Renamed Filter to FilterType to avoid naming conflict
+type FilterType = "all" | Status; 
 
 interface FilterBarProps {
   searchTerm: string;
@@ -27,11 +28,16 @@ export default function FilterBar({
   const filterOptions = ["all", "pending", "in-progress", "fulfilled"];
 
   return (
-    <div
+    <motion.div
       className="
         bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30
         p-3 mb-5
       "
+       initial={{ opacity: 0, scale: 0.9 }}  
+      animate={{ opacity: 1, scale: 1 }}    
+       exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.3 }}  
+     
     >
       <div
         className="
@@ -85,6 +91,6 @@ export default function FilterBar({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

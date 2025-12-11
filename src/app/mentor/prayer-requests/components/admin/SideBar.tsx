@@ -6,14 +6,16 @@ import {
   Heart,
   Activity,
   Settings,
+  GraduationCap,
 } from "lucide-react";
-import { Tabs } from "../../types";
+import { TabsOptions } from "../../lib/types";
 
 interface SideBarProps {
   activeTab: string;
-  setActiveTab: (tab: Tabs) => void;
+  setActiveTab: (tab: TabsOptions) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setView: (view: "requests" | "admin") => void;
 }
 
 export default function SideBar({
@@ -21,9 +23,10 @@ export default function SideBar({
   setActiveTab,
   sidebarCollapsed,
   setSidebarCollapsed,
+  setView,
 }: SideBarProps) {
   const tabs: {
-    key: Tabs;
+    key: TabsOptions;
     name: string;
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   }[] = [
@@ -35,7 +38,7 @@ export default function SideBar({
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* ---------- DESKTOP SIDEBAR ---------- */}
       <div
         className={`
           hidden md:flex fixed top-0 left-0 h-full z-20 flex-col
@@ -52,22 +55,19 @@ export default function SideBar({
               </div>
 
               <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  Prayer Admin
-                </h1>
+                <h1 className="text-lg font-bold text-gray-900">Prayer Admin</h1>
                 <p className="text-xs text-gray-600">Mentorship System</p>
               </div>
             </div>
           )}
+
           {/* Collapse Button */}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`p-${
-              sidebarCollapsed ? "2" : "1"
-            } rounded focus:outline-none cursor-pointer`}
+            className={`p-${sidebarCollapsed ? "2" : "1"} rounded`}
           >
             {sidebarCollapsed ? (
-              <ChevronRight className="h-7 w-7 text-gray-600 " />
+              <ChevronRight className="h-7 w-7 text-gray-600" />
             ) : (
               <ChevronLeft className="h-7 w-7 text-gray-600" />
             )}
@@ -83,8 +83,7 @@ export default function SideBar({
               className={`
                 w-full flex items-center
                 ${sidebarCollapsed ? "justify-center" : "justify-start"}
-                px-4 py-3 text-sm transition-colors
-                rounded-r-lg
+                px-4 py-3 text-sm transition-colors rounded-r-lg
                 ${
                   activeTab === tab.key
                     ? "bg-purple-50 text-purple-700"
@@ -92,21 +91,20 @@ export default function SideBar({
                 }
               `}
             >
-              {/* Tab Icon */}
               <span className={`shrink-0 ${sidebarCollapsed ? "" : "mr-3"}`}>
                 <tab.Icon className="h-5 w-5 text-purple-600" />
               </span>
 
-              {/* Tab Label */}
               {!sidebarCollapsed && <span>{tab.name}</span>}
             </button>
           ))}
         </nav>
       </div>
 
-      {/* Mobile Bottom Navigation */}
+      {/* ---------- MOBILE BOTTOM NAVIGATION ---------- */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t shadow-lg">
         <nav className="flex justify-around items-center px-2 py-3">
+          {/* Normal Tabs */}
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -127,6 +125,22 @@ export default function SideBar({
               </span>
             </button>
           ))}
+
+          {/* ---------- MOBILE-ONLY STUDENT VIEW BUTTON ---------- */}
+          <button
+            onClick={() => setView("requests")} // Switch to student view
+            className="
+              sm:flex md:hidden
+              flex flex-col items-center justify-center
+              px-3 py-2 rounded-lg transition-colors min-w-0 flex-1
+              text-gray-600 hover:bg-purple-50
+            "
+          >
+            <GraduationCap className="h-5 w-5 mb-1 text-purple-600" />
+            <span className="text-xs font-medium truncate w-full text-center">
+              Student View
+            </span>
+          </button>
         </nav>
       </div>
     </>

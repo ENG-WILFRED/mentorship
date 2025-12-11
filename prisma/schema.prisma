@@ -86,6 +86,36 @@ enum MissionStatus {
   COMPLETED
 }
 
+enum PrayerPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum PrayerStatus {
+  PENDING
+  IN_PROGRESS
+  FULFILLED
+}
+
+model PrayerRequest {
+  id         Int             @id @default(autoincrement())
+  request    String
+  school     String?
+  priority   PrayerPriority  @default(MEDIUM)
+  mentor     String?
+  prayedBy   String[]        @default([])
+  notes      String?
+  studentId  String?
+  grade      String?
+  subject    String?
+  status     PrayerStatus    @default(PENDING)
+  date       DateTime        @default(now())
+  category   String?
+  email      String?
+  name       String?
+}
+
 model MissionMentor {
   mission   Mission @relation(fields: [missionId], references: [id])
   missionId Int

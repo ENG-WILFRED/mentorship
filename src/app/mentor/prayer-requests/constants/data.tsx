@@ -1,4 +1,4 @@
-import { PrayerRequest } from "../types";
+import { PrayerRequest } from "../lib/types";
 
 // State for prayer requests
 export const data: PrayerRequest[] = [

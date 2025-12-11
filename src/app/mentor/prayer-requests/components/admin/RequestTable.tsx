@@ -1,11 +1,11 @@
 import React from "react";
 import StatusBadge from "../StatusBadge";
 import { Trash2 } from "lucide-react";
-import { PrayerRequest, Status } from "../../types";
+import { PrayerRequest, StatusOptions } from "../../lib/types";
 
 interface RequestTableProps {
   requests: PrayerRequest[];
-  updateRequestStatus: (id: number, status: Status) => void;
+  updateRequestStatus: (id: number, status: StatusOptions) => void;
   deleteRequest: (id: number) => void;
 }
 
@@ -65,7 +65,7 @@ export default function RequestTable({
                   <select
                     value={request.status}
                     onChange={(e) =>
-                      updateRequestStatus(request.id, e.target.value as Status)
+                      updateRequestStatus(request.id, e.target.value as StatusOptions)
                     }
                     className="text-sm border border-gray-300 rounded px-1.5 py-1 bg-white mb-2 sm:mb-0"
                   >

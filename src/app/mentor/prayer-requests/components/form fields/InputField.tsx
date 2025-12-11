@@ -4,6 +4,7 @@ import React from "react";
 interface InputFieldProps {
   label?: string;
   type?: string;
+   name: string;
   placeholder?: string;
   required?: boolean;
   value: string;
@@ -14,6 +15,7 @@ interface InputFieldProps {
 export default function InputField({
   label,
   type,
+  name,
   placeholder,
   required = false,
   value,
@@ -27,6 +29,7 @@ export default function InputField({
       </label>
       <input
         type={type}
+          name={name}
         required={required}
         value={value}
         onChange={onChange}

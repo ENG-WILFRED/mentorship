@@ -6,7 +6,7 @@ import Button from "../Button";
 import AdminStatCard from "../AdminStatCard";
 import RequestTable from "../admin/RequestTable";
 import ProgressBar from "../admin/ProgressBar";
-import { PrayerRequest, Status, Tabs } from "../../types";
+import { PrayerRequest, Status, Tabs } from "../../lib/types";
 import Settings from "../admin/Settings";
 
 interface Stats {
@@ -18,11 +18,15 @@ interface Stats {
   totalStudents: number;
 }
 
+interface PrayerAdminDashboardProps{
+  setView: React.Dispatch<React.SetStateAction<"requests" | "admin">>;
+}
+
 /**
  * Prayer Admin Dashboard Component
  * Administrative dashboard for managing prayer requests.
  */
-export default function PrayerAdminDashboard() {
+export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProps) {
   const [requests, setRequests] = useState<PrayerRequest[]>(data);
   const [activeTab, setActiveTab] = useState<Tabs>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -56,6 +60,7 @@ export default function PrayerAdminDashboard() {
         setActiveTab={setActiveTab}
         sidebarCollapsed={sidebarCollapsed}
         setSidebarCollapsed={setSidebarCollapsed}
+        setView={setView}
       />
 
       {/* Main Content */}
