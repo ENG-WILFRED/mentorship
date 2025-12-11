@@ -21,6 +21,7 @@ model User {
   mentor    Mentor?
   feedbacks Feedback[]
   sermons   Sermon[]
+  mediaUploaded  Media[]  //opposite side of uploader
   sermonComments SermonComment[]
   sermonReactions SermonReaction[]
   memorableId String @unique
@@ -77,7 +78,7 @@ model Mission {
   mentors   MissionMentor[]
   schools   MissionSchool[]
   reports   Report[]
-  media     Media[]
+  media     Media[] // 1-to-many relation
 }
 
 enum MissionStatus {
@@ -199,10 +200,13 @@ model Media {
   url         String
   thumbnail   String?
   caption     String
-  type        MediaType
+  type        String  //"image" | "video"
   category    MediaCategory
   date        DateTime
   
+  //link to mission
+  missionId   Int?
+  mission    Mission? @relation(fields: [missionId], references: [id])
   // Relations - Changed to Int to match User.id
   uploaderId  Int
   uploader    User     @relation(fields: [uploaderId], references: [id])
