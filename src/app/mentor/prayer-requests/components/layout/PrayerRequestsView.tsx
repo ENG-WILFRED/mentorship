@@ -47,7 +47,7 @@ export default function PrayerRequestsView() {
     };
 
     fetchData();
-  }, [filterStatus, searchTerm]); // Re-run the fetch if filterStatus or searchTerm changes
+  }, [filterStatus, searchTerm]); 
 
   // Filter logic
   const filteredRequests = requests.filter((request) => {

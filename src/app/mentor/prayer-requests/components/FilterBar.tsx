@@ -1,11 +1,11 @@
 import { Filter as FilterIcon, Search as SearchIcon } from "lucide-react";
 import React from "react";
-import { Status } from "../lib/types";
+import { StatusOptions } from "../lib/types";
 import InputField from "./form fields/InputField";
 import SelectField from "./form fields/SelectField";
 import { motion } from "framer-motion"; 
 
-type FilterType = "all" | Status; 
+type FilterType = "all" | StatusOptions; 
 
 interface FilterBarProps {
   searchTerm: string;
@@ -57,7 +57,8 @@ export default function FilterBar({
           />
 
           <InputField
-            type="text"
+          name='filter'
+            type="text"          
             placeholder="Search by name, student ID, school, or request..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -79,6 +80,7 @@ export default function FilterBar({
           />
 
           <SelectField
+          name='filterOptions'
             options={filterOptions}
             value={filterStatus}
             onChange={(e) => onFilterChange(e.target.value as FilterType)}

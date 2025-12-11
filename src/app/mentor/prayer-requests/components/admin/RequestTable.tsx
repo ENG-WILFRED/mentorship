@@ -9,6 +9,19 @@ interface RequestTableProps {
   deleteRequest: (id: number) => void;
 }
 
+const getPriorityColor = (priority: string) => {
+  switch (priority.toUpperCase()) {
+    case 'HIGH':
+      return 'text-red-700';
+    case 'MEDIUM':
+      return 'text-yellow-500';
+    case 'LOW':
+      return 'text-green-700';
+    default:
+      return 'text-gray-700';
+  }
+};
+
 /**
  * RequestTable Component
  * Displays a request table for the admin dashboard.
@@ -53,11 +66,11 @@ export default function RequestTable({
                 <p className="text-sm text-gray-500">{request.school}</p>
               </td>
               <td className="py-3 px-4">
-                <StatusBadge status={request.status} />
+                <StatusBadge status={request.status ?? 'PENDING'} />
               </td>
               <td className="py-3 px-4">
-                <span className="text-sm font-medium capitalize text-gray-500">
-                  {request.priority}
+                 <span className={`text-sm font-medium capitalize ${getPriorityColor(request.priority ?? 'LOW')}`}>
+                  {request.priority?.toLowerCase()}
                 </span>
               </td>
               <td className="py-3 px-4">
@@ -65,16 +78,16 @@ export default function RequestTable({
                   <select
                     value={request.status}
                     onChange={(e) =>
-                      updateRequestStatus(request.id, e.target.value as StatusOptions)
+                      updateRequestStatus(request.id ?? -1, e.target.value as StatusOptions)
                     }
                     className="text-sm border border-gray-300 rounded px-1.5 py-1 bg-white mb-2 sm:mb-0"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="fulfilled">Fulfilled</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="FULFILLED">Fulfilled</option>
                   </select>
                   <button
-                    onClick={() => deleteRequest(request.id)}
+                    onClick={() => deleteRequest(request.id ?? -1)}
                     className="text-red-600 hover:text-red-800 p-1"
                   >
                     <Trash2 className="h-4 w-4" />

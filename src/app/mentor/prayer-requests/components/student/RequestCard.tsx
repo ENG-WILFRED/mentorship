@@ -70,17 +70,17 @@ export default function RequestCard({
             </h3>
             <p className="text-sm text-gray-700 mb-2">{email}</p>
             <div className="flex items-center space-x-2 mb-2">
-              <StatusBadge status={status} />
-              <PriorityBadge priority={priority} />
+              <StatusBadge status={status ?? 'PENDING'} />
+              <PriorityBadge priority={priority ?? 'MEDIUM'} />
             </div>
           </div>
           <div className="flex items-center space-x-1">
             <Heart
               className={`
                 h-4 w-4
-                ${priority === "high"
+                ${priority === "HIGH"
                   ? "text-red-600"
-                  : priority === "medium"
+                  : priority === "MEDIUM"
                   ? "text-yellow-600"
                   : "text-green-600"}
               `}
@@ -117,7 +117,7 @@ export default function RequestCard({
         <div className="flex items-center justify-between text-xs text-gray-700 mb-3">
           <span className="flex items-center">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-            {new Date(date).toLocaleDateString()}
+            {new Date(date ?? '').toLocaleDateString()}
           </span>
           <span>ID: {studentId}</span>
         </div>
@@ -132,13 +132,13 @@ export default function RequestCard({
         )}
 
         {/* Prayed By List */}
-        {prayedBy.length > 0 && (
+        {(prayedBy || []).length > 0 && (
           <div className="mb-3">
             <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Prayed by:
             </p>
             <div className="flex flex-wrap gap-1">
-              {prayedBy.map((prayer, index) => (
+              {(prayedBy || []).map((prayer, index) => (
                 <span
                   key={index}
                   className="bg-green-100/70 text-green-800 text-xs sm:text-sm px-2 py-1 rounded-full"
@@ -152,12 +152,12 @@ export default function RequestCard({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-2">
-          {status !== "fulfilled" && (
+          {status !== "FULFILLED" && (
             <Button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onPrayNow(id);
+                onPrayNow(id ?? -1);
               }}
               className="flex items-center space-x-1 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
               aria-label="Pray Now"
@@ -166,12 +166,12 @@ export default function RequestCard({
               <span>Pray</span>
             </Button>
           )}
-          {status === "in-progress" && (
+          {status === "IN_PROGRESS" && (
             <Button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onFulfillRequest(id);
+                onFulfillRequest(id ?? -1);
               }}
               className="flex items-center space-x-1 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700"
               aria-label="Fulfill Request"

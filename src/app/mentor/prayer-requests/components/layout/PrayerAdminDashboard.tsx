@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { data } from "../../constants/data";
+import React, { useEffect, useState } from "react";
 import { Activity, CheckCircle, Heart, TrendingUp, Users } from "lucide-react";
 import SideBar from "../admin/SideBar";
 import Button from "../Button";
 import AdminStatCard from "../AdminStatCard";
 import RequestTable from "../admin/RequestTable";
 import ProgressBar from "../admin/ProgressBar";
-import { PrayerRequest, Status, Tabs } from "../../lib/types";
+import { PrayerRequest, StatusOptions, TabsOptions } from "../../lib/types";
 import Settings from "../admin/Settings";
+import { fetchPrayerRequests } from "@/actions/prayer/fetchPrayerRequests";
 
 interface Stats {
   totalRequests: number;
@@ -18,7 +18,7 @@ interface Stats {
   totalStudents: number;
 }
 
-interface PrayerAdminDashboardProps{
+interface PrayerAdminDashboardProps {
   setView: React.Dispatch<React.SetStateAction<"requests" | "admin">>;
 }
 
@@ -26,21 +26,48 @@ interface PrayerAdminDashboardProps{
  * Prayer Admin Dashboard Component
  * Administrative dashboard for managing prayer requests.
  */
-export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProps) {
-  const [requests, setRequests] = useState<PrayerRequest[]>(data);
-  const [activeTab, setActiveTab] = useState<Tabs>("dashboard");
+export default function PrayerAdminDashboard({
+  setView,
+}: PrayerAdminDashboardProps) {
+  const [requests, setRequests] = useState<PrayerRequest[]>([]);
+  const [activeTab, setActiveTab] = useState<TabsOptions>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<Stats | null>(null);
 
-  const stats: Stats = {
-    totalRequests: requests.length,
-    pending: requests.filter((r) => r.status === "pending").length,
-    inProgress: requests.filter((r) => r.status === "in-progress").length,
-    fulfilled: requests.filter((r) => r.status === "fulfilled").length,
-    totalPrayed: requests.reduce((sum, req) => sum + req.prayedBy.length, 0),
-    totalStudents: new Set(requests.map((r) => r.studentId)).size,
-  };
+  // Fetch prayer requests from the server
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedRequests = await fetchPrayerRequests({});
+        setRequests(fetchedRequests);
+      } catch (error) {
+        console.error("Error fetching prayer requests:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const updateRequestStatus = (id: number, newStatus: Status) => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const stats = {
+      totalRequests: requests.length,
+      pending: requests.filter((r) => r.status === "PENDING").length,
+      inProgress: requests.filter((r) => r.status === "IN_PROGRESS").length,
+      fulfilled: requests.filter((r) => r.status === "FULFILLED").length,
+      totalPrayed: requests.reduce(
+        (sum, req) => sum + (req.prayedBy ?? []).length,
+        0
+      ),
+      totalStudents: new Set(requests.map((r) => r.studentId)).size,
+    };
+
+    setStats(stats);
+  }, [requests]);
+
+  const updateRequestStatus = (id: number, newStatus: StatusOptions) => {
     setRequests(
       requests.map((req) =>
         req.id === id ? { ...req, status: newStatus } : req
@@ -88,12 +115,10 @@ export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProp
               >
                 <span>
                   Notification{" "}
-                  {requests.filter((r) => r.status === "pending").length}
+                  {requests.filter((r) => r.status === "PENDING").length}
                 </span>
               </Button>
-              <span className="text-gray-700 text-sm sm:text-base">
-                Admin
-              </span>
+              <span className="text-gray-700 text-sm sm:text-base">Admin</span>
             </div>
           </div>
         </header>
@@ -101,9 +126,8 @@ export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProp
         {/* Main Dashboard */}
         <main className="px-6 py-4">
           {/* Dashboard Tab */}
-          {activeTab === "dashboard" && (
+          {activeTab === "dashboard" && stats && (
             <div className="space-y-6">
-              {/* Stats Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                 <AdminStatCard
                   title="Total Students"
@@ -141,8 +165,6 @@ export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProp
                   iconBgClass="bg-green-100"
                 />
               </div>
-
-              {/* Recent Requests Table */}
               <div className="bg-white rounded-xl shadow-sm border">
                 <div className="p-4 sm:p-6">
                   <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4">
@@ -174,28 +196,28 @@ export default function PrayerAdminDashboard({setView}: PrayerAdminDashboardProp
           )}
 
           {/* Analytics Tab */}
-          {activeTab === "analytics" && (
+          {activeTab === "analytics" && stats && (
             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
               <ProgressBar
                 label="Pending"
                 value={stats.pending}
-                colorClass="purple-500"
+                colorClass="bg-purple-500"
               />
               <ProgressBar
                 label="In Progress"
                 value={stats.inProgress}
-                colorClass="blue-500"
+                colorClass="bg-blue-500"
               />
               <ProgressBar
                 label="Fulfilled"
                 value={stats.fulfilled}
-                colorClass="green-500"
+                colorClass="bg-green-500"
               />
             </div>
           )}
 
           {/* Settings Tab */}
-          {activeTab === 'settings' && (
+          {activeTab === "settings" && (
             <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 md:p-8">
               <Settings />
             </div>
