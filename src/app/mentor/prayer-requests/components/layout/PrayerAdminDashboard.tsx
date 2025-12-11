@@ -8,6 +8,7 @@ import ProgressBar from "../admin/ProgressBar";
 import { PrayerRequest, StatusOptions, TabsOptions } from "../../lib/types";
 import Settings from "../admin/Settings";
 import { fetchPrayerRequests } from "@/actions/prayer/fetchPrayerRequests";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface Stats {
   totalRequests: number;
@@ -78,6 +79,10 @@ export default function PrayerAdminDashboard({
   const deleteRequest = (id: number) => {
     setRequests(requests.filter((req) => req.id !== id));
   };
+
+  if(!isLoading){
+    return <LoadingSpinner/>
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row pb-20 md:pb-0">
@@ -227,3 +232,4 @@ export default function PrayerAdminDashboard({
     </div>
   );
 }
+
