@@ -1,15 +1,23 @@
 // components/MediaGallery/index.tsx
-'use client'
+ 'use client'
 
 import { useState, useEffect } from 'react'
 import { useMedia } from './hooks/useMedia'
+import type { MediaItem } from './types'
 import { MediaGrid } from './MediaGrid'
 import { MediaFiltersComponent as MediaFilters } from './MediaFilters'
 import { MediaUpload } from './MediaUpload'
 import { useAuthContext } from '@/context/AuthContext'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
-export default function MediaGallery() {
+interface MediaGalleryProps {
+  media?: MediaItem[]
+  title?: string
+  showFilters?: boolean
+  showStats?: boolean
+}
+
+export default function MediaGallery({ media: mediaProp, title = 'Mission Gallery', showFilters = true, showStats = true }: MediaGalleryProps) {
   const { role, user } = useAuthContext()
   const [filters, setFilters] = useState({
     category: 'all',
@@ -21,13 +29,13 @@ export default function MediaGallery() {
   
   const { data, loading, error, refetch, createMedia } = useMedia(filters)
   
-  const canUpload = ['ADMIN', 'MENTOR'].includes(role || '')
+  const canUpload = ['ADMIN', 'MENTOR' , 'GUEST'].includes(role || '')
   
   // Auto-refresh every 60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       refetch()
-    }, 60000) // 60 seconds
+    }, 30000) // 60 seconds
     
     return () => clearInterval(interval)
   }, [refetch])
@@ -53,8 +61,11 @@ export default function MediaGallery() {
     }
   }
 
+  // Choose which media to render: prop override or fetched data
+  const mediaToRender = mediaProp ?? data?.data ?? []
+
   // Loading state
-  if (loading && !data) {
+  if (loading && !data && !mediaProp) {
     return (
       <section className="mb-12">
         <div className="flex justify-between items-center mb-6">
@@ -75,7 +86,7 @@ export default function MediaGallery() {
   }
 
   // Error state
-  if (error && !data) {
+  if (error && !data && !mediaProp) {
     return (
       <section className="mb-12">
         <div className="flex justify-between items-center mb-6">
@@ -101,12 +112,12 @@ export default function MediaGallery() {
   }
 
   // Empty state (no data from database)
-  if (!loading && data?.data?.length === 0) {
+  if (!loading && (mediaToRender.length === 0)) {
     return (
       <section className="mb-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-purple-800">Mission Gallery</h2>
+            <h2 className="text-2xl font-bold text-purple-800">{title}</h2>
             <p className="text-gray-600 mt-1">
               No media items found in database
             </p>
@@ -182,7 +193,7 @@ export default function MediaGallery() {
             Refresh
           </button>
           
-          {canUpload && user && (
+          { user && (
             <MediaUpload 
               userId={user.id}
               onUpload={handleUpload}
@@ -198,8 +209,8 @@ export default function MediaGallery() {
       
       {data && (
         <>
-          <MediaGrid 
-            media={data.data}
+            <MediaGrid 
+            media={mediaToRender}
             pagination={data.pagination}
             onPageChange={handlePageChange}
           />

@@ -156,7 +156,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { MediaItem, MediaFilters, MediaResponse } from '../types'
+import type { MediaItem, MediaFilters, MediaResponse } from '../types'
 import { getAccessToken } from '@/lib/auth'
 
 export function useMedia(filters: MediaFilters = {}) {
@@ -194,7 +194,7 @@ export function useMedia(filters: MediaFilters = {}) {
           // If response is not JSON, use status text
           errorMessage = response.statusText || errorMessage
         }
-        throw new Error(errorMessage)
+        throw  Error(errorMessage)
       }
       
       const result = await response.json()
@@ -250,7 +250,8 @@ export function useMedia(filters: MediaFilters = {}) {
         date: mediaData.date || new Date().toISOString().split('T')[0],
         location: mediaData.location || undefined,
         description: mediaData.description || undefined,
-        tags: mediaData.tags?.map(t => typeof t === 'string' ? t : t.name) || []
+        // tags may be strings (from forms) or objects from DB - normalize to string[]
+        tags: (mediaData.tags || []).map((t: any) => typeof t === 'string' ? t : t.name) || []
       }
       
       const response = await fetch('/api/media', {

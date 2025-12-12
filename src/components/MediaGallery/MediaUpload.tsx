@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Upload, X, Plus } from 'lucide-react'
-import { MediaItem } from './types'
+import type { MediaItem } from './types'
 import { getAccessToken } from '@/lib/auth'
 
 interface MediaUploadProps {
@@ -31,10 +31,11 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
     e.preventDefault()
     setLoading(true)
     
-    try {
+      try {
       await onUpload({
         ...formData,
-        uploaderId: userId
+        uploaderId: userId,
+        tags: formData.tags.map((t, i) => ({ id: i + 1, name: t }))
       })
       
       // Reset form

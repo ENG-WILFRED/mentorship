@@ -5,7 +5,7 @@ import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
 // Ensure we import the props-aware gallery (index) rather than the standalone file
 import MediaGallery from '../../../components/MediaGallery/index';
-
+import { MediaUpload } from "@/components/MediaGallery/MediaUpload";
 import { useAuthContext } from "../../../context/AuthContext";
 import { getAccessToken } from "../../../lib/auth";
 import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { role, user, logout } = useAuthContext();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
 
   // Check authentication on mount and redirect if needed
   useEffect(() => {
@@ -37,6 +38,41 @@ export default function DashboardPage() {
   const totalStudents = schools.reduce((a: number, s: { students: number }) => a + s.students, 0);
   const nextMission = missions.find((m: { status: string }) => m.status === "Upcoming");
 
+  // Handle Media Upload from page upload form
+  async function handleUpload(mediaData: any) {
+    try {
+      setUploadLoading(true)
+      const token = getAccessToken()
+      if (!token) {
+        alert('Please login to upload media')
+        return
+      }
+      const res = await fetch('/api/media', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(mediaData)
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        alert(result.error || 'Upload failed')
+      } else {
+        alert('Upload successful')
+        // Optionally redirect to gallery or refresh page
+        // router.refresh()
+      }
+      return result
+    } catch (err) {
+      console.error('Upload failed:', err)
+      alert('Upload failed. Please try again.')
+      throw err
+    } finally {
+      setUploadLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
       <MentorshipHeader />
@@ -50,7 +86,9 @@ export default function DashboardPage() {
           <StatCard icon="📅" label="Next Mission" value={nextMission ? nextMission.date : "-"} />
         </section>
 
-        {/* Timeline */}
+          
+            <MediaUpload userId={user.id} onUpload={handleUpload} />
+          
         <section className="mb-12">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Timeline</h2>
           <div className="border-l-4 border-purple-300 pl-6">
@@ -128,7 +166,7 @@ export default function DashboardPage() {
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">A powerful message about faith, growth, and spiritual transformation.</p>
                   <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-all">
                     Watch Now
-                  </button>
+                   </button>
                 </div>
               </div>
             ))}
@@ -150,7 +188,13 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        
+        <section>
+          <h2 className="text-xl font-bold text-purple-700 mb-4">Media Upload</h2>
+          {user && (
+            <MediaUpload userId={user.id} onUpload={handleUpload} />
+          )}
+
+        </section>
 
         {/* Gallery - improved background and less brightness */}
         {/* <section className="mb-12 relative">
