@@ -15,12 +15,14 @@ interface ModalProps {
 export default function Modal({ title, children, onClose }: ModalProps) {
   return (
     <div
+    onClick={onClose}
       className="
         fixed inset-0 bg-black/50 flex items-center justify-center 
         p-4 sm:p-6 md:p-8 z-50
       "
     >
       <div
+       onClick={(e) => e.stopPropagation()} 
         className="
           bg-white rounded-xl 
           w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl
@@ -45,7 +47,7 @@ export default function Modal({ title, children, onClose }: ModalProps) {
           >
             <X
               className="
-                h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7
+                h-5 w-5
               "
             />
           </button>

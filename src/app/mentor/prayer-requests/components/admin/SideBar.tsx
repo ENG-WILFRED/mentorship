@@ -6,14 +6,16 @@ import {
   Heart,
   Activity,
   Settings,
+  GraduationCap,
 } from "lucide-react";
-import { Tabs } from "../../types";
+import { TabsOptions } from "../../lib/types";
 
 interface SideBarProps {
   activeTab: string;
-  setActiveTab: (tab: Tabs) => void;
+  setActiveTab: (tab: TabsOptions) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setView: (view: "requests" | "admin") => void;
 }
 
 export default function SideBar({
@@ -21,9 +23,10 @@ export default function SideBar({
   setActiveTab,
   sidebarCollapsed,
   setSidebarCollapsed,
+  setView,
 }: SideBarProps) {
   const tabs: {
-    key: Tabs;
+    key: TabsOptions;
     name: string;
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   }[] = [
@@ -34,69 +37,112 @@ export default function SideBar({
   ];
 
   return (
-    <div
-      className={`
-        fixed top-0 left-0 h-full z-20 flex flex-col
-        bg-white shadow-lg border-r transition-all duration-300
-        ${sidebarCollapsed ? "w-20" : "w-64"}
-      `}
-    >
-      {/* Branding */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center space-x-3">
-          <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg shrink-0">
-            <Heart className="h-5 w-5 text-white" />
-          </div>
+    <>
+      {/* ---------- DESKTOP SIDEBAR ---------- */}
+      <div
+        className={`
+          hidden md:flex fixed top-0 left-0 h-full z-20 flex-col
+          bg-white shadow-lg border-r transition-all duration-300
+          ${sidebarCollapsed ? "w-16" : "w-60"}
+        `}
+      >
+        {/* Branding */}
+        <div className="flex items-center justify-between p-4 border-b">
           {!sidebarCollapsed && (
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">Prayer Admin</h1>
-              <p className="text-xs sm:text-sm text-gray-600">
-                Mentorship System
-              </p>
+            <div className="flex items-center space-x-3">
+              <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg shrink-0">
+                <Heart className="h-5 w-5 text-white" />
+              </div>
+
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">Prayer Admin</h1>
+                <p className="text-xs text-gray-600">Mentorship System</p>
+              </div>
             </div>
           )}
+
+          {/* Collapse Button */}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={`p-${sidebarCollapsed ? "2" : "1"} rounded`}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-7 w-7 text-gray-600" />
+            ) : (
+              <ChevronLeft className="h-7 w-7 text-gray-600" />
+            )}
+          </button>
         </div>
-        {/* Collapse Button */}
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-1 rounded focus:outline-none cursor-pointer"
-        >
-          {sidebarCollapsed ? (
-            <ChevronRight className="h-5 w-5 text-gray-600" />
-          ) : (
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
-          )}
-        </button>
+
+        {/* Navigation */}
+        <nav className="flex-1 mt-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`
+                w-full flex items-center
+                ${sidebarCollapsed ? "justify-center" : "justify-start"}
+                px-4 py-3 text-sm transition-colors rounded-r-lg
+                ${
+                  activeTab === tab.key
+                    ? "bg-purple-50 text-purple-700"
+                    : "text-gray-600 hover:bg-gray-50"
+                }
+              `}
+            >
+              <span className={`shrink-0 ${sidebarCollapsed ? "" : "mr-3"}`}>
+                <tab.Icon className="h-5 w-5 text-purple-600" />
+              </span>
+
+              {!sidebarCollapsed && <span>{tab.name}</span>}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 mt-4">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`
-              w-full flex items-center
-              ${sidebarCollapsed ? "justify-center" : "justify-start"}
-              px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base transition-colors
-              rounded-r-lg
-              ${
-                activeTab === tab.key
-                  ? "bg-purple-50 text-purple-700"
-                  : "text-gray-600 hover:bg-gray-50"
-              }
-            `}
-          >
-            {/* Tab Icon */}
-            <span className={`shrink-0 ${sidebarCollapsed ? "" : "mr-3"}`}>
-              <tab.Icon className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
-            </span>
+      {/* ---------- MOBILE BOTTOM NAVIGATION ---------- */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t shadow-lg">
+        <nav className="flex justify-around items-center px-2 py-3">
+          {/* Normal Tabs */}
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`
+                flex flex-col items-center justify-center
+                px-3 py-2 rounded-lg transition-colors min-w-0 flex-1
+                ${
+                  activeTab === tab.key
+                    ? "bg-purple-50 text-purple-700"
+                    : "text-gray-600"
+                }
+              `}
+            >
+              <tab.Icon className="h-5 w-5 mb-1 shrink-0" />
+              <span className="text-xs font-medium truncate w-full text-center">
+                {tab.name}
+              </span>
+            </button>
+          ))}
 
-            {/* Tab Label */}
-            {!sidebarCollapsed && <span>{tab.name}</span>}
+          {/* ---------- MOBILE-ONLY STUDENT VIEW BUTTON ---------- */}
+          <button
+            onClick={() => setView("requests")} // Switch to student view
+            className="
+              sm:flex md:hidden
+              flex flex-col items-center justify-center
+              px-3 py-2 rounded-lg transition-colors min-w-0 flex-1
+              text-gray-600 hover:bg-purple-50
+            "
+          >
+            <GraduationCap className="h-5 w-5 mb-1 text-purple-600" />
+            <span className="text-xs font-medium truncate w-full text-center">
+              Student View
+            </span>
           </button>
-        ))}
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </>
   );
 }

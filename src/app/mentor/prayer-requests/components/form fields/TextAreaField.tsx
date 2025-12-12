@@ -3,20 +3,22 @@ import React from "react";
 
 interface TextareaFieldProps {
   label?: string;
+  name: string;
   placeholder?: string;
   required?: boolean;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  className?: string; 
+  className?: string;
 }
 
 export default function TextAreaField({
   label,
+  name,
   placeholder,
   required = false,
   value,
   onChange,
-  className = "", 
+  className = "",
 }: TextareaFieldProps) {
   return (
     <div>
@@ -27,10 +29,13 @@ export default function TextAreaField({
       )}
       <textarea
         required={required}
+         name={name}
         value={value}
         onChange={onChange}
-        rows={4}
-        className={`w-full px-3 py-2 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`} // Append passed className
+        rows={2}
+        className={`w-full  px-1.5 py-2
+          text-gray-600 
+          text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-0 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`} // Append passed className
         placeholder={placeholder}
       />
     </div>

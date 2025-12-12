@@ -1,10 +1,11 @@
 import { Filter as FilterIcon, Search as SearchIcon } from "lucide-react";
 import React from "react";
-import { Status } from "../types";
-import InputField from "./InputField";
-import SelectField from "./SelectField";
+import { StatusOptions } from "../lib/types";
+import InputField from "./form fields/InputField";
+import SelectField from "./form fields/SelectField";
+import { motion } from "framer-motion"; 
 
-type FilterType = "all" | Status; // Renamed Filter to FilterType to avoid naming conflict
+type FilterType = "all" | StatusOptions; 
 
 interface FilterBarProps {
   searchTerm: string;
@@ -27,11 +28,16 @@ export default function FilterBar({
   const filterOptions = ["all", "pending", "in-progress", "fulfilled"];
 
   return (
-    <div
+    <motion.div
       className="
         bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30
         p-3 mb-5
       "
+       initial={{ opacity: 0, scale: 0.9 }}  
+      animate={{ opacity: 1, scale: 1 }}    
+       exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.3 }}  
+     
     >
       <div
         className="
@@ -51,13 +57,14 @@ export default function FilterBar({
           />
 
           <InputField
-            type="text"
+          name='filter'
+            type="text"          
             placeholder="Search by name, student ID, school, or request..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="
               pl-10 pr-4
-              text-xs sm:text-sm md:text-base
+              text-xs sm:text-sm md:text-base border-gray-500
             "
           />
         </div>
@@ -73,17 +80,19 @@ export default function FilterBar({
           />
 
           <SelectField
+          name='filterOptions'
             options={filterOptions}
             value={filterStatus}
             onChange={(e) => onFilterChange(e.target.value as FilterType)}
             className="
               pl-10 pr-4
               text-xs sm:text-sm md:text-base
+              border-gray-500
               w-full sm:w-auto
             "
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

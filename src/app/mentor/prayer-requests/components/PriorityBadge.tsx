@@ -1,8 +1,8 @@
 import React from "react";
-import { Priority } from "../types";
+import { PriorityOptions } from "../lib/types";
 
 interface PriorityBadgeProps {
-  priority: Priority;
+  priority: PriorityOptions;
 }
 
 /**
@@ -11,14 +11,14 @@ interface PriorityBadgeProps {
  */
 
 export default function PriorityBadge({ priority }: PriorityBadgeProps) {
-  const getPriorityColor = (priority: Priority) => {
+  const getPriorityColor = (priority: PriorityOptions) => {
     switch (priority) {
-      case "high":
-        return "text-red-400";
-      case "medium":
-        return "text-orange-400";
-      case "low":
-        return "text-green-400";
+      case "HIGH":
+        return "text-red-700";
+      case "MEDIUM":
+        return "text-orange-600";
+      case "LOW":
+        return "text-green-700";
       default:
         return "text-gray-400";
     }
@@ -31,7 +31,7 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps) {
         text-xs sm:text-sm capitalize
       `}
     >
-      {priority}
+      {priority.toLowerCase()}
     </span>
   );
 }

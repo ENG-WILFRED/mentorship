@@ -1,6 +1,4 @@
-import React from "react";
 import Button from "../Button";
-import InputField from "../InputField";
 
 export default function Settings() {
   return (

@@ -10,9 +10,14 @@ export default function PrayerRequestHeader({
   setShowModal,
 }: PrayerRequestHeaderProps) {
   return (
-    <header className="relative bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 text-white">
-      <div className="absolute inset-0 opacity-30 bg-[url('/pray2.jpg')] bg-cover bg-center" />
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
+    <header className="bg-linear-to-br from-indigo-500/15 via-purple-500/15 to-pink-400/15 backdrop-blur-sm">
+      <div
+        className="
+          max-w-4xl mx-auto 
+          px-4 sm:px-6 lg:px-8
+          py-4 sm:py-6 md:py-8
+        "
+      >
         {/* Title / Description */}
         <div className="text-center mb-5 sm:mb-6 md:mb-8">
           {/* Icon */}
