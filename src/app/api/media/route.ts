@@ -41,6 +41,9 @@ export async function GET(request: NextRequest) {
       id: item.id,
       url: item.url || '',
       thumbnail: item.thumbnail || null,
+      cloudinaryPublicId: item.cloudinaryPublicId || null,
+      youtubeId: item.youtubeId || null,
+      videoUrl: item.videoUrl || null,
       caption: item.caption || '',
       type: item.type,
       category: item.category,
@@ -91,6 +94,9 @@ export async function POST(request: NextRequest) {
         location: body.location || null,
         description: body.description || null,
         uploaderId: decoded.userId,
+          cloudinaryPublicId: body.cloudinaryPublicId || null,
+          youtubeId: body.youtubeId || null,
+          videoUrl: body.videoUrl || null,
         tags: {
           connectOrCreate: (body.tags || []).map((tagName: string) => ({ where: { name: tagName.toLowerCase().trim() }, create: { name: tagName.toLowerCase().trim() } }))
         }
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
       include: { uploader: true, tags: true }
     })
 
-    return NextResponse.json({ ...media, date: media.date.toISOString().split('T')[0] }, { status: 201 })
+    return NextResponse.json({ ...media, date: media.date.toISOString().split('T')[0], cloudinaryPublicId: media.cloudinaryPublicId, youtubeId: media.youtubeId, videoUrl: media.videoUrl }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating media:', error)
     return NextResponse.json({ error: 'Failed to create media' }, { status: 500 })

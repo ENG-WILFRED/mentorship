@@ -87,7 +87,7 @@ export default function DashboardPage() {
         </section>
 
           
-            <MediaUpload userId={user.id} onUpload={handleUpload} />
+            {user && <MediaUpload userId={user.id} onUpload={handleUpload} />}
           
         <section className="mb-12">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Timeline</h2>

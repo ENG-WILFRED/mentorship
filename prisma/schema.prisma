@@ -219,6 +219,10 @@ model Media {
   description String?
   location    String?
   tags        Tag[]
+  // Optional cloud storage IDs and video references
+  cloudinaryPublicId String?
+  youtubeId String?
+  videoUrl String?
   
   // Timestamps
   createdAt   DateTime @default(now())

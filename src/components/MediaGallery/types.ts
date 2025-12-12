@@ -1,3 +1,5 @@
+import { number } from "framer-motion"
+
 // components/MediaGallery/types.ts
 export type MediaType = 'IMAGE' | 'VIDEO' | 'DOCUMENT'
 export type MediaCategory = 'MISSION' | 'SERMON' | 'EVENT' | 'STUDENT'
@@ -24,6 +26,10 @@ export interface MediaItem {
   tags: { id: number; name: string }[]
   createdAt: string
   updatedAt: string
+  // Optional cloud storage and video references
+  cloudinaryPublicId?: string
+  youtubeId?: string
+  videoUrl?: string
 }
 
 export interface MediaFilters {
@@ -33,14 +39,14 @@ export interface MediaFilters {
   page?: number
   limit?: number
 }
-
-export interface MediaResponse {
+ export interface MediaResponse {
   data: MediaItem[]
   pagination: {
     page: number
     limit: number
     total: number
     pages: number
+
   }
 }
 

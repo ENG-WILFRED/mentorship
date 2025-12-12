@@ -1,10 +1,10 @@
-// components/MediaGallery/MediaUpload.tsx
+
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Upload, X, Plus } from 'lucide-react'
 import type { MediaItem } from './types'
-import { getAccessToken } from '@/lib/auth'
+// Note: Cloudinary upload route is server-side; no client token required for this endpoint.
 
 interface MediaUploadProps {
   userId: number
@@ -25,17 +25,83 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
     description: '',
     tags: [] as string[]
   })
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [objectUrl, setObjectUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [tagInput, setTagInput] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
-      try {
+    try {
+      // Require either a selected file or a remote url
+      if (!selectedFile && !formData.url) {
+        alert('Please provide a URL or select a file to upload.')
+        setLoading(false)
+        return
+      }
+      // If user selected a local file, upload to Cloudinary first (fallback for images and videos until YouTube route implemented)
+      let cloudinaryPublicId: string | undefined
+      let uploadedUrl: string | undefined
+      if (selectedFile) {
+        // Use YouTube upload endpoint for video files, otherwise Cloudinary for images
+        if (selectedFile.type.startsWith('video/')) {
+          const fd = new FormData()
+          fd.append('file', selectedFile)
+          fd.append('title', formData.caption)
+          fd.append('description', formData.description || '')
+
+          const uploadResponse = await fetch('/api/media/upload/youtube', { method: 'POST', body: fd })
+          if (!uploadResponse.ok) {
+            const errData = await uploadResponse.json().catch(() => ({}))
+            throw new Error(errData.error || `YouTube upload failed: ${uploadResponse.status}`)
+          }
+
+          const json = await uploadResponse.json()
+          uploadedUrl = json.videoUrl || formData.url
+          // For YouTube, set youtubeId and thumbnail
+          const youtubeId = json.youtubeId || undefined
+          const thumbnailFromYouTube = json.thumbnail || undefined
+          // set these fields on payload below
+          // store youtube values in variables
+          // To keep typing simple, assign to uploadedUrl and cloudinaryPublicId variables already used
+          cloudinaryPublicId = undefined
+          // set preview to returned thumbnail where available
+          if (thumbnailFromYouTube) setPreviewUrl(thumbnailFromYouTube)
+          // Attach youtube metadata to formData for onUpload below by adding temporary properties
+          ;(formData as any)._youtubeId = youtubeId
+          ;(formData as any)._videoUrl = uploadedUrl
+        } else {
+          const fd = new FormData()
+          fd.append('file', selectedFile)
+
+          const uploadResponse = await fetch('/api/media/upload', {
+            method: 'POST',
+            body: fd
+          })
+
+          if (!uploadResponse.ok) {
+            const errData = await uploadResponse.json().catch(() => ({}))
+            throw new Error(errData.error || `Upload failed: ${uploadResponse.status}`)
+          }
+
+          const json = await uploadResponse.json()
+          uploadedUrl = json.secure_url || json.url
+          cloudinaryPublicId = json.public_id || json.publicId || undefined
+          if (!previewUrl && uploadedUrl) setPreviewUrl(uploadedUrl)
+        }
+      }
       await onUpload({
         ...formData,
         uploaderId: userId,
-        tags: formData.tags.map((t, i) => ({ id: i + 1, name: t }))
+        tags: formData.tags.map((t, i) => ({ id: i + 1, name: t })),
+        url: uploadedUrl || formData.url,
+        thumbnail: previewUrl || formData.thumbnail || uploadedUrl || undefined,
+        cloudinaryPublicId: cloudinaryPublicId || undefined,
+        youtubeId: (formData as any)._youtubeId || undefined,
+        videoUrl: (formData as any)._videoUrl || undefined
       })
       
       // Reset form
@@ -50,19 +116,58 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
         description: '',
         tags: []
       })
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+        setObjectUrl(null)
+      }
+      setSelectedFile(null)
+      setPreviewUrl(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       setIsOpen(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload failed:', error)
-      alert('Failed to upload media. Please try again.')
+      const message = error?.message || 'Failed to upload media. Please try again.'
+      alert(message)
     } finally {
       setLoading(false)
     }
   }
 
+  // Revoke object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+      }
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }, [objectUrl])
+
   const addTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
       setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] })
       setTagInput('')
+    }
+  }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setSelectedFile(file)
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
+      setObjectUrl(url)
+      // Try to auto-detect type based on file: if it's a video, set type
+      if (file.type.startsWith('video/')) {
+        setFormData({ ...formData, type: 'VIDEO' })
+      } else if (file.type.startsWith('image/')) {
+        setFormData({ ...formData, type: 'IMAGE' })
+      }
+    } else {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+        setObjectUrl(null)
+      }
+      setPreviewUrl(null)
     }
   }
 
@@ -99,18 +204,61 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* File upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Upload File (optional)</label>
+            <div className="flex items-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+                className="text-sm text-gray-700"
+                disabled={loading}
+              />
+              {previewUrl && (
+                <div className="w-20 h-20 rounded overflow-hidden border">
+                  {/* Preview */}
+                  {formData.type === 'VIDEO' ? (
+                    <video src={previewUrl} className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={previewUrl} alt="preview" className="w-full h-full object-cover" />
+                  )}
+                </div>
+              )}
+              {selectedFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (objectUrl) {
+                      URL.revokeObjectURL(objectUrl)
+                    }
+                    setObjectUrl(null)
+                    setSelectedFile(null)
+                    setPreviewUrl(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ''
+                  }}
+                  className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Media URL *
+              Media URL (optional if uploading a file)
             </label>
             <input
               type="url"
-              required
+              required={!selectedFile}
               value={formData.url}
+              disabled={!!selectedFile}
               onChange={(e) => setFormData({ ...formData, url: e.target.value })}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
             />
           </div>
 
@@ -124,7 +272,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
               value={formData.thumbnail}
               onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
               placeholder="https://example.com/thumbnail.jpg"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
             />
           </div>
 
@@ -139,7 +287,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
               value={formData.caption}
               onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
               placeholder="Enter a descriptive caption"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
             />
           </div>
 
@@ -153,7 +301,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
                 required
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
               >
                 <option value="IMAGE">Image</option>
                 <option value="VIDEO">Video</option>
@@ -169,7 +317,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
               >
                 <option value="MISSION">Mission</option>
                 <option value="SERMON">Sermon</option>
@@ -190,7 +338,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
                 required
                 value={formData.date}
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
               />
             </div>
 
@@ -203,7 +351,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g., Nairobi, Kenya"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
               />
             </div>
           </div>
@@ -218,7 +366,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Enter a detailed description"
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
             />
           </div>
 
@@ -234,7 +382,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                 placeholder="Type a tag and press Enter"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black placeholder-gray-500"
               />
               <button
                 type="button"

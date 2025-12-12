@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useMedia } from './hooks/useMedia'
-import type { MediaItem } from './types'
+import type { MediaItem, MediaFilters } from './types'
 import { MediaGrid } from './MediaGrid'
 import { MediaFiltersComponent as MediaFilters } from './MediaFilters'
 import { MediaUpload } from './MediaUpload'
@@ -11,7 +11,8 @@ import { useAuthContext } from '@/context/AuthContext'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
 interface MediaGalleryProps {
-  media?: MediaItem[]
+  // Accept any media array (the app has a local `media` data shape separate from the DB type)
+  media?: any[]
   title?: string
   showFilters?: boolean
   showStats?: boolean
@@ -19,7 +20,7 @@ interface MediaGalleryProps {
 
 export default function MediaGallery({ media: mediaProp, title = 'Mission Gallery', showFilters = true, showStats = true }: MediaGalleryProps) {
   const { role, user } = useAuthContext()
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<MediaFilters>({
     category: 'all',
     type: 'all',
     search: '',
