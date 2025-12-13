@@ -17,12 +17,12 @@ interface MediaGridProps {
 
 export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
   // Add at the beginning of MediaGrid component
-console.log('MediaGrid received:', {
-  mediaCount: media.length,
-  firstItem: media[0],
-  firstItemThumbnail: media[0]?.thumbnail,
-  firstItemUrl: media[0]?.url
-})
+  console.log('MediaGrid received:', {
+    mediaCount: media.length,
+    firstItem: media[0],
+    firstItemThumbnail: media[0]?.thumbnail,
+    firstItemUrl: media[0]?.url
+  })
   const getMediaIcon = (type: MediaItem['type']) => {
     switch (type) {
       case 'IMAGE': return <ImageIcon className="w-4 h-4" />
@@ -40,6 +40,16 @@ console.log('MediaGrid received:', {
     })
   }
 
+  // Add this after your formatDate function
+console.log('Detailed media data:', media.map(item => ({
+  id: item.id,
+  type: item.type,
+  cloudinaryPublicId: item.cloudinaryPublicId,
+  url: item.url,
+  youtubeId: item.youtubeId,
+  hasThumbnail: 'thumbnail' in item
+})))
+
   if (media.length === 0) {
     return (
       <div className="text-center py-12">
@@ -51,8 +61,11 @@ console.log('MediaGrid received:', {
   }
 
   return (
+          
     <div>
       {/* Grid */}
+              
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {media.map((item) => (
           <div
@@ -75,27 +88,31 @@ console.log('MediaGrid received:', {
             </div>
 
             {/* Thumbnail */}
+            {/* Thumbnail */}
             <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
               {item.type === 'VIDEO' ? (
-                // Use YouTube thumbnail if we have a youtubeId, otherwise fall back to thumbnail
-                (item.youtubeId || item.thumbnail) ? (
+                // For VIDEO type
+                item.youtubeId ? (
+                  // YouTube videos - use YouTube thumbnail
                   <img
-                    src={item.youtubeId ? `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg` : item.thumbnail || item.url}
+                    src={`https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`}
                     alt={item.caption}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=No+Image'
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Video+Error'
                     }}
                   />
                 ) : (
+                  // Non-YouTube videos - show video icon
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Video className="w-12 h-12 text-purple-600" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
                 )
               ) : (
+                // For IMAGE and DOCUMENT types
                 <img
-                  src={item.thumbnail || item.url}
+                  src={item.url}
                   alt={item.caption}
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
@@ -105,12 +122,12 @@ console.log('MediaGrid received:', {
               )}
             </div>
 
-{/* Content */}
-<div className="p-4">
+            {/* Content */}
+            <div className="p-4">
               <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">
                 {item.caption}
               </h3>
-              
+
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-500">
                   {formatDate(item.date)}
@@ -133,26 +150,26 @@ console.log('MediaGrid received:', {
               </p>
 
               {/* Tags */}
-                      {item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {item.tags.slice(0, 3).map((tag: { id: number; name: string }) => (
-              <span
-                key={tag.id}
-                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-              >
-                {tag.name}
-              </span>
-            ))}
-            {item.tags.length > 3 && (
-              <span 
-                key="more-tags"
-                className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
-              >
-                +{item.tags.length - 3}
-              </span>
-            )}
-          </div>
-          )}
+              {item.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {item.tags.slice(0, 3).map((tag: { id: number; name: string }) => (
+                    <span
+                      key={tag.id}
+                      className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                  {item.tags.length > 3 && (
+                    <span
+                      key="more-tags"
+                      className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+                    >
+                      +{item.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -168,11 +185,11 @@ console.log('MediaGrid received:', {
           >
             Previous
           </button>
-          
+
           <span className="text-sm text-gray-600">
             Page {pagination.page} of {pagination.pages}
           </span>
-          
+
           <button
             onClick={() => onPageChange?.(pagination.page + 1)}
             disabled={pagination.page === pagination.pages}

@@ -148,9 +148,7 @@ export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
       if (successTimerRef.current) window.clearInterval(successTimerRef.current)
       successTimerRef.current = window.setInterval(() => setSuccessCountdown((s) => s - 1), 1000)
     } catch (error: any) {
-      console.error('Upload failed:', error)
-      const message = error?.message || 'Failed to upload media. Please try again.'
-      alert(message)
+       
     } finally {
       setLoading(false)
     }
