@@ -20,15 +20,15 @@ interface SermonData {
   reactions: { id: number; emoji: string; userId: number | null }[];
 }
 
-interface User {
-  id: number;
-  email: string;
+interface UserSession {
+  id: number | null;
+  email: string | null;
   isLoggedIn: boolean;
 }
 
 interface SermonPageClientProps {
   sermon: SermonData;
-  user: User;
+  user: UserSession;
 }
 
 interface MoreSermon {
@@ -45,67 +45,90 @@ interface SermonPageClientPropsExtended extends SermonPageClientProps {
 
 export default function SermonPageClient({ sermon, user, moreSermons = [] }: SermonPageClientPropsExtended) {
   const toast = useToast();
+  const session = getSession();
   const [comments, setComments] = useState<string[]>(
     sermon.comments.map((c) => c.message) || []
   );
   const [newComment, setNewComment] = useState('');
-  const reactionsList = ['👍', '❤️', '🔥', '😂', '🎉', '🙏'];
-
-  const reactionCounts = sermon.reactions.reduce(
-    (acc, r) => ({ ...acc, [r.emoji]: (acc[r.emoji] || 0) + 1 }),
-    {} as Record<string, number>
+  const [reactionCounts, setReactionCounts] = useState(
+    sermon.reactions.reduce(
+      (acc, r) => ({ ...acc, [r.emoji]: (acc[r.emoji] || 0) + 1 }),
+      {} as Record<string, number>
+    )
   );
+  const reactionsList = ['👍', '❤️', '🔥', '😂', '🎉', '🙏'];
 
   const handleCommentChange = (text: string) => setNewComment(text);
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
+      
+      if (!session.userId || !session.accessToken) {
+        toast('Please log in to comment', 'error');
+        return;
+      }
+
       // optimistic UI
       setComments((c) => [...c, newComment]);
+      const commentText = newComment;
       setNewComment('');
-      // persist
-      const session = getSession();
+      
+      // persist to database
       fetch('/api/sermons/comment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
+          Authorization: `Bearer ${session.accessToken}`,
         },
-        body: JSON.stringify({ sermonId: sermon.id, userId: user.id, message: newComment, userEmail: session.email, userRole: session.role }),
+        body: JSON.stringify({ sermonId: sermon.id, message: commentText }),
       })
         .then(async (r) => {
-          if (!r.ok) throw new Error('Failed to post comment');
+          if (!r.ok) {
+            const error = await r.json();
+            throw new Error(error.error || 'Failed to post comment');
+          }
           toast('Comment posted', 'success');
           return r.json();
         })
         .catch((err) => {
-          console.error(err);
-          toast('Could not post comment', 'error');
+          console.error('Comment error:', err);
+          // Remove optimistic comment on error
+          setComments((c) => c.slice(0, -1));
+          toast('Could not post comment: ' + err.message, 'error');
         });
     }
   };
 
   const handleReaction = (emoji: string) => {
-    // optimistic UI: we could update locally but we'll call API and show toast
-    const session = getSession();
+    
+    if (!session.userId || !session.accessToken) {
+      toast('Please log in to react', 'error');
+      return;
+    }
+
     fetch('/api/sermons/reaction', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
+        Authorization: `Bearer ${session.accessToken}`,
       },
-      body: JSON.stringify({ sermonId: sermon.id, userId: user.id, emoji, userEmail: session.email, userRole: session.role }),
+      body: JSON.stringify({ sermonId: sermon.id, emoji }),
     })
       .then(async (r) => {
-        if (!r.ok) throw new Error('Failed to toggle reaction');
+        if (!r.ok) {
+          const error = await r.json();
+          throw new Error(error.error || 'Failed to update reaction');
+        }
         const data = await r.json();
-        // TODO: update local reaction counts from data.counts
+        // Update reaction counts from API response
+        setReactionCounts(data.counts || {});
         toast('Reaction updated', 'success');
+        return data;
       })
       .catch((err) => {
-        console.error(err);
-        toast('Could not update reaction', 'error');
+        console.error('Reaction error:', err);
+        toast('Could not update reaction: ' + err.message, 'error');
       });
   };
 
@@ -176,13 +199,13 @@ export default function SermonPageClient({ sermon, user, moreSermons = [] }: Ser
           {/* Reactions */}
           <div className="glass-effect rounded-2xl p-4">
             <h3 className="text-lg font-bold text-white mb-3">Reactions</h3>
-            <Reactions reactions={reactionCounts} onReaction={handleReaction} user={user} reactionsList={reactionsList} />
+            <Reactions reactions={reactionCounts} onReaction={handleReaction} user={{ id: session.userId || 0, email: session.email || '', isLoggedIn: !!session.userId }} reactionsList={reactionsList} />
           </div>
 
           {/* Comments */}
           <div className="glass-effect rounded-2xl p-4">
             <h3 className="text-lg font-bold text-white mb-3">Discussion • {comments.length}</h3>
-            <Comments comments={comments} newComment={newComment} onCommentChange={handleCommentChange} onSubmitComment={handleSubmitComment} user={user} />
+            <Comments comments={comments} newComment={newComment} onCommentChange={handleCommentChange} onSubmitComment={handleSubmitComment} user={{ id: session.userId || 0, email: session.email || '', isLoggedIn: !!session.userId }} />
           </div>
 
           {/* Transcript */}

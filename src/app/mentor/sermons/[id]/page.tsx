@@ -39,11 +39,12 @@ export default async function SermonPageServer({ params }: Params) {
       );
     }
 
-    // TODO: Get actual user from session
+    // Get user from request headers (passed by auth middleware or client session)
+    // For now, we'll pass null and let the client handle it
     const user = {
-      id: 1,
-      email: 'user@example.com',
-      isLoggedIn: true,
+      id: null,
+      email: null,
+      isLoggedIn: false,
     };
 
     // Fetch other sermons by the same author (exclude current)
