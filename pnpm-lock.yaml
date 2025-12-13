@@ -15,7 +15,7 @@ importers:
         specifier: ^3.946.0
         version: 3.946.0
       '@prisma/client':
-        specifier: 6.3.0
+        specifier: ^6.3.0
         version: 6.3.0(prisma@6.3.0(typescript@5.9.3))(typescript@5.9.3)
       bcryptjs:
         specifier: ^3.0.3
@@ -88,7 +88,7 @@ importers:
         specifier: 16.0.7
         version: 16.0.7(@typescript-eslint/parser@8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       prisma:
-        specifier: 6.3.0
+        specifier: ^6.3.0
         version: 6.3.0(typescript@5.9.3)
       tailwindcss:
         specifier: ^4.1.17
