@@ -214,7 +214,7 @@ export default function DashboardPage() {
 
           {/* Comprehensive Media Gallery */}
           <MediaGallery 
-            media={media}
+            // media={media}  
             title="Mission Gallery"
             showFilters={true}
             showStats={true}

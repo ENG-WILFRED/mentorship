@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useMedia } from './hooks/useMedia'
-import type { MediaItem, MediaFilters } from './types'
+import type { MediaItem, MediaFilters as MediaFiltersType } from './types'
 import { MediaGrid } from './MediaGrid'
 import { MediaFiltersComponent as MediaFilters } from './MediaFilters'
 import { MediaUpload } from './MediaUpload'
@@ -20,7 +20,7 @@ interface MediaGalleryProps {
 
 export default function MediaGallery({ media: mediaProp, title = 'Mission Gallery', showFilters = true, showStats = true }: MediaGalleryProps) {
   const { role, user } = useAuthContext()
-  const [filters, setFilters] = useState<MediaFilters>({
+  const [filters, setFilters] = useState<MediaFiltersType>({
     category: 'all',
     type: 'all',
     search: '',
@@ -66,7 +66,7 @@ export default function MediaGallery({ media: mediaProp, title = 'Mission Galler
   const mediaToRender = mediaProp ?? data?.data ?? []
 
   // Loading state
-  if (loading && !data && !mediaProp) {
+  if (loading  ) {
     return (
       <section className="mb-12">
         <div className="flex justify-between items-center mb-6">

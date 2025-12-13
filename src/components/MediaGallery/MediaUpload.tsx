@@ -6,6 +6,18 @@ import { Upload, X, Plus, Check } from 'lucide-react'
 import type { MediaItem } from './types'
 // Note: Cloudinary upload route is server-side; no client token required for this endpoint.
 
+type UploadForm = {
+  url: string
+  thumbnail: string
+  caption: string
+  type: 'IMAGE' | 'VIDEO' | 'DOCUMENT'
+  category: 'MISSION' | 'SERMON' | 'EVENT' | 'STUDENT'
+  date: string
+  location: string
+  description: string
+  tags: string[]
+}
+
 interface MediaUploadProps {
   userId: number
   onUpload: (mediaData: Partial<MediaItem>) => Promise<void>
@@ -14,16 +26,16 @@ interface MediaUploadProps {
 export function MediaUpload({ userId, onUpload }: MediaUploadProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UploadForm>({
     url: '',
     thumbnail: '',
     caption: '',
-    type: 'IMAGE' as const,
-    category: 'MISSION' as const,
+    type: 'IMAGE',
+    category: 'MISSION',
     date: new Date().toISOString().split('T')[0],
     location: '',
     description: '',
-    tags: [] as string[]
+    tags: []
   })
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)

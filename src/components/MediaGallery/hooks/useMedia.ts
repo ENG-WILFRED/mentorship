@@ -1,7 +1,7 @@
 // components/MediaGallery/hooks/useMedia.ts
-'use client'
+ 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { MediaItem, MediaFilters, MediaResponse } from '../types'
 import { getAccessToken } from '@/lib/auth'
 
@@ -139,6 +139,11 @@ export function useMedia(filters: MediaFilters = {}) {
       setLoading(false)
     }
   }, [filters.category, filters.type, filters.search, filters.page, filters.limit])
+
+  // Fetch initial data on mount and whenever filters change
+  useEffect(() => {
+    fetchMedia()
+  }, [fetchMedia])
 
   const createMedia = useCallback(async (mediaData: Partial<MediaItem>) => {
     try {

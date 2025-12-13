@@ -16,6 +16,13 @@ interface MediaGridProps {
 }
 
 export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
+  // Add at the beginning of MediaGrid component
+console.log('MediaGrid received:', {
+  mediaCount: media.length,
+  firstItem: media[0],
+  firstItemThumbnail: media[0]?.thumbnail,
+  firstItemUrl: media[0]?.url
+})
   const getMediaIcon = (type: MediaItem['type']) => {
     switch (type) {
       case 'IMAGE': return <ImageIcon className="w-4 h-4" />
@@ -98,8 +105,8 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
               )}
             </div>
 
-            {/* Content */}
-            <div className="p-4">
+{/* Content */}
+<div className="p-4">
               <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">
                 {item.caption}
               </h3>
@@ -126,25 +133,26 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
               </p>
 
               {/* Tags */}
-              {/* {item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {item.tags.slice(0, 3).map((tag: { id: number; name: string }) => (
-                    <span
-                      key={tag.id}
-                      className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
-                  {item.tags.length > 3 && (
-                    <span 
-                    key="more-tags"
-                    className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                      +{item.tags.length - 3}
-                    </span>
-                  )}
-                </div> */}
-              {/* )} */}
+                      {item.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {item.tags.slice(0, 3).map((tag: { id: number; name: string }) => (
+              <span
+                key={tag.id}
+                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+              >
+                {tag.name}
+              </span>
+            ))}
+            {item.tags.length > 3 && (
+              <span 
+                key="more-tags"
+                className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+              >
+                +{item.tags.length - 3}
+              </span>
+            )}
+          </div>
+          )}
             </div>
           </div>
         ))}
