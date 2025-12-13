@@ -111,7 +111,15 @@ export default function DashboardClient({
       {user && <MediaUpload userId={user.id} onUpload={handleUpload} />}
 
       <section className="mb-12">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Timeline</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Mission Timeline</h2>
+          <button 
+            onClick={() => router.push('/mentor/missions')}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+          >
+            + New Mission
+          </button>
+        </div>
         <div className="border-l-4 border-purple-300 pl-6">
           {missions.map((m: { date: string; status: string; schools: string[]; topic: string; mentors: string[]; students: number }, i: number) => (
             <div key={i} className="mb-6 relative">
@@ -132,19 +140,19 @@ export default function DashboardClient({
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section className="mb-12 flex gap-4 flex-wrap">
-        <ActionButton label="New Mission" router={router} />
-        <ActionButton label="View Schools" router={router} />
-        <ActionButton label="View Mentors" router={router} />
-        <ActionButton label="View Sermons" router={router} />
-        <ActionButton label="Upload Report" router={router} />
-        <ActionButton label="Prayer Requests" router={router} />
-      </section>
+
 
       {/* Schools */}
       <section className="mb-12">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Schools</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Schools</h2>
+          <button 
+            onClick={() => router.push('/mentor/schools/add')}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+          >
+            + Add School
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {schools.map((s: any, i: number) => (
             <SchoolCard key={i} school={s} />
@@ -154,7 +162,15 @@ export default function DashboardClient({
 
       {/* Mentors */}
       <section className="mb-12">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Mentors</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Mentors</h2>
+          <button 
+            onClick={() => router.push('/mentor/mentors/add')}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+          >
+            + Add Mentor
+          </button>
+        </div>
         <div className="flex flex-wrap gap-8 justify-center">
           {mentors.map((m: any, i: number) => (
             <MentorCard key={i} mentor={m} />
@@ -178,9 +194,20 @@ export default function DashboardClient({
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-purple-700">Latest Sermons</h2>
-          <button onClick={() => window.location.href = "/mentor/sermons"} className="text-purple-600 hover:text-purple-800 font-semibold text-sm">
-            View All →
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/mentor/sermons/upload-sermon')}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+            >
+              + Upload Sermon
+            </button>
+            <button 
+              onClick={() => router.push('/mentor/sermons')} 
+              className="text-purple-600 hover:text-purple-800 font-semibold text-sm"
+            >
+              View All →
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sermons.slice(0, 3).map((sermon) => (
@@ -203,14 +230,36 @@ export default function DashboardClient({
         </div>
         {sermons.length === 0 && (
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">No sermons available yet.</p>
+            <p className="text-gray-500 text-lg mb-6">No sermons available yet.</p>
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={() => router.push('/mentor/dashboard')}
+                className="px-5 py-3 bg-white/10 text-white border border-white/10 rounded-lg hover:bg-white/20 transition"
+              >
+                ← Back to Dashboard
+              </button>
+              <button
+                onClick={() => router.push('/mentor/sermons/upload-sermon')}
+                className="px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition"
+              >
+                Upload Sermon
+              </button>
+            </div>
           </div>
         )}
       </section>
 
       {/* Reports */}
       <section className="mb-12">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Reports</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Mission Reports</h2>
+          <button 
+            onClick={() => router.push('/mentor/report/upload')}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+          >
+            + Upload Report
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {reports.map((r: any, i: number) => (
             <div key={i} className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-6">
@@ -235,7 +284,9 @@ export default function DashboardClient({
 
       {/* Future Plans */}
       <section className="mb-12">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Upcoming Missions</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Upcoming Missions</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {plans.map((p: any, i: number) => (
             <div key={i} className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-6">
@@ -273,7 +324,7 @@ function ActionButton({ label, router }: { label: string; router: any }) {
       "Upload Report": "/mentor/report/upload",
       "Prayer Requests": "/mentor/prayer-requests",
     };
-    
+
     const route = routes[label];
     if (route) {
       router.push(route);
@@ -281,7 +332,7 @@ function ActionButton({ label, router }: { label: string; router: any }) {
   };
 
   return (
-    <button 
+    <button
       onClick={handleClick}
       className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-xl cursor-pointer"
     >

@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState } from "react";
+import { useRouter } from 'next/navigation';
 import Footer from "./Footer";
 import HeroSection from "./sermon/HeroSection";
 import SearchFilter from "./sermon/SearchFilter";
@@ -39,6 +40,7 @@ type Props = {
 
 export default function SermonsClient({ initialSermons, user }: Props) {
   const [selectedTopic, setSelectedTopic] = useState("");
+  const router = useRouter();
   const [selectedAuthor, setSelectedAuthor] = useState("");
   const [currentSermon, setCurrentSermon] = useState<Sermon | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null) as React.MutableRefObject<HTMLVideoElement>;
@@ -162,11 +164,37 @@ export default function SermonsClient({ initialSermons, user }: Props) {
         )}
 
         {showVideos && !showVideoPlayer && (
-          <SermonsGrid
-            sermons={filteredSermons}
-            onSelectSermon={setCurrentSermon}
-            selectedTopic={selectedTopic}
-          />
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Sermons</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.push('/mentor/dashboard')}
+                  className="px-4 py-2 bg-white/10 text-white border border-white/10 rounded-lg hover:bg-white/20 transition"
+                >
+                  ← Back to Dashboard
+                </button>
+                <button
+                  onClick={() => router.push('/mentor/sermons/upload-sermon')}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:opacity-90 transition"
+                >
+                  Upload Sermon
+                </button>
+              </div>
+            </div>
+
+            {filteredSermons.length > 0 ? (
+              <SermonsGrid
+                sermons={filteredSermons}
+                onSelectSermon={setCurrentSermon}
+                selectedTopic={selectedTopic}
+              />
+            ) : (
+              <div className="py-16 text-center">
+                <p className="text-lg text-gray-300 mb-6">No sermons found for your filters.</p>
+              </div>
+            )}
+          </div>
         )}
 
         {showVideoPlayer && (
