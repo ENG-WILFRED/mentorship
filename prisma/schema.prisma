@@ -81,23 +81,6 @@ model Mission {
   media     Media[] // 1-to-many relation
 }
 
-enum MissionStatus {
-  UPCOMING
-  ONGOING
-  COMPLETED
-}
-
-enum PrayerPriority {
-  HIGH
-  MEDIUM
-  LOW
-}
-
-enum PrayerStatus {
-  PENDING
-  IN_PROGRESS
-  FULFILLED
-}
 
 model PrayerRequest {
   id         Int             @id @default(autoincrement())
@@ -251,4 +234,22 @@ enum MediaCategory {
   SERMON
   EVENT
   STUDENT
+}
+
+enum MissionStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+}
+
+enum PrayerPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum PrayerStatus {
+  PENDING
+  IN_PROGRESS
+  FULFILLED
 }
