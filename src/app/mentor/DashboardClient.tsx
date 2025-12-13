@@ -90,7 +90,7 @@ export default function DashboardClient({
       }
       return result;
     } catch (err) {
-      console.error("Upload failed:", err);
+      
       alert("Upload failed. Please try again.");
       throw err;
     } finally {
@@ -108,7 +108,7 @@ export default function DashboardClient({
         <StatCard icon="📅" label="Next Mission" value={nextMission ? nextMission.date : "-"} />
       </section>
 
-      {user && <MediaUpload userId={user.id} onUpload={handleUpload} />}
+      
 
       <section className="mb-12">
         <h2 className="text-xl font-bold text-purple-700 mb-4">Mission Timeline</h2>
@@ -225,10 +225,7 @@ export default function DashboardClient({
         </div>
       </section>
 
-      <section>
-        <h2 className="text-xl font-bold text-purple-700 mb-4">Media Upload</h2>
-        {user && <MediaUpload userId={user.id} onUpload={handleUpload} />}
-      </section>
+      
 
       {/* Media Gallery */}
       <MediaGallery title="Mission Gallery" showFilters={true} showStats={true} />
