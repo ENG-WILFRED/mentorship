@@ -1,12 +1,10 @@
 // app/api/media/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/prisma/client'
+import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
+  const { params } = context || {}
   try {
     const id = parseInt(params.id)
     
@@ -49,10 +47,8 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
+  const { params } = context || {}
   try {
     const user = await getCurrentUser(request)
     

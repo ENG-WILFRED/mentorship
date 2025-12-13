@@ -1,7 +1,7 @@
 // components/MediaGallery/MediaGrid.tsx
 'use client'
 
-import { MediaItem } from './types'
+import type { MediaItem } from './types'
 import { Grid, Video, Image as ImageIcon, FileText, Heart, Eye } from 'lucide-react'
 
 interface MediaGridProps {
@@ -16,6 +16,13 @@ interface MediaGridProps {
 }
 
 export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
+  // Add at the beginning of MediaGrid component
+console.log('MediaGrid received:', {
+  mediaCount: media.length,
+  firstItem: media[0],
+  firstItemThumbnail: media[0]?.thumbnail,
+  firstItemUrl: media[0]?.url
+})
   const getMediaIcon = (type: MediaItem['type']) => {
     switch (type) {
       case 'IMAGE': return <ImageIcon className="w-4 h-4" />
@@ -51,7 +58,15 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
           <div
             key={item.id}
             className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            onClick={() => window.open(item.url, '_blank')}
+            onClick={() => {
+              // Prefer explicit videoUrl when available (YouTube), else fallback to url
+              if (item.youtubeId) {
+                const link = item.videoUrl || `https://www.youtube.com/watch?v=${item.youtubeId}`
+                window.open(link, '_blank')
+              } else {
+                window.open(item.url, '_blank')
+              }
+            }}
           >
             {/* Media Type Badge */}
             <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-2 py-1 rounded-md flex items-center gap-1 text-xs">
@@ -62,10 +77,22 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
             {/* Thumbnail */}
             <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
               {item.type === 'VIDEO' ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Video className="w-12 h-12 text-purple-600" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                </div>
+                // Use YouTube thumbnail if we have a youtubeId, otherwise fall back to thumbnail
+                (item.youtubeId || item.thumbnail) ? (
+                  <img
+                    src={item.youtubeId ? `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg` : item.thumbnail || item.url}
+                    alt={item.caption}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=No+Image'
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Video className="w-12 h-12 text-purple-600" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </div>
+                )
               ) : (
                 <img
                   src={item.thumbnail || item.url}
@@ -78,8 +105,8 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
               )}
             </div>
 
-            {/* Content */}
-            <div className="p-4">
+{/* Content */}
+<div className="p-4">
               <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">
                 {item.caption}
               </h3>
@@ -106,23 +133,26 @@ export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
               </p>
 
               {/* Tags */}
-              {item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {item.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
-                  {item.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                      +{item.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              )}
+                      {item.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {item.tags.slice(0, 3).map((tag: { id: number; name: string }) => (
+              <span
+                key={tag.id}
+                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+              >
+                {tag.name}
+              </span>
+            ))}
+            {item.tags.length > 3 && (
+              <span 
+                key="more-tags"
+                className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+              >
+                +{item.tags.length - 3}
+              </span>
+            )}
+          </div>
+          )}
             </div>
           </div>
         ))}
