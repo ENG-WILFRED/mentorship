@@ -101,7 +101,7 @@ importers:
         version: 16.0.7(@typescript-eslint/parser@8.49.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       prisma:
         specifier: ^6.3.0
-        version: 6.19.1(typescript@5.9.3)
+        version: 6.3.0(typescript@5.9.3)
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.18
