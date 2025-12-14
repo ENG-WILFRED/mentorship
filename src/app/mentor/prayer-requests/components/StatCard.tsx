@@ -23,7 +23,7 @@ export default function StatCard({
 }: StatCardProps) {
   return (
     <motion.div
-      className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30 p-3 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
+      className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 hover:border-white/20 p-4 sm:p-5 md:p-6 w-full transition-all hover:shadow-xl group"
       initial={{ opacity: 0, scale: 0.9 }}  
       animate={{ opacity: 1, scale: 1 }}    
        exit={{ opacity: 0, scale: 0.9 }}
@@ -33,19 +33,19 @@ export default function StatCard({
       <div className="flex items-center">
         {/* Icon */}
         <div
-          className={`p-2 rounded-lg ${iconBgClass}`}
+          className={`p-3 sm:p-4 rounded-xl ${iconBgClass} bg-opacity-20`}
         >
           <Icon
-            className={`h-5 w-5 ${colorClass}`}
+            className={`h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 ${colorClass}`}
           />
         </div>
 
         {/* Text */}
-        <div className="ml-3 sm:ml-4 md:ml-5">
-          <p className="text-xs sm:text-sm font-medium text-gray-600">
+        <div className="ml-4 sm:ml-5 md:ml-6">
+          <p className="text-sm sm:text-base md:text-lg font-semibold text-white/70 group-hover:text-white/80 transition-colors">
             {title}
           </p>
-          <p className="text-sm sm:text-base font-bold text-gray-900">
+          <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white/95 mt-1">
             {value}
           </p>
         </div>

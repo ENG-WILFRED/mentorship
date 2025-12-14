@@ -49,14 +49,27 @@ export default function PrayerRequestHeader({
           </p>
         </div>
 
-        {/* Button */}
-          <div className="flex justify-center mt-4">
+        {/* Buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-3 mt-4">
+          <a
+            href="/mentor/dashboard"
+            className="
+              bg-white/10 text-white border border-white/20
+              flex items-center justify-center rounded-full font-medium
+              px-6 py-4 sm:px-8
+              hover:bg-white/20
+              shadow-lg hover:shadow-xl transform hover:scale-105
+              transition-all
+            "
+          >
+            ← Back to Dashboard
+          </a>
           <Button
             type="button"
             onClick={() => setShowModal(true)}
             className="
               bg-linear-to-r from-purple-600 to-pink-600 text-white
-              flex items-center rounded-full font-medium
+              flex items-center justify-center rounded-full font-medium
               px-6 py-4 sm:px-8
               hover:from-purple-700 hover:to-pink-700
               shadow-lg hover:shadow-xl transform hover:scale-105

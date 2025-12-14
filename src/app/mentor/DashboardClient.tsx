@@ -27,6 +27,7 @@ interface DashboardClientProps {
   reports: any[];
   media: any[];
   plans: any[];
+  prayerRequests: any[];
 }
 
 export default function DashboardClient({
@@ -38,6 +39,7 @@ export default function DashboardClient({
   reports,
   media,
   plans,
+  prayerRequests,
 }: DashboardClientProps) {
   const router = useRouter();
   const toast = useToast();
@@ -45,6 +47,7 @@ export default function DashboardClient({
   const [isInitialized, setIsInitialized] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
+  const [selectedPrayerRequest, setSelectedPrayerRequest] = useState<any | null>(null);
 
   // Check authentication on mount and redirect if needed
   useEffect(() => {
@@ -311,23 +314,124 @@ export default function DashboardClient({
       {/* Media Gallery */}
       <MediaGallery title="Mission Gallery" showFilters={true} showStats={true} />
 
-      {/* Future Plans */}
+      {/* Prayer Requests */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-purple-700">Upcoming Missions</h2>
+          <h2 className="text-xl font-bold text-purple-700">Prayer Requests</h2>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleViewAll('Prayer Requests', '/mentor/prayer-requests')}
+              disabled={loadingSection === 'Prayer Requests'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Prayer Requests' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {plans.map((p: any, i: number) => (
-            <div key={i} className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-6">
-              <div className="font-bold text-purple-700 mb-1">
-                {p.school} ({p.date})
+        {selectedPrayerRequest ? (
+          <div className="bg-white/90 backdrop-blur-sm border-2 border-purple-300 rounded-xl shadow-lg p-6 mb-4">
+            <button
+              onClick={() => setSelectedPrayerRequest(null)}
+              className="text-sm text-purple-600 hover:text-purple-800 mb-4 font-semibold"
+            >
+              ← Back to Prayer Requests
+            </button>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-2xl font-bold text-purple-800 mb-2">{selectedPrayerRequest.request}</h3>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    selectedPrayerRequest.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                    selectedPrayerRequest.status === 'ANSWERED' ? 'bg-green-100 text-green-700' :
+                    'bg-blue-100 text-blue-700'
+                  }`}>
+                    {selectedPrayerRequest.status || 'PENDING'}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    selectedPrayerRequest.priority === 'HIGH' ? 'bg-red-100 text-red-700' :
+                    selectedPrayerRequest.priority === 'MEDIUM' ? 'bg-orange-100 text-orange-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    {selectedPrayerRequest.priority || 'MEDIUM'} Priority
+                  </span>
+                </div>
               </div>
-              <div className="text-gray-700 mb-1">Topic: {p.topic}</div>
-              <div className="text-gray-600 text-sm">Mentors: {p.mentors.join(", ")}</div>
-              <div className="text-gray-600 mt-2">Goal: {p.goal}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold">Category</p>
+                  <p className="text-gray-800">{selectedPrayerRequest.category || 'General'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold">School</p>
+                  <p className="text-gray-800">{selectedPrayerRequest.school || 'Not specified'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold">Requester</p>
+                  <p className="text-gray-800">{selectedPrayerRequest.name || 'Anonymous'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold">Grade/Subject</p>
+                  <p className="text-gray-800">{selectedPrayerRequest.grade ? `Grade: ${selectedPrayerRequest.grade}` : ''} {selectedPrayerRequest.subject ? `Subject: ${selectedPrayerRequest.subject}` : ''}</p>
+                </div>
+              </div>
+              {selectedPrayerRequest.notes && (
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold mb-2">Notes</p>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded">{selectedPrayerRequest.notes}</p>
+                </div>
+              )}
+              {selectedPrayerRequest.assignedMentor && (
+                <div>
+                  <p className="text-sm text-gray-600 font-semibold">Assigned Mentor</p>
+                  <p className="text-gray-800">{selectedPrayerRequest.assignedMentor.name}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-gray-600 font-semibold">Submitted</p>
+                <p className="text-gray-700">{new Date(selectedPrayerRequest.date).toLocaleDateString()}</p>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {prayerRequests && prayerRequests.length > 0 ? (
+              prayerRequests.slice(0, 6).map((pr: any, i: number) => (
+                <div
+                  key={i}
+                  onClick={() => setSelectedPrayerRequest(pr)}
+                  className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-4 hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-purple-700 flex-1 line-clamp-2">{pr.request}</h3>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ml-2 flex-shrink-0 ${
+                      pr.priority === 'HIGH' ? 'bg-red-100 text-red-700' :
+                      pr.priority === 'MEDIUM' ? 'bg-orange-100 text-orange-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {pr.priority || 'MEDIUM'}
+                    </span>
+                  </div>
+                  <div className="text-gray-600 text-sm mb-2">Category: {pr.category || 'General'}</div>
+                  {pr.school && <div className="text-gray-600 text-sm mb-2">School: {pr.school}</div>}
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      pr.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                      pr.status === 'ANSWERED' ? 'bg-green-100 text-green-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {pr.status || 'PENDING'}
+                    </span>
+                    <span className="text-xs text-gray-500">{new Date(pr.date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                <p>No prayer requests yet</p>
+              </div>
+            )}
+          </div>
+        )}
       </section>
     </main>
   );

@@ -106,11 +106,22 @@ export default function PrayerAdminDashboard({
       >
         {/* Header */}
         <header className="bg-white border-b px-6 py-4.5">
-          <div className="flex flex-row items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="text-base md:text-lg lg:text-xl font-semibold text-gray-900 capitalize">
               {activeTab} {activeTab === "requests" && "Management"}
             </h2>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <a
+                href="/mentor/dashboard"
+                className="
+                  flex items-center justify-center space-x-2
+                  bg-gray-100 hover:bg-gray-200 text-gray-700
+                  px-3 py-2 rounded-lg font-medium text-xs sm:text-sm
+                  transition-all
+                "
+              >
+                <span>← Back to Dashboard</span>
+              </a>
               <Button
                 type="button"
                 className="

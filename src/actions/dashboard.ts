@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function getDashboardData() {
   try {
-    const [schools, mentors, missions, reports] = await Promise.all([
+    const [schools, mentors, missions, reports, prayerRequests] = await Promise.all([
       prisma.school.findMany({
         take: 10,
       }),
@@ -42,6 +42,16 @@ export async function getDashboardData() {
           school: true,
         },
       }),
+      prisma.prayerRequest.findMany({
+        take: 10,
+        orderBy: {
+          date: 'desc',
+        },
+        include: {
+          createdBy: true,
+          assignedMentor: true,
+        },
+      }),
     ]);
 
     return {
@@ -49,6 +59,7 @@ export async function getDashboardData() {
       mentors,
       missions,
       reports,
+      prayerRequests,
     };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
@@ -57,6 +68,7 @@ export async function getDashboardData() {
       mentors: [],
       missions: [],
       reports: [],
+      prayerRequests: [],
     };
   }
 }

@@ -30,8 +30,8 @@ export default function FilterBar({
   return (
     <motion.div
       className="
-        bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/30
-        p-3 mb-5
+        bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 hover:border-white/20
+        p-4 sm:p-5 md:p-6 mb-6 transition-all
       "
        initial={{ opacity: 0, scale: 0.9 }}  
       animate={{ opacity: 1, scale: 1 }}    
@@ -42,17 +42,17 @@ export default function FilterBar({
       <div
         className="
           flex flex-col sm:flex-row items-center
-          gap-3 sm:gap-4 md:gap-5
-          text-gray-600
+          gap-4 sm:gap-5 md:gap-6
+          text-white/80
         "
       >
         {/* Search Input */}
         <div className="flex-1 relative w-full">
           <SearchIcon
             className="
-              absolute left-3 top-1/2 -translate-y-1/2
-              h-4 w-4 sm:h-5 sm:w-5
-              text-gray-500
+              absolute left-4 top-1/2 -translate-y-1/2
+              h-5 w-5 sm:h-6 sm:w-6
+              text-white/60
             "
           />
 
@@ -63,8 +63,10 @@ export default function FilterBar({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="
-              pl-10 pr-4
-              text-xs sm:text-sm md:text-base border-gray-500
+              pl-12 pr-4 py-3 sm:py-4
+              text-sm sm:text-base md:text-lg border-white/20
+              bg-white/10 text-white placeholder-white/50 rounded-xl
+              focus:bg-white/15 focus:border-white/40
             "
           />
         </div>
@@ -73,9 +75,9 @@ export default function FilterBar({
         <div className="relative w-full sm:w-auto">
           <FilterIcon
             className="
-              absolute left-3 top-1/2 -translate-y-1/2
-              h-4 w-4 sm:h-5 sm:w-5
-              text-gray-500
+              absolute left-4 top-1/2 -translate-y-1/2
+              h-5 w-5 sm:h-6 sm:w-6
+              text-white/60
             "
           />
 
@@ -85,9 +87,11 @@ export default function FilterBar({
             value={filterStatus}
             onChange={(e) => onFilterChange(e.target.value as FilterType)}
             className="
-              pl-10 pr-4
-              text-xs sm:text-sm md:text-base
-              border-gray-500
+              pl-12 pr-4 py-3 sm:py-4
+              text-sm sm:text-base md:text-lg
+              border-white/20
+              bg-white/10 text-white rounded-xl
+              focus:bg-white/15 focus:border-white/40
               w-full sm:w-auto
             "
           />

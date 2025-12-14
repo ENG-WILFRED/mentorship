@@ -214,29 +214,8 @@ export default function MediaGallery({ media: mediaProp, title = 'Mission Galler
             media={mediaToRender}
             pagination={data.pagination}
             onPageChange={handlePageChange}
-          />
-          
-          {/* Database connection info (for debugging) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-800">
-                    📊 Real Database Data
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Connected to PostgreSQL • {data.data.length} items loaded
-                  </p>
-                </div>
-                <button
-                  onClick={() => refetch()}
-                  className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-          )}
+          />         
+
         </>
       )}
     </section>
