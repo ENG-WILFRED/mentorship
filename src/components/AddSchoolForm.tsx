@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/Toast";
 
 export default function AddSchoolForm() {
   const router = useRouter();
+  const toast = useToast();
   const [form, setForm] = useState({
     name: "",
     gender: "",
@@ -17,12 +19,39 @@ export default function AddSchoolForm() {
     setForm({ ...form, [name]: value });
   }
 
-  function handleSubmit(e: { preventDefault: () => void; }) {
+  async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     setSubmitted(true);
-    setTimeout(() => {
-      router.push("/mentor/schools");
-    }, 1200);
+
+    try {
+      const res = await fetch('/api/schools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          gender: form.gender,
+          population: Number(form.population),
+          location: form.location,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast(`Failed to add school: ${err?.error ?? res.statusText}`, 'error');
+        setSubmitted(false);
+        return;
+      }
+
+      const data = await res.json();
+      toast('School added successfully', 'success');
+      setTimeout(() => {
+        router.push('/mentor/schools');
+      }, 900);
+    } catch (error) {
+      console.error('Add school error', error);
+      toast('Unexpected error adding school', 'error');
+      setSubmitted(false);
+    }
   }
 
   function handleCancel() {

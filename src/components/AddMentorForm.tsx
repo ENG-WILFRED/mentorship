@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/Toast";
 
 export default function AddMentorForm() {
   const router = useRouter();
+  const toast = useToast();
   const [form, setForm] = useState({
     name: "",
     location: "",
@@ -24,12 +26,44 @@ export default function AddMentorForm() {
     setForm({ ...form, [name]: value });
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitted(true);
-    setTimeout(() => {
-      router.push("/mentor/mentors");
-    }, 1200);
+
+    try {
+      const res = await fetch('/api/mentors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          location: form.location,
+          age: form.age ? Number(form.age) : undefined,
+          education: form.education,
+          maritalStatus: form.maritalStatus,
+          phone: form.phone,
+          email: form.email,
+          experience: form.experience ? Number(form.experience) : undefined,
+          skills: form.skills,
+          bio: form.bio,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast(`Failed to add mentor: ${err?.error ?? res.statusText}`, 'error');
+        setSubmitted(false);
+        return;
+      }
+
+      toast('Mentor added successfully', 'success');
+      setTimeout(() => {
+        router.push('/mentor/mentors');
+      }, 900);
+    } catch (error) {
+      console.error('Add mentor error', error);
+      toast('Unexpected error adding mentor', 'error');
+      setSubmitted(false);
+    }
   }
 
   function handleCancel() {

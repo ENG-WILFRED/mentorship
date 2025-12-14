@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { mentorsList, schoolsList, topicsList, studentsList } from "../app/data";
+import { topicsList, studentsList } from "../app/data";
+import { useToast } from "@/components/Toast";
 
 export default function MissionForm() {
   const router = useRouter();
+  const toast = useToast();
   const [form, setForm] = useState<{
+    title?: string;
     name: string;
     description: string;
     date: string;
@@ -25,6 +28,42 @@ export default function MissionForm() {
     status: "Upcoming",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [availableSchools, setAvailableSchools] = useState<string[]>([]);
+  const [availableMentors, setAvailableMentors] = useState<string[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await fetch('/api/schools');
+        if (!res.ok) return;
+        const schools = await res.json();
+        if (!mounted) return;
+        setAvailableSchools(schools.map((s: any) => s.name));
+      } catch (err) {
+        // ignore
+      }
+    }
+    load();
+    return () => { mounted = false };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadMentors() {
+      try {
+        const res = await fetch('/api/mentors');
+        if (!res.ok) return;
+        const mentors = await res.json();
+        if (!mounted) return;
+        setAvailableMentors(mentors.map((m: any) => m.name));
+      } catch (err) {
+        // ignore
+      }
+    }
+    loadMentors();
+    return () => { mounted = false };
+  }, []);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -46,9 +85,39 @@ export default function MissionForm() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitted(true);
-    setTimeout(() => {
-      router.push("/mentor/missions");
-    }, 1200);
+
+    (async () => {
+      try {
+        const res = await fetch('/api/missions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: form.name || form.title,
+            date: form.date,
+            topic: form.topic,
+            description: form.description,
+            students: form.students,
+            status: form.status,
+            mentors: form.mentors,
+            schools: form.schools,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          toast(`Failed to create mission: ${err?.error ?? res.statusText}`, 'error');
+          setSubmitted(false);
+          return;
+        }
+
+        toast('Mission created successfully', 'success');
+        setTimeout(() => router.push('/mentor/missions'), 900);
+      } catch (error) {
+        console.error('Create mission error', error);
+        toast('Unexpected error creating mission', 'error');
+        setSubmitted(false);
+      }
+    })();
   }
 
   function handleCancel() {
@@ -132,7 +201,7 @@ export default function MissionForm() {
           <label className="block text-white font-bold mb-2 text-sm md:text-base">Schools</label>
           {/* Available schools to add */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {schoolsList.filter((s) => !form.schools.includes(s)).map((s) => (
+            {availableSchools.filter((s) => !form.schools.includes(s)).map((s) => (
               <button
                 type="button"
                 key={s}
@@ -185,7 +254,7 @@ export default function MissionForm() {
           <label className="block text-white font-bold mb-2 text-sm md:text-base">Mentors</label>
           {/* Available mentors to add */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {mentorsList.filter((m) => !form.mentors.includes(m)).map((m) => (
+            {availableMentors.filter((m) => !form.mentors.includes(m)).map((m) => (
               <button
                 type="button"
                 key={m}

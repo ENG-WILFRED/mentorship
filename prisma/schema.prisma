@@ -204,9 +204,8 @@ model SermonReaction {
 
 // Add to your existing schema.prisma
 model Media {
-  id          Int      @id @default(autoincrement())  // Changed to match your User model
+  id          Int      @id @default(autoincrement())
   url         String
-  thumbnail   String?
   caption     String
   type        String  //"image" | "video"
   category    MediaCategory

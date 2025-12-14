@@ -3,21 +3,25 @@ import MentorshipHeader from "../../../components/MentorshipHeader";
 import Footer from "../../../components/Footer";
 import DashboardClient from "../DashboardClient";
 import { getSermons } from "@/actions/sermons";
-import { schools, mentors, missions, programs, reports, media, plans } from "../../data";
+import { getDashboardData } from "@/actions/dashboard";
+import { programs, media, plans } from "../../data";
 
 export default async function DashboardPage() {
-  const sermons = await getSermons();
+  const [sermons, dashboardData] = await Promise.all([
+    getSermons(),
+    getDashboardData(),
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
       <MentorshipHeader />
       <DashboardClient 
         sermons={sermons}
-        schools={schools}
-        mentors={mentors}
-        missions={missions}
+        schools={dashboardData.schools}
+        mentors={dashboardData.mentors}
+        missions={dashboardData.missions}
         programs={programs}
-        reports={reports}
+        reports={dashboardData.reports}
         media={media}
         plans={plans}
       />

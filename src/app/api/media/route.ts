@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const formatted = media.map((item) => ({
       id: item.id,
       url: item.url || '',
-      thumbnail: item.thumbnail || null,
       cloudinaryPublicId: item.cloudinaryPublicId || null,
       youtubeId: item.youtubeId || null,
       videoUrl: item.videoUrl || null,
