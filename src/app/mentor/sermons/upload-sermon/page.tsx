@@ -195,6 +195,16 @@ export default function UploadSermonPage() {
               <span className="font-semibold text-pink-300">📋 Requirements:</span> Clear title, detailed description, preacher name, valid video file. Your sermon will be uploaded to YouTube and saved to our database.
             </p>
           </div>
+
+          {/* Back Button */}
+          <div className="mt-6 flex justify-center">
+            <a
+              href="/mentor/sermons"
+              className="px-6 py-3 bg-gradient-to-r from-gray-400 to-gray-500 text-gray-900 font-bold rounded-lg hover:opacity-90 transition-transform transform hover:scale-105"
+            >
+              ← Back to Sermons
+            </a>
+          </div>
         </div>
       </main>
 

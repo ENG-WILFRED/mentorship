@@ -178,7 +178,7 @@ function UserProfileDropdown() {
 
 export default function MentorshipHeader() {
   return (
-    <header className="relative z-50 w-full bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-pink-900/60 backdrop-blur-md text-white">
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-pink-900/60 backdrop-blur-md text-white shadow-lg">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center gap-3">

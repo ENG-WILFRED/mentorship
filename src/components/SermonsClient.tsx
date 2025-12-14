@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import Footer from "./Footer";
+import MentorshipHeader from "./MentorshipHeader";
 import HeroSection from "./sermon/HeroSection";
 import SearchFilter from "./sermon/SearchFilter";
 import TopicsGrid from "./sermon/TopicsGrid";
@@ -62,15 +63,13 @@ export default function SermonsClient({ initialSermons, user }: Props) {
   const topics = Array.from(
     new Set(initialSermons.map((s) => s.topic || "General"))
   );
-  const authors = selectedTopic
-    ? Array.from(
-        new Set(
-          initialSermons
-            .filter((s) => (s.topic || "General") === selectedTopic)
-            .map((s) => s.author || "Unknown")
-        )
-      )
-    : [];
+  const authors = Array.from(
+    new Set(
+      initialSermons
+        .filter((s) => !selectedTopic || (s.topic || "General") === selectedTopic)
+        .map((s) => s.author || "Unknown")
+    )
+  );
 
   const filteredSermons = initialSermons.filter((s) => {
     const matchesTopic =
@@ -124,110 +123,109 @@ export default function SermonsClient({ initialSermons, user }: Props) {
     setReactions((prev) => ({ ...prev, [r]: (prev[r] || 0) + 1 }));
   };
 
-  const showTopicsOnly = !selectedTopic;
-  const showVideos = !!selectedTopic;
   const showVideoPlayer = !!currentSermon;
 
   return (
-    <div
-      className={`min-h-screen flex flex-col ${
-        showVideoPlayer
-          ? "bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"
-          : "bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"
-      }`}
-    >
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      {/* Sticky Header */}
+      <MentorshipHeader />
 
-      <main className="flex flex-col px-4 md:px-8 lg:px-16 pt-8 z-10 pb-16">
-        <HeroSection showHero={!showVideoPlayer} />
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="flex flex-col px-4 sm:px-6 md:px-8 lg:px-16 py-8 md:py-12 z-10 pb-16">
+          {!showVideoPlayer && (
+            <>
+              <HeroSection showHero={true} />
 
-        {!showVideoPlayer && (
-          <SearchFilter
-            selectedTopic={selectedTopic}
-            setSelectedTopic={setSelectedTopic}
-            selectedAuthor={selectedAuthor}
-            setSelectedAuthor={setSelectedAuthor}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            topics={topics}
-            authors={authors}
-            showVideos={showVideos}
-            user={user}
-          />
-        )}
-
-        {showTopicsOnly && (
-          <TopicsGrid
-            topics={topics}
-            initialSermons={initialSermons}
-            onSelectTopic={setSelectedTopic}
-          />
-        )}
-
-        {showVideos && !showVideoPlayer && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Sermons</h2>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => router.push('/mentor/dashboard')}
-                  className="px-4 py-2 bg-white/10 text-white border border-white/10 rounded-lg hover:bg-white/20 transition"
-                >
-                  ← Back to Dashboard
-                </button>
-                <button
-                  onClick={() => router.push('/mentor/sermons/upload-sermon')}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:opacity-90 transition"
-                >
-                  Upload Sermon
-                </button>
-              </div>
-            </div>
-
-            {filteredSermons.length > 0 ? (
-              <SermonsGrid
-                sermons={filteredSermons}
-                onSelectSermon={setCurrentSermon}
+              <SearchFilter
                 selectedTopic={selectedTopic}
+                setSelectedTopic={setSelectedTopic}
+                selectedAuthor={selectedAuthor}
+                setSelectedAuthor={setSelectedAuthor}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                topics={topics}
+                authors={authors}
+                showVideos={true}
+                user={user}
               />
-            ) : (
-              <div className="py-16 text-center">
-                <p className="text-lg text-gray-300 mb-6">No sermons found for your filters.</p>
+
+              {/* Topics Grid */}
+              {topics.length > 1 && (
+                <TopicsGrid
+                  topics={topics}
+                  initialSermons={initialSermons}
+                  onSelectTopic={setSelectedTopic}
+                />
+              )}
+
+              {/* Sermons Section - Always Visible */}
+              <div className="mt-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white">Sermons Library</h2>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <button
+                      onClick={() => router.push('/mentor/dashboard')}
+                      className="px-4 py-2 bg-white/10 text-white border border-white/10 rounded-lg hover:bg-white/20 transition text-sm sm:text-base"
+                    >
+                      ← Back to Dashboard
+                    </button>
+                    <button
+                      onClick={() => router.push('/mentor/sermons/upload-sermon')}
+                      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:opacity-90 transition text-sm sm:text-base"
+                    >
+                      📤 Upload Sermon
+                    </button>
+                  </div>
+                </div>
+
+                {filteredSermons.length > 0 ? (
+                  <SermonsGrid
+                    sermons={filteredSermons}
+                    onSelectSermon={setCurrentSermon}
+                    selectedTopic={selectedTopic}
+                  />
+                ) : (
+                  <div className="py-16 text-center">
+                    <p className="text-lg text-gray-300 mb-6">No sermons found for your filters.</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
 
-        {showVideoPlayer && (
-          <SermonPlayer
-            currentSermon={currentSermon}
-            onBack={() => setCurrentSermon(null)}
-            playing={playing}
-            onPlayPause={handlePlayPause}
-            onSeek={handleSeek}
-            onFullScreen={handleFullScreen}
-            speed={speed}
-            onSpeedChange={handleSpeedChange}
-            currentTime={currentTime}
-            duration={duration}
-            currentCaption={currentCaption}
-            videoRef={videoRef}
-            onTimeUpdate={(time, duration) => {
-              setCurrentTime(time);
-              setDuration(duration);
-            }}
-            reactions={reactions}
-            onReaction={handleReaction}
-            reactionsList={reactionsList}
-            comments={comments}
-            newComment={comment}
-            onCommentChange={setComment}
-            onSubmitComment={handleComment}
-            user={user}
-          />
-        )}
+          {showVideoPlayer && (
+            <SermonPlayer
+              currentSermon={currentSermon}
+              onBack={() => setCurrentSermon(null)}
+              playing={playing}
+              onPlayPause={handlePlayPause}
+              onSeek={handleSeek}
+              onFullScreen={handleFullScreen}
+              speed={speed}
+              onSpeedChange={handleSpeedChange}
+              currentTime={currentTime}
+              duration={duration}
+              currentCaption={currentCaption}
+              videoRef={videoRef}
+              onTimeUpdate={(time, duration) => {
+                setCurrentTime(time);
+                setDuration(duration);
+              }}
+              reactions={reactions}
+              onReaction={handleReaction}
+              reactionsList={reactionsList}
+              comments={comments}
+              newComment={comment}
+              onCommentChange={setComment}
+              onSubmitComment={handleComment}
+              user={user}
+            />
+          )}
+        </div>
+
+        <Footer />
       </main>
-
-      <Footer />
     </div>
   );
 }
