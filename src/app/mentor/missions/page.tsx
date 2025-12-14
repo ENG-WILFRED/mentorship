@@ -1,14 +1,10 @@
-"use client";
+import React from 'react';
+import { getDashboardData } from '@/actions/dashboard';
+import MentorshipHeader from '@/components/MentorshipHeader';
+import Footer from '@/components/Footer';
 
-import { useRouter } from "next/navigation";
-import { missions } from "../../data";
-
-export default function NewMissionPage() {
-  const router = useRouter();
-
-  function handleBack() {
-    router.push("/mentor/dashboard");
-  }
+export default async function MissionsPage() {
+  const { missions } = await getDashboardData();
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden">
@@ -22,6 +18,8 @@ export default function NewMissionPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-indigo-800/70 to-pink-900/80 opacity-80" />
       </div>
 
+      <MentorshipHeader />
+
       {/* Title */}
       <h1 className="text-4xl font-extrabold text-purple-100 mb-8 drop-shadow-lg">
         Missions
@@ -29,43 +27,28 @@ export default function NewMissionPage() {
 
       {/* Mission cards */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        {missions.map(
-          (
-            mission: {
-              title: string;
-              topic: string;
-              date: string;
-              status: string;
-              schools: string[];
-              mentors: string[];
-              students: number | string;
-              description?: string;
-              goals?: string;
-              outcomes?: string;
-              notes?: string;
-            },
-            i: number
-          ) => (
+        {missions && missions.length > 0 ? (
+          missions.map((mission: any) => (
             <div
-              key={i}
+              key={mission.id}
               className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg p-6 flex flex-col gap-3 border border-purple-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
             >
               {/* Title */}
               <h3 className="text-2xl font-bold text-purple-900 mb-2 tracking-tight">
-                {mission.title || mission.topic}
+                {mission.title}
               </h3>
 
               {/* Date + Status */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">📅 {mission.date}</span>
+                <span className="text-sm text-gray-500">📅 {new Date(mission.date).toLocaleDateString()}</span>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    mission.status === "Completed"
+                    mission.status === "COMPLETED"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {mission.status}
+                  {mission.status === "COMPLETED" ? "Completed" : mission.status === "ONGOING" ? "Ongoing" : "Upcoming"}
                 </span>
               </div>
 
@@ -73,15 +56,15 @@ export default function NewMissionPage() {
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
                 <p>
                   <span className="font-semibold text-purple-700">🏫 Schools:</span>{" "}
-                  {mission.schools.join(", ")}
+                  {mission.schools && mission.schools.length > 0 ? mission.schools.map((s: any) => s.school?.name).join(", ") : "—"}
                 </p>
                 <p>
                   <span className="font-semibold text-purple-700">👨‍🏫 Mentors:</span>{" "}
-                  {mission.mentors.join(", ")}
+                  {mission.mentors && mission.mentors.length > 0 ? mission.mentors.map((m: any) => m.mentor?.name).join(", ") : "—"}
                 </p>
                 <p>
                   <span className="font-semibold text-purple-700">👩‍🎓 Students:</span>{" "}
-                  {mission.students}
+                  {mission.students || "—"}
                 </p>
               </div>
 
@@ -113,7 +96,11 @@ export default function NewMissionPage() {
                 </div>
               )}
             </div>
-          )
+          ))
+        ) : (
+          <div className="col-span-2 text-center text-white">
+            <p className="text-lg">No missions yet. Create one to get started!</p>
+          </div>
         )}
       </div>
 
@@ -125,13 +112,16 @@ export default function NewMissionPage() {
         >
           ➕ Add Mission
         </a>
-        <button
-          onClick={handleBack}
+        <a
+          href="/mentor/dashboard"
           className="bg-gradient-to-r from-gray-300 to-purple-400 text-purple-900 font-bold py-3 px-6 rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform text-lg tracking-wide border border-purple-300"
         >
           ← Back to Dashboard
-        </button>
+        </a>
       </div>
+
+      <Footer />
     </main>
   );
 }
+

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "../../context/AuthContext";
 import { getAccessToken } from "../../lib/auth";
+import { useToast } from "@/components/Toast";
 import { MediaUpload } from "@/components/MediaGallery/MediaUpload";
 import MediaGallery from "../../components/MediaGallery/index";
 
@@ -39,9 +40,11 @@ export default function DashboardClient({
   plans,
 }: DashboardClientProps) {
   const router = useRouter();
+  const toast = useToast();
   const { role, user } = useAuthContext();
   const [isInitialized, setIsInitialized] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
   // Check authentication on mount and redirect if needed
   useEffect(() => {
@@ -62,8 +65,19 @@ export default function DashboardClient({
 
   const totalMissions = missions.length;
   const totalSchools = schools.length;
-  const totalStudents = schools.reduce((a: number, s: { students: number }) => a + s.students, 0);
-  const nextMission = missions.find((m: { status: string }) => m.status === "Upcoming");
+  const totalStudents = schools.reduce((a: number, s: { population?: number }) => a + (s.population || 0), 0);
+  const nextMission = missions.find((m: any) => {
+    const st = String(m.status || "").toLowerCase();
+    return st === "upcoming" || st === "upcoming".toLowerCase();
+  });
+
+  const handleViewAll = (section: string, path: string) => {
+    setLoadingSection(section);
+    toast(`Navigating to ${section}...`, "info");
+    setTimeout(() => {
+      router.push(path);
+    }, 300);
+  };
 
   // Handle Media Upload from page upload form
   async function handleUpload(mediaData: any) {
@@ -105,7 +119,7 @@ export default function DashboardClient({
         <StatCard icon="✅" label="Total Missions" value={totalMissions} />
         <StatCard icon="🏫" label="Schools Reached" value={totalSchools} />
         <StatCard icon="👥" label="Students Impacted" value={totalStudents} />
-        <StatCard icon="📅" label="Next Mission" value={nextMission ? nextMission.date : "-"} />
+        <StatCard icon="📅" label="Next Mission" value={nextMission ? new Date(nextMission.date).toLocaleDateString() : "-"} />
       </section>
 
       
@@ -113,27 +127,30 @@ export default function DashboardClient({
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-purple-700">Mission Timeline</h2>
-          <button 
-            onClick={() => router.push('/mentor/missions')}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
-          >
-            + New Mission
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleViewAll('Missions', '/mentor/missions')}
+              disabled={loadingSection === 'Missions'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Missions' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
         </div>
         <div className="border-l-4 border-purple-300 pl-6">
-          {missions.map((m: { date: string; status: string; schools: string[]; topic: string; mentors: string[]; students: number }, i: number) => (
+          {missions.map((m: any, i: number) => (
             <div key={i} className="mb-6 relative">
               <div className="absolute -left-7 top-2 w-4 h-4 bg-purple-400 rounded-full border-2 border-white"></div>
               <div className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-purple-700">{m.date}</span>
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${m.status === "Completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                  <span className="font-bold text-purple-700">{m.date ? new Date(m.date).toLocaleDateString() : '-'}</span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${String(m.status).toLowerCase() === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                     {m.status}
                   </span>
                 </div>
-                <div className="text-gray-700 mb-1">Schools: {m.schools.join(", ")}</div>
-                <div className="text-gray-600 text-sm">Topic: {m.topic} | Mentors: {m.mentors.join(", ")}</div>
-                <div className="text-gray-600 text-sm">Students: {m.students}</div>
+                <div className="text-gray-700 mb-1">Schools: {Array.isArray(m.schools) ? m.schools.map((ms: any) => ms.school?.name || '').filter(Boolean).join(', ') : ''}</div>
+                <div className="text-gray-600 text-sm">Topic: {m.topic} | Mentors: {Array.isArray(m.mentors) ? m.mentors.map((mm: any) => mm.mentor?.name || '').filter(Boolean).join(', ') : ''}</div>
+                <div className="text-gray-600 text-sm">Students: {m.students ?? '-'}</div>
               </div>
             </div>
           ))}
@@ -146,12 +163,15 @@ export default function DashboardClient({
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-purple-700">Schools</h2>
-          <button 
-            onClick={() => router.push('/mentor/schools/add')}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
-          >
-            + Add School
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleViewAll('Schools', '/mentor/schools')}
+              disabled={loadingSection === 'Schools'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Schools' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {schools.map((s: any, i: number) => (
@@ -164,12 +184,15 @@ export default function DashboardClient({
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-purple-700">Mentors</h2>
-          <button 
-            onClick={() => router.push('/mentor/mentors/add')}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
-          >
-            + Add Mentor
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleViewAll('Mentors', '/mentor/mentors')}
+              disabled={loadingSection === 'Mentors'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Mentors' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-8 justify-center">
           {mentors.map((m: any, i: number) => (
@@ -264,7 +287,7 @@ export default function DashboardClient({
           {reports.map((r: any, i: number) => (
             <div key={i} className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-6">
               <div className="font-bold text-purple-700 mb-1">
-                {r.school} ({r.date})
+                {r.school?.name ?? r.school ?? 'Unknown School'} ({r.date ? new Date(r.date).toLocaleDateString() : ''})
               </div>
               <div className="text-gray-700 mb-1">Topic: {r.topic}</div>
               <div className="text-gray-600 text-sm">Students: {r.students}</div>
@@ -338,26 +361,26 @@ function ActionButton({ label, router }: { label: string; router: any }) {
   );
 }
 
-function SchoolCard({ school }: { school: { name: string; principal: string; students: number; location: string } }) {
+function SchoolCard({ school }: { school: any }) {
   return (
     <div className="bg-white/80 border border-purple-200 rounded-2xl shadow-lg p-6 text-center hover:scale-105 transition-transform">
       <div className="text-4xl mb-2">🏫</div>
       <h3 className="text-lg font-bold text-purple-800 mb-1">{school.name}</h3>
-      <p className="text-gray-700 text-sm mb-3">Principal: {school.principal}</p>
-      <p className="text-gray-600 text-sm mb-1">Students: {school.students}</p>
-      <p className="text-gray-600 text-sm">Location: {school.location}</p>
+      <p className="text-gray-700 text-sm mb-3">Contact: {school.contact ?? '—'}</p>
+      <p className="text-gray-600 text-sm mb-1">Students: {school.population ?? '—'}</p>
+      <p className="text-gray-600 text-sm">Location: {school.location ?? '—'}</p>
     </div>
   );
 }
 
-function MentorCard({ mentor }: { mentor: { img: string; name: string; role: string; phone: string; missions?: string | number } }) {
+function MentorCard({ mentor }: { mentor: any }) {
   return (
     <div className="bg-white/70 border border-purple-200 rounded-2xl shadow-xl p-6 flex flex-col items-center w-64 hover:scale-105 transition-transform">
-      <img src={mentor.img} alt={mentor.name} className="w-20 h-20 rounded-full border-2 border-purple-400 mb-3 shadow-md object-cover" />
+      <img src={mentor.img ?? '/favicon.ico'} alt={mentor.name} className="w-20 h-20 rounded-full border-2 border-purple-400 mb-3 shadow-md object-cover" />
       <h3 className="text-xl font-bold text-purple-800 mb-1">{mentor.name}</h3>
-      <p className="text-gray-700 text-center">{mentor.role}</p>
-      <p className="text-gray-600 text-sm">Phone: {mentor.phone}</p>
-      <p className="text-gray-600 text-sm">Missions: {mentor.missions}</p>
+      <p className="text-gray-700 text-center">{mentor.bio ?? mentor.role ?? ''}</p>
+      <p className="text-gray-600 text-sm">Phone: {mentor.phone ?? mentor.email ?? '—'}</p>
+      <p className="text-gray-600 text-sm">Missions: {Array.isArray(mentor.missions) ? mentor.missions.length : mentor.missions ?? '—'}</p>
     </div>
   );
 }

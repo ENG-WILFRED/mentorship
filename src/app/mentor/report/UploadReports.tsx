@@ -1,21 +1,61 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/Toast';
 
-// --- Helper Components & Icons ---
-// Removed UploadIcon, FileIcon, CheckCircleIcon as they are not relevant for form-based input
+interface Mission {
+  id: number;
+  name: string;
+}
 
-// --- Main Upload Component ---
+interface School {
+  id: number;
+  name: string;
+}
 
 const UploadReports: React.FC = () => {
+    const router = useRouter();
+    const toast = useToast();
     const [reportTitle, setReportTitle] = useState('');
     const [reportType, setReportType] = useState<'session_summary' | 'progress_report' | 'feedback' | 'other' | ''>('');
-    const [mentorName, setMentorName] = useState('');
-    const [menteeName, setMenteeName] = useState('');
+    const [missionId, setMissionId] = useState<string>('');
+    const [schoolId, setSchoolId] = useState<string>('');
     const [reportDate, setReportDate] = useState('');
+    const [students, setStudents] = useState('');
     const [content, setContent] = useState('');
     const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+    const [missions, setMissions] = useState<Mission[]>([]);
+    const [schools, setSchools] = useState<School[]>([]);
+    const [loadingData, setLoadingData] = useState(true);
+
+    // Fetch missions and schools on component mount
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const [missionsRes, schoolsRes] = await Promise.all([
+            fetch('/api/missions'),
+            fetch('/api/schools'),
+          ]);
+
+          if (missionsRes.ok) {
+            const missionsData = await missionsRes.json();
+            setMissions(missionsData);
+          }
+          if (schoolsRes.ok) {
+            const schoolsData = await schoolsRes.json();
+            setSchools(schoolsData);
+          }
+        } catch (error) {
+          console.error('Failed to fetch missions and schools:', error);
+        } finally {
+          setLoadingData(false);
+        }
+      };
+
+      fetchData();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -23,37 +63,57 @@ const UploadReports: React.FC = () => {
         setErrorMessage('');
         
         // Basic validation for report fields
-        if (!reportTitle || !reportType || !mentorName || !menteeName || !reportDate || !content) {
+        if (!missionId || !schoolId || !reportDate || !reportTitle || !content) {
             setErrorMessage('Please fill in all required fields for the report.');
             setSubmissionStatus('error');
+            toast('Please fill in all required fields', 'error');
             return;
         }
 
-        // Simulate API call to add a new report
         try {
-            console.log('Submitting report data:', { reportTitle, reportType, mentorName, menteeName, reportDate, content });
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+            const response = await fetch('/api/reports', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                missionId,
+                schoolId,
+                date: reportDate,
+                topic: reportTitle,
+                students: students || 0,
+                outcome: content,
+              }),
+            });
 
-            // Simulate success or failure
-            const success = Math.random() > 0.2; // 80% success rate for demo purposes
-
-            if (success) {
-                setSubmissionStatus('success');
-                // Clear form fields after successful submission
-                setReportTitle('');
-                setReportType('');
-                setMentorName('');
-                setMenteeName('');
-                setReportDate('');
-                setContent('');
-            } else {
-                throw new Error('Failed to add report. Please try again.');
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || 'Failed to create report');
             }
+
+            setSubmissionStatus('success');
+            toast('Report uploaded successfully!', 'success');
+            
+            // Clear form fields after successful submission
+            setReportTitle('');
+            setReportType('');
+            setMissionId('');
+            setSchoolId('');
+            setReportDate('');
+            setStudents('');
+            setContent('');
+
+            // Redirect after brief delay
+            setTimeout(() => {
+              router.push('/mentor/report');
+            }, 1500);
         } catch (error) {
             if (error instanceof Error) {
                 setErrorMessage(error.message);
+                toast(error.message, 'error');
             } else {
                 setErrorMessage('An unexpected error occurred.');
+                toast('An unexpected error occurred', 'error');
             }
             setSubmissionStatus('error');
         }
@@ -83,8 +143,11 @@ const UploadReports: React.FC = () => {
             </style>
 
             <h2 style={styles.title}>Add New Report</h2>
-            <p style={styles.subtitle}>Manually create and submit a mentorship report.</p>
+            <p style={styles.subtitle}>Create and submit a mentorship report from the database.</p>
 
+            {loadingData ? (
+              <p style={styles.loadingMessage}>Loading missions and schools...</p>
+            ) : (
             <form onSubmit={handleSubmit} style={styles.form}>
                 <div style={styles.formGroup}>
                     <label htmlFor="reportTitle" style={styles.label}>Report Title:</label>
@@ -100,46 +163,39 @@ const UploadReports: React.FC = () => {
                 </div>
 
                 <div style={styles.formGroup}>
-                    <label htmlFor="reportType" style={styles.label}>Report Type:</label>
+                    <label htmlFor="missionId" style={styles.label}>Mission:</label>
                     <select
-                        id="reportType"
-                        value={reportType}
-                        onChange={(e) => setReportType(e.target.value as 'session_summary' | 'progress_report' | 'feedback' | 'other' | '')}
+                        id="missionId"
+                        value={missionId}
+                        onChange={(e) => setMissionId(e.target.value)}
                         style={styles.select}
                         required
                     >
-                        <option value="">Select Report Type</option>
-                        <option value="session_summary">Session Summary</option>
-                        <option value="progress_report">Progress Report</option>
-                        <option value="feedback">Feedback Report</option>
-                        <option value="other">Other</option>
+                        <option value="">Select a Mission</option>
+                        {missions.map((mission) => (
+                          <option key={mission.id} value={mission.id}>
+                            {mission.name}
+                          </option>
+                        ))}
                     </select>
                 </div>
 
                 <div style={styles.formGroup}>
-                    <label htmlFor="mentorName" style={styles.label}>Mentor Name:</label>
-                    <input
-                        type="text"
-                        id="mentorName"
-                        value={mentorName}
-                        onChange={(e) => setMentorName(e.target.value)}
-                        style={styles.input}
+                    <label htmlFor="schoolId" style={styles.label}>School:</label>
+                    <select
+                        id="schoolId"
+                        value={schoolId}
+                        onChange={(e) => setSchoolId(e.target.value)}
+                        style={styles.select}
                         required
-                        placeholder="e.g., Alice Johnson"
-                    />
-                </div>
-
-                <div style={styles.formGroup}>
-                    <label htmlFor="menteeName" style={styles.label}>Mentee Name:</label>
-                    <input
-                        type="text"
-                        id="menteeName"
-                        value={menteeName}
-                        onChange={(e) => setMenteeName(e.target.value)}
-                        style={styles.input}
-                        required
-                        placeholder="e.g., Bob Williams"
-                    />
+                    >
+                        <option value="">Select a School</option>
+                        {schools.map((school) => (
+                          <option key={school.id} value={school.id}>
+                            {school.name}
+                          </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div style={styles.formGroup}>
@@ -155,7 +211,19 @@ const UploadReports: React.FC = () => {
                 </div>
 
                 <div style={styles.formGroup}>
-                    <label htmlFor="content" style={styles.label}>Report Content:</label>
+                    <label htmlFor="students" style={styles.label}>Number of Students:</label>
+                    <input
+                        type="number"
+                        id="students"
+                        value={students}
+                        onChange={(e) => setStudents(e.target.value)}
+                        style={styles.input}
+                        placeholder="e.g., 25"
+                    />
+                </div>
+
+                <div style={styles.formGroup}>
+                    <label htmlFor="content" style={styles.label}>Report Outcome:</label>
                     <textarea
                         id="content"
                         value={content}
@@ -185,6 +253,7 @@ const UploadReports: React.FC = () => {
                     </button>
                 </div>
             </form>
+            )}
         </div>
     );
 };
@@ -205,6 +274,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     buttonDisabled: { backgroundColor: '#a0aec0', color: '#e2e8f0', cursor: 'not-allowed', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: 600 },
     errorMessage: { color: '#e53e3e', marginTop: '1rem', textAlign: 'center', fontSize: '0.9rem' },
     successMessage: { color: '#38a169', marginTop: '1rem', textAlign: 'center', fontSize: '0.9rem' },
+    loadingMessage: { color: '#7e22ce', fontSize: '1rem', textAlign: 'center', marginTop: '1rem' },
 };
 
 export default UploadReports;
