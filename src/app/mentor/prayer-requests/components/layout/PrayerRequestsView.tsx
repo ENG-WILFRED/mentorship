@@ -20,6 +20,7 @@ import {
   usePrayerStats,
 } from "@/app/mentor/prayer-requests/hooks";
 import { decodeToken, getAccessToken } from "@/lib/auth";
+import StyledBackgroundLayout from "./StyledBackgroundLayout";
 
 
 type FilterType = "all" | StatusOptions;
@@ -162,16 +163,8 @@ export default function PrayerRequestsView() {
   return (
     <div className="min-h-screen relative font-sans">
       {/* Background image with overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Image
-          src="/pray3.jpg"
-          alt="Background"
-          fill
-          className="w-full h-full object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/30" />
-      </div>
+     <StyledBackgroundLayout />
+
 
       {/* Main content */}
       <div className="relative z-10">
