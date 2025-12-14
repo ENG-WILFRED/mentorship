@@ -155,6 +155,15 @@ function UserProfileDropdown() {
               <span className="group-hover:scale-110 transition-transform">🎙️</span> Sermons
             </button>
             <button
+              onClick={() => {
+                setShowMenu(false);
+                router.push("/mentor/prayer-requests");
+              }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-white/10 text-sm text-white/90 hover:text-white transition-all duration-200 group flex items-center gap-2"
+            >
+              <span className="group-hover:scale-110 transition-transform">🙏</span> Prayer Requests
+            </button>
+            <button
               onClick={handleLogout}
               className="w-full text-left px-4 py-2 rounded-lg hover:bg-red-500/20 text-sm text-red-300 hover:text-red-200 transition-all duration-200 font-semibold group flex items-center gap-2"
             >

@@ -22,23 +22,65 @@ export type CategoryOption =
   | "Family"
   | "Spiritual Growth";
 
-export interface PrayerRequest {
-  id?: number;
+export interface CreatePrayerRequestInput {
   request: string;
   school?: string | null;
   priority?: PriorityOptions;
-  mentor?: string | null;
-  prayedBy?: string[];
   notes?: string | null;
   studentId?: string | null;
   grade?: string | null;
   subject?: string | null;
   status?: StatusOptions;
-  date?: Date;
   category?: string | null;
   email?: string | null;
   name?: string | null;
+  
+  // NEW: User who creates the request
+  createdById?: number;
+  
+  // NEW: Mentor assigned to this request
+  assignedMentorId?: number;
 }
+
+export interface PrayerRequestResponse {
+  id: number;
+  request: string;
+  school: string | null;
+  priority: PriorityOptions;
+  notes: string | null;
+  studentId: string | null;
+  grade: string | null;
+  subject: string | null;
+  status: StatusOptions;
+  date: Date;
+  category: string | null;
+  email: string | null;
+  name: string | null;
+  createdById: number | null;
+  assignedMentorId: number | null;
+  
+  // Include related data
+  createdBy?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  assignedMentor?: {
+    id: number;
+    name: string;
+    email: string | null;
+  } | null;
+  prayedByUsers?: {
+    user: {
+      id: number;
+      firstName: string;
+      lastName: string;
+    };
+    prayedAt: Date;
+  }[];
+}
+
 
 export interface FormData {
   fullName: string;

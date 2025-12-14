@@ -2,7 +2,6 @@ import React from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
   Heart,
   Activity,
   Settings,
@@ -30,9 +29,8 @@ export default function SideBar({
     name: string;
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   }[] = [
-    { key: "dashboard", name: "Dashboard", Icon: TrendingUp },
+    { key: "dashboard", name: "Dashboard", Icon: Activity },
     { key: "requests", name: "Requests", Icon: Heart },
-    { key: "analytics", name: "Analytics", Icon: Activity },
     { key: "settings", name: "Settings", Icon: Settings },
   ];
 

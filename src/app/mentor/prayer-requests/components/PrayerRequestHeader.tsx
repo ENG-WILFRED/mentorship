@@ -39,7 +39,7 @@ export default function PrayerRequestHeader({
           </div>
 
           {/* Title */}
-          <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2">
+          <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2  text-white">
             Student Prayer Requests
           </h1>
 
