@@ -4,6 +4,10 @@ import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../components/Toast";
 import { ReactQueryProvider } from "@/lib/QueryProvider";
 
+/** 👇 ADD THESE TWO LINES */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Wisdom Mentorship society",
   description:

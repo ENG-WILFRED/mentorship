@@ -10,7 +10,7 @@ import {
   usePrayerRequests,
   usePrayerStats,
   useUpdatePrayerRequest,
-  useRemovePrayer,
+  useDeletePrayerRequest,
 } from "@/app/mentor/prayer-requests/hooks";
 import DashboardTab from "../admin/tabs/DashboardTab";
 import AnalyticsTab from "../admin/AnalyticsStats";
@@ -54,8 +54,9 @@ export default function PrayerAdminDashboard({
   const { updatePrayerRequest, isLoading: isUpdating } =
     useUpdatePrayerRequest();
 
-  // Remove prayer mutation
-  const { removePrayer, isLoading: isRemoving } = useRemovePrayer();
+  // Delete prayer request mutation
+  const { deletePrayerRequest, isLoading: isDeleting } =
+    useDeletePrayerRequest();
 
   // ==================== HANDLERS ====================
 
@@ -64,15 +65,7 @@ export default function PrayerAdminDashboard({
   };
 
   const handleDeleteRequest = (prayerRequestId: number) => {
-    if (!currentUserId) {
-      console.error("No current user ID provided");
-      return;
-    }
-
-    removePrayer({
-      prayerRequestId,
-      userId: currentUserId,
-    });
+    deletePrayerRequest(prayerRequestId);
   };
 
   // ==================== LOADING & ERROR STATES ====================

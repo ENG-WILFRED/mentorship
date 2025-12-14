@@ -176,7 +176,7 @@ export default function DashboardTab({
       <QuickActions handleExportData={handleExportData} />
 
       {/* Recent Activity */}
-      <RecentActivity recentRequests={recentRequests} />
+      <RecentActivity recentRequests={recentRequests} deleteRequest={deleteRequest} />
     </div>
   );
 }

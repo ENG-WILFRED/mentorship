@@ -6,7 +6,7 @@ import { useToast } from '@/components/Toast';
 
 interface Mission {
   id: number;
-  name: string;
+  title: string;
 }
 
 interface School {
@@ -174,7 +174,7 @@ const UploadReports: React.FC = () => {
                         <option value="">Select a Mission</option>
                         {missions.map((mission) => (
                           <option key={mission.id} value={mission.id}>
-                            {mission.name}
+                            {mission.title}
                           </option>
                         ))}
                     </select>

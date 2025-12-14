@@ -14,9 +14,8 @@ interface Report {
     name: string;
   };
   mission: {
-    name: string;
+    title: string;
   };
-
 }
 
 const ReportsPage: React.FC = async () => {
@@ -27,244 +26,99 @@ const ReportsPage: React.FC = async () => {
   const avgStudentsPerReport = totalReports > 0 ? Math.round(totalStudentsImpacted / totalReports) : 0;
 
   return (
-    <div style={styles.page}>
-      <MentorshipHeader />
-      <div style={styles.container}>
-        <header style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Mission Reports</h1>
-            <p style={styles.subtitle}>Dashboard for all mission reports and activities.</p>
-          </div>
-          <div style={styles.headerActions}>
-            <Link href="/mentor/dashboard" passHref>
-              <button style={{...styles.button, ...styles.buttonSecondary}}>← Back to Dashboard</button>
-            </Link>
-            <Link href="/mentor/report/upload" passHref>
-              <button style={styles.button}>+ Upload Report</button>
-            </Link>
-          </div>
-        </header>
-
-        {/* KPI Section */}
-        <section style={styles.kpiGrid}>
-          <div style={styles.kpiCard}>
-            <h3 style={styles.kpiValue}>{totalReports}</h3>
-            <p style={styles.kpiTitle}>Total Reports</p>
-            <p style={styles.kpiDescription}>All submitted reports</p>
-          </div>
-          <div style={styles.kpiCard}>
-            <h3 style={styles.kpiValue}>{totalStudentsImpacted}</h3>
-            <p style={styles.kpiTitle}>Students Impacted</p>
-            <p style={styles.kpiDescription}>Total students across all reports</p>
-          </div>
-          <div style={styles.kpiCard}>
-            <h3 style={styles.kpiValue}>{avgStudentsPerReport}</h3>
-            <p style={styles.kpiTitle}>Avg Students/Report</p>
-            <p style={styles.kpiDescription}>Average per mission report</p>
-          </div>
-        </section>
-
-        {/* Reports List */}
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>All Reports</h2>
-          <div style={styles.reportsGrid}>
-            {reports.length > 0 ? (
-              reports.map((report: any) => (
-                <div key={report.id} style={styles.reportCard}>
-                  <div style={styles.reportHeader}>
-                    <div>
-                      <h3 style={styles.reportTitle}>{report.school?.name || 'Unknown School'}</h3>
-                      <p style={styles.reportMeta}>
-                        Mission: {report.mission?.name || 'N/A'}
-                      </p>
-                    </div>
-                    <span style={styles.reportDate}>
-                      {report.date ? new Date(report.date).toLocaleDateString() : 'N/A'}
-                    </span>
-                  </div>
-                  <div style={styles.reportContent}>
-                    <p style={styles.reportTopic}>
-                      <strong>Topic:</strong> {report.topic}
-                    </p>
-                    <p style={styles.reportStudents}>
-                      <strong>Students:</strong> {report.students}
-                    </p>
-                    <p style={styles.reportOutcome}>
-                      <strong>Outcome:</strong> {report.outcome}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p style={styles.noReports}>No reports found. Start by uploading a new report.</p>
-            )}
-          </div>
-        </section>
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      {/* Background */}
+      <div className="absolute inset-0 -z-10">
+        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80" alt="Reports Dashboard" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-indigo-800/70 to-purple-900/80 opacity-80" />
       </div>
-      <Footer />
+
+      {/* Sticky Header */}
+      <MentorshipHeader />
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="w-full px-4 sm:px-6 md:px-8 py-8 md:py-12">
+          <div className="max-w-6xl mx-auto">
+            {/* Title and Actions */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/95 drop-shadow-lg">Mission Reports</h1>
+                <p className="text-sm sm:text-base md:text-lg text-white/75 mt-2">Dashboard for all mission reports and activities.</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/mentor/dashboard" passHref>
+                  <button className="px-4 sm:px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg border border-white/20 transition-all text-center">← Back to Dashboard</button>
+                </Link>
+                <Link href="/mentor/report/upload" passHref>
+                  <button className="px-4 sm:px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all text-center">+ Upload Report</button>
+                </Link>
+              </div>
+            </div>
+
+            {/* KPI Section */}
+            <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+              <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 p-4 sm:p-6 hover:shadow-xl transition-all">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/95">{totalReports}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-white/75 mt-2 font-semibold">Total Reports</p>
+                <p className="text-xs sm:text-sm text-white/60">All submitted reports</p>
+              </div>
+              <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 p-4 sm:p-6 hover:shadow-xl transition-all">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/95">{totalStudentsImpacted}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-white/75 mt-2 font-semibold">Students Impacted</p>
+                <p className="text-xs sm:text-sm text-white/60">Total students across all reports</p>
+              </div>
+              <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 p-4 sm:p-6 hover:shadow-xl transition-all">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/95">{avgStudentsPerReport}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-white/75 mt-2 font-semibold">Avg Students/Report</p>
+                <p className="text-xs sm:text-sm text-white/60">Average per mission report</p>
+              </div>
+            </section>
+
+            {/* Reports List */}
+            <section>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white/90 mb-6">All Reports</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {reports.length > 0 ? (
+                  reports.map((report: any) => (
+                    <div key={report.id} className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/10 p-4 sm:p-6 hover:shadow-xl hover:border-white/20 transition-all">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg sm:text-xl font-bold text-white/95">{report.school?.name || 'Unknown School'}</h3>
+                          <p className="text-sm text-white/70 mt-1">
+                            Mission: {report.mission?.title || 'N/A'}
+                          </p>
+                        </div>
+                        <span className="text-xs sm:text-sm text-white/60 whitespace-nowrap">
+                          {report.date ? new Date(report.date).toLocaleDateString() : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-white/80">
+                          <span className="font-semibold text-white/90">Topic:</span> {report.topic}
+                        </p>
+                        <p className="text-sm text-white/80">
+                          <span className="font-semibold text-white/90">Students:</span> {report.students}
+                        </p>
+                        <p className="text-sm text-white/80">
+                          <span className="font-semibold text-white/90">Outcome:</span> <span className="line-clamp-2">{report.outcome}</span>
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-white/70 col-span-full text-center py-8">No reports found. Start by uploading a new report.</p>
+                )}
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <Footer />
+      </main>
     </div>
   );
 };
-
-// --- Styles ---
-const styles: { [key: string]: React.CSSProperties } = {
-  page: {
-    fontFamily: 'sans-serif',
-    background: 'linear-gradient(to bottom right, #e0e7ff, #f3e8ff, #fce7f3)',
-    color: '#4a5568',
-    minHeight: '100vh',
-  },
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '2rem 1rem',
-  },
-  header: {
-    marginBottom: '2rem',
-    borderBottom: '1px solid #d8b4fe',
-    paddingBottom: '1rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem',
-  },
-  title: {
-    margin: 0,
-    fontSize: '2rem',
-    color: '#6b21a8',
-  },
-  subtitle: {
-    margin: '0.25rem 0 0',
-    fontSize: '1rem',
-    color: '#7e22ce',
-  },
-  headerActions: {
-    display: 'flex',
-    gap: '0.5rem',
-  },
-  button: {
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #7e22ce, #db2777)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    fontWeight: 600,
-    transition: 'opacity 0.2s',
-  },
-  buttonSecondary: {
-    background: '#e9d5ff',
-    color: '#6b21a8',
-  },
-  kpiGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-  },
-  kpiCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid #d8b4fe',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-  },
-  kpiValue: {
-    margin: 0,
-    fontSize: '2rem',
-    color: '#7e22ce',
-    fontWeight: 700,
-  },
-  kpiTitle: {
-    margin: '0.5rem 0 0',
-    fontSize: '0.9rem',
-    color: '#6b21a8',
-    fontWeight: 600,
-  },
-  kpiDescription: {
-    margin: '0.25rem 0 0',
-    fontSize: '0.8rem',
-    color: '#999',
-  },
-  section: {
-    marginBottom: '2rem',
-  },
-  sectionTitle: {
-    fontSize: '1.5rem',
-    color: '#6b21a8',
-    marginBottom: '1.5rem',
-    fontWeight: 600,
-  },
-  reportsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-    gap: '1.5rem',
-  },
-  reportCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid #d8b4fe',
-    borderRadius: '8px',
-    padding: '1.5rem',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-  },
-  reportHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'start',
-    marginBottom: '1rem',
-    borderBottom: '1px solid #e9d5ff',
-    paddingBottom: '0.75rem',
-  },
-  reportTitle: {
-    margin: 0,
-    fontSize: '1.1rem',
-    color: '#6b21a8',
-    fontWeight: 600,
-  },
-  reportMeta: {
-    margin: '0.25rem 0 0',
-    fontSize: '0.9rem',
-    color: '#999',
-  },
-  reportDate: {
-    fontSize: '0.85rem',
-    color: '#7e22ce',
-    fontWeight: 600,
-    whiteSpace: 'nowrap',
-  },
-  reportContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.75rem',
-  },
-  reportTopic: {
-    margin: 0,
-    fontSize: '0.95rem',
-    color: '#4a5568',
-  },
-  reportStudents: {
-    margin: 0,
-    fontSize: '0.95rem',
-    color: '#4a5568',
-  },
-  reportOutcome: {
-    margin: 0,
-    fontSize: '0.95rem',
-    color: '#4a5568',
-    lineHeight: '1.4',
-  },
-  noReports: {
-    textAlign: 'center',
-    color: '#999',
-    fontSize: '1rem',
-    padding: '2rem',
-  },
-};
-
 
 export default ReportsPage;
