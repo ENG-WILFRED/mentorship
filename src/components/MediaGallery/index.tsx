@@ -36,7 +36,7 @@ export default function MediaGallery({ media: mediaProp, title = 'Mission Galler
   useEffect(() => {
     const interval = setInterval(() => {
       refetch()
-    }, 120000) // 60 seconds
+    }, 1200000) // 60 seconds
     
     return () => clearInterval(interval)
   }, [refetch])

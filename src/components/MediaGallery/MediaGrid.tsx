@@ -2,6 +2,8 @@
 'use client'
 
 import type { MediaItem } from './types'
+import {useState} from 'react'
+import { MediaModal } from './MediaModal'
 import { Grid, Video, Image as ImageIcon, FileText, Heart, Eye } from 'lucide-react'
 
 interface MediaGridProps {
@@ -17,6 +19,7 @@ interface MediaGridProps {
 
 export function MediaGrid({ media, pagination, onPageChange }: MediaGridProps) {
   // Add at the beginning of MediaGrid component
+  const [selectedMedia , setSelectedMedia] = useState<MediaItem | null>(null)
 console.log('MediaGrid received:', {
   mediaCount: media.length,
   firstItem: media[0],
@@ -53,6 +56,14 @@ console.log('MediaGrid received:', {
   return (
     <div>
       {/* Grid */}
+
+      {/* THESE THE MODAL VIEW*/}
+      { selectedMedia && (
+        <MediaModal 
+          item={selectedMedia}
+          onClose={() => setSelectedMedia (null)}
+          />
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {media.map((item) => (
           <div
@@ -60,12 +71,13 @@ console.log('MediaGrid received:', {
             className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             onClick={() => {
               // Prefer explicit videoUrl when available (YouTube), else fallback to url
-              if (item.youtubeId) {
-                const link = item.videoUrl || `https://www.youtube.com/watch?v=${item.youtubeId}`
-                window.open(link, '_blank')
-              } else {
-                window.open(item.url, '_blank')
-              }
+              //if (item.youtubeId) {
+                //const link = item.videoUrl || `https://www.youtube.com/watch?v=${item.youtubeId}`
+                //window.open(link, '_blank')
+              //} else {
+                //window.open(item.url, '_blank')
+              //}
+              setSelectedMedia(item)
             }}
           >
             {/* Media Type Badge */}
