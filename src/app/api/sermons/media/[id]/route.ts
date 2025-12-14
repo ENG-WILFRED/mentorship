@@ -1,7 +1,7 @@
 // app/api/media/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth.server'
 
 export async function GET(request: NextRequest, context: any) {
   const { params } = context || {}

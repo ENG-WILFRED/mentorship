@@ -276,12 +276,21 @@ export default function DashboardClient({
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-purple-700">Mission Reports</h2>
-          <button 
-            onClick={() => router.push('/mentor/report/upload')}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
-          >
-            + Upload Report
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => router.push('/mentor/report/upload')}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm"
+            >
+              + Upload Report
+            </button>
+            <button 
+              onClick={() => handleViewAll('Reports', '/mentor/report')}
+              disabled={loadingSection === 'Reports'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Reports' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {reports.map((r: any, i: number) => (

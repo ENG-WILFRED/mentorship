@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import os from 'os'
 import path from 'path'
 import fs from 'fs'
-import { getCurrentUser, checkUserRole } from '@/lib/auth'
+import { getCurrentUser, checkUserRole } from '@/lib/auth.server'
 
 export async function POST(request: Request) {
   const user = await getCurrentUser(request as any)

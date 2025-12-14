@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       })
     ])
 
-    const formatted = media.map((item) => ({
+    const formatted = media.map((item: { id: any; url: any; cloudinaryPublicId: any; youtubeId: any; videoUrl: any; caption: any; type: any; category: any; date: { toISOString: () => string }; location: any; description: any; uploaderId: any; uploader: any; likes: any; views: any; tags: any; createdAt: { toISOString: () => any }; updatedAt: { toISOString: () => any } }) => ({
       id: item.id,
       url: item.url || '',
       cloudinaryPublicId: item.cloudinaryPublicId || null,
@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
     const media = await prisma.media.create({
       data: {
         url: body.url,
-        thumbnail: body.thumbnail || null,
         caption: body.caption,
         type: body.type.toUpperCase(),
         category: body.category.toUpperCase(),

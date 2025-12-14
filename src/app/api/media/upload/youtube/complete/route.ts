@@ -4,7 +4,7 @@ import path from 'path'
 import os from 'os'
 import { google } from 'googleapis'
 import { oauthClientWithRefresh } from '@/lib/google'
-import { getCurrentUser, checkUserRole } from '@/lib/auth'
+import { getCurrentUser, checkUserRole } from '@/lib/auth.server'
 
 export async function POST(request: Request) {
   const user = await getCurrentUser(request as any)
