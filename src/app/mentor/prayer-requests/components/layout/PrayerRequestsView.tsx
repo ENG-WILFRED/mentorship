@@ -1,9 +1,11 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { CheckCircle, Activity, Heart } from "lucide-react";
 import StatCard from "../StatCard";
 import FilterBar from "../FilterBar";
 import RequestCard from "../student/RequestCard";
-import { PrayerRequest, StatusOptions } from "../../lib/types";
+import { PrayerRequestResponse, StatusOptions } from "../../lib/types";
 import PrayerRequestHeader from "../PrayerRequestHeader";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -11,80 +13,151 @@ import RequestCardSkeleton from "../student/RequestCardSkeleton";
 import Modal from "../Modal";
 import RequestForm from "../student/RequestForm";
 import DetailedRequestModal from "../student/RequestDetails";
-import { fetchPrayerRequests } from "@/actions/prayer/fetchPrayerRequests";
+import {
+  usePrayerRequests,
+  useAddPrayer,
+  useUpdatePrayerRequest,
+  usePrayerStats,
+} from "@/app/mentor/prayer-requests/hooks";
+import { decodeToken, getAccessToken } from "@/lib/auth";
 
-type Filter = "all" | StatusOptions;
 
-/**
- * Prayer Requests Page Component
- * Main page for students to view, submit, and interact with prayer requests.
- */
+type FilterType = "all" | StatusOptions;
+
 export default function PrayerRequestsView() {
-  const [requests, setRequests] = useState<PrayerRequest[]>([]); // Start with an empty array
-  const [selectedRequest, setSelectedRequest] = useState<PrayerRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<PrayerRequestResponse | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [snapshotRequests, setSnapshotRequests] = useState<PrayerRequest[] | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<Filter>("all");
+  const [filterStatus, setFilterStatus] = useState<FilterType>("all");
   const [showDetailsModal, setShowDetailsModal] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [loadingPrayerId, setLoadingPrayerId] = useState<number | null>(null);
+  const [loadingFulfillId, setLoadingFulfillId] = useState<number | null>(null);
 
-  // Fetch prayer requests from the server
+  // Get User id from token
+  const token = getAccessToken();
+
   useEffect(() => {
-    const fetchData = async () => {
+    if (token) {
       try {
-        const fetchedRequests = await fetchPrayerRequests({
-          status: filterStatus !== "all" ? filterStatus : undefined, 
-          search: searchTerm || undefined, 
-        });
-        setRequests(fetchedRequests);
+        const decodedToken = decodeToken(token);
+        setUserId(parseInt(decodedToken?.userId?.toString() || "0"));
       } catch (error) {
-        console.error("Error fetching prayer requests:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error decoding token:", error);
       }
-    };
+    }
+  }, [token]);
 
-    fetchData();
-  }, [filterStatus, searchTerm]); 
+  // ==================== CENTRALIZED HOOKS ====================
 
-  // Filter logic
-  const filteredRequests = requests.filter((request) => {
-    const matchesSearch =
-      request.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.request?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.studentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.school?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || request.status === filterStatus;
-    return matchesSearch && matchesFilter;
+  // Fetch prayer requests
+  const {
+    data: requests,
+    isLoading,
+    isError,
+  } = usePrayerRequests({
+    status: filterStatus === "all" ? undefined : filterStatus,
+    includePrayedBy: true,
   });
 
+  // Fetch prayer statistics
+  const { stats } = usePrayerStats();
+
+  // Add prayer mutation
+  const { addPrayer, isLoading: isPrayerLoading } = useAddPrayer();
+
+  // Update prayer request mutation
+  const { updatePrayerRequest, isLoading: isUpdateLoading } = useUpdatePrayerRequest();
+
+  // ==================== HANDLERS ====================
+
   const handlePrayNow = (requestId: number) => {
-    setRequests(
-      requests.map((req) =>
-        req.id === requestId
-          ? {
-              ...req,
+    if (!userId) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    setLoadingPrayerId(requestId);
+
+    // Add prayer and change status to IN_PROGRESS if currently PENDING
+    addPrayer(
+      {
+        prayerRequestId: requestId,
+        userId: userId,
+      },
+      {
+        onSuccess: () => {
+          // Check if the request is currently PENDING
+          const currentRequest = requests?.find((r) => r.id === requestId);
+          if (currentRequest?.status === "PENDING") {
+            // Update status to IN_PROGRESS
+            updatePrayerRequest({
+              id: requestId,
               status: "IN_PROGRESS",
-            prayedBy: [...(req.prayedBy || []), "Current User"],
-            }
-          : req
-      )
+            });
+          }
+          setLoadingPrayerId(null);
+        },
+        onError: () => {
+          setLoadingPrayerId(null);
+        },
+      }
     );
   };
 
   const handleFulfillRequest = (requestId: number) => {
-    setRequests(
-      requests.map((req) =>
-        req.id === requestId ? { ...req, status: "FULFILLED" } : req
-      )
+    setLoadingFulfillId(requestId);
+    
+    updatePrayerRequest(
+      {
+        id: requestId,
+        status: "FULFILLED",
+      },
+      {
+        onSuccess: () => {
+          setLoadingFulfillId(null);
+        },
+        onError: () => {
+          setLoadingFulfillId(null);
+        },
+      }
     );
   };
 
-  const pendingCount = requests.filter((r) => r.status === "PENDING").length;
-  const fulfilledCount = requests.filter((r) => r.status === "FULFILLED").length;
-  const totalRequests = requests.length;
+  // Filter requests by search term (client-side)
+  const filteredRequests =
+    requests?.filter((request) => {
+      if (!searchTerm) return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        request.request.toLowerCase().includes(searchLower) ||
+        request.name?.toLowerCase().includes(searchLower) ||
+        request.school?.toLowerCase().includes(searchLower) ||
+        request.studentId?.toLowerCase().includes(searchLower)
+      );
+    }) || [];
+
+  // Navigation handlers for modal
+  const handlePrev = () => {
+    if (selectedIndex === null || !filteredRequests) return;
+    const prev = selectedIndex - 1;
+    if (prev >= 0) {
+      setSelectedIndex(prev);
+      setSelectedRequest(filteredRequests[prev]);
+    }
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === null || !filteredRequests) return;
+    const next = selectedIndex + 1;
+    if (next < filteredRequests.length) {
+      setSelectedIndex(next);
+      setSelectedRequest(filteredRequests[next]);
+    }
+  };
 
   return (
     <div className="min-h-screen relative font-sans">
@@ -97,7 +170,6 @@ export default function PrayerRequestsView() {
           className="w-full h-full object-cover object-center"
           priority
         />
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
@@ -110,21 +182,21 @@ export default function PrayerRequestsView() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             <StatCard
               title="Total Requests"
-              value={totalRequests}
+              value={stats?.total || 0}
               icon={Heart}
               colorClass="text-purple-600"
               iconBgClass="bg-purple-100"
             />
             <StatCard
               title="Pending"
-              value={pendingCount}
+              value={stats?.pending || 0}
               icon={Activity}
               colorClass="text-yellow-600"
               iconBgClass="bg-yellow-100"
             />
             <StatCard
               title="Fulfilled"
-              value={fulfilledCount}
+              value={stats?.fulfilled || 0}
               icon={CheckCircle}
               colorClass="text-green-600"
               iconBgClass="bg-green-100"
@@ -140,46 +212,67 @@ export default function PrayerRequestsView() {
           />
 
           {/* Request Cards Grid */}
-          <motion.div
-           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1 },
-            }}
-          >
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="break-inside-avoid mb-4">
-                    <RequestCardSkeleton />
-                  </div>
-                ))
-              : filteredRequests.map((request, index) => (
-                  <motion.div
-                    key={request.id}
-                    className="break-inside-avoid mb-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: index * 0.07 }}
-                  >
-                    <RequestCard
-                      request={request}
-                      onPrayNow={handlePrayNow}
-                      onFulfillRequest={handleFulfillRequest}
-                      onViewDetails={(req) => {
-                        setSelectedRequest(req);
-                        setShowDetailsModal(true);
-                        setSnapshotRequests(filteredRequests);
-                        setSelectedIndex(filteredRequests.findIndex(r => r.id === req.id));
-                      }}
-                    />
-                  </motion.div>
-                ))}
-          </motion.div>
+          {isLoading ? (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1 },
+              }}
+            >
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i}>
+                  <RequestCardSkeleton />
+                </div>
+              ))}
+            </motion.div>
+          ) : isError ? (
+            <div className="text-center py-12 text-white">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-medium mb-2">
+                Something went wrong while fetching prayer requests.
+              </h3>
+            </div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1 },
+              }}
+            >
+              {filteredRequests.map((request, index) => (
+                <motion.div
+                  key={request.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: index * 0.07 }}
+                >
+                  <RequestCard
+                    request={request}
+                    userId={userId}
+                    onPrayNow={handlePrayNow}
+                    onFulfillRequest={handleFulfillRequest}
+                    onViewDetails={(req) => {
+                      setSelectedRequest(req);
+                      setShowDetailsModal(true);
+                      setSelectedIndex(
+                        filteredRequests.findIndex((r) => r.id === req.id)
+                      );
+                    }}
+                    isLoadingPrayer={loadingPrayerId === request.id}
+                    isLoadingFulfill={loadingFulfillId === request.id}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
 
           {/* Empty state */}
-          {filteredRequests.length === 0 && (
+          {!isLoading && !isError && filteredRequests.length === 0 && (
             <div className="text-center py-12 text-white">
               <Heart className="h-12 w-12 mx-auto mb-4" />
               <h3 className="text-xl sm:text-2xl md:text-3xl font-medium mb-2">
@@ -196,7 +289,7 @@ export default function PrayerRequestsView() {
             title="Share Your Prayer Request"
             onClose={() => setShowModal(false)}
           >
-            <RequestForm setShowModal={setShowModal} />
+            <RequestForm setShowModal={setShowModal} userId={userId} />
           </Modal>
         )}
 
@@ -207,24 +300,12 @@ export default function PrayerRequestsView() {
           >
             <DetailedRequestModal
               selectedRequest={selectedRequest}
+              userId={userId}
               handlePrayNow={handlePrayNow}
               onClose={() => setShowDetailsModal(false)}
-              onPrev={() => {
-                if (selectedIndex === null || !snapshotRequests) return;
-                const prev = selectedIndex - 1;
-                if (prev >= 0) {
-                  setSelectedIndex(prev);
-                  setSelectedRequest(snapshotRequests[prev]);
-                }
-              }}
-              onNext={() => {
-                if (selectedIndex === null || !snapshotRequests) return;
-                const next = selectedIndex + 1;
-                if (next < snapshotRequests.length) {
-                  setSelectedIndex(next);
-                  setSelectedRequest(snapshotRequests[next]);
-                }
-              }}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              isLoadingPrayer={loadingPrayerId === selectedRequest.id}
             />
           </Modal>
         )}

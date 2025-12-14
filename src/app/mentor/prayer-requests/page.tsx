@@ -1,36 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import PrayerRequestsView from "./components/layout/PrayerRequestsView";
-import PrayerAdminDashboard from "./components/layout/PrayerAdminDashboard";
-import Button from "./components/Button";
+import { Suspense, useEffect, useState } from "react";
+import AppContent from "./components/layout/AppContent";
+import LoadingSpinner from "./components/LoadingSpinner";
+import { getAccessToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+
 
 export default function App() {
-  const [view, setView] = useState<"requests" | "admin">("requests");
+  const router = useRouter();
+  const [isInitialized, setIsInitialized] = useState(false);
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = getAccessToken();
+      if (!token) {
+        router.push("/auth/login");
+      } else {
+        setIsInitialized(true);
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+   if (!isInitialized) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="font-sans min-h-screen relative">
-      {/* Main View */}
-      <div className="transition-all duration-300">
-        {view === "requests" ? (
-          <PrayerRequestsView />
-        ) : (
-          <PrayerAdminDashboard setView={setView} />
-        )}
-      </div>
-
-      {/* Floating Toggle - switch content and visibility based on view */}
-      <div className={`fixed bottom-6 right-6 z-50`}>
-        <Button
-          type="button"
-          onClick={() => setView(view === "requests" ? "admin" : "requests")}
-          className={`px-4 py-2 font-medium text-sm rounded-full bg-linear-to-r from-purple-600 to-pink-600 text-white
-      ${view === "requests" ? "flex" : "hidden md:flex"}
-    `}
-        >
-          {view === "requests" ? "Admin Dashboard" : "Student View"}
-        </Button>
-      </div>
-    </div>
+    <Suspense fallback={<LoadingSpinner />}>
+      <AppContent />
+    </Suspense>
   );
 }

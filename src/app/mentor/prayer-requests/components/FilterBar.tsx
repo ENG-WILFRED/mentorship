@@ -25,7 +25,7 @@ export default function FilterBar({
   filterStatus,
   onFilterChange,
 }: FilterBarProps) {
-  const filterOptions = ["all", "pending", "in-progress", "fulfilled"];
+  const filterOptions = ["all", "PENDING", "IN_PROGRESS", "FULFILLED"];
 
   return (
     <motion.div

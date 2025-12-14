@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { prisma } from   './prisma'// Adjust the import path as necessary
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your-access-secret-key';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-secret-key';
@@ -120,4 +121,69 @@ export function isTokenExpired(token: string, bufferSeconds = 300): boolean {
   const decoded = decodeToken(token);
   if (!decoded || !decoded.exp) return true;
   return (decoded.exp * 1000) - Date.now() < bufferSeconds * 1000;
+}
+/** so am adding server side user management features */
+// Add these to your existing lib/auth.ts file
+
+
+
+/**
+ * Server-side: Get current user from request
+ */
+export async function getCurrentUser(request: Request) {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return null
+  
+  const token = authHeader.split(' ')[1]
+  const decoded = verifyAccessToken(token)
+  
+  if (!decoded) return null
+  
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { 
+        id: true, 
+        email: true, 
+        role: true, 
+        firstName: true, 
+        lastName: true 
+      }
+    })
+    
+    return user
+  } catch (error) {
+    console.error('Error fetching user:', error)
+    return {
+      id: decoded.userId,
+      email: decoded.email,
+      role: decoded.role
+    }
+  }
+}
+
+/**
+ * Check if user has required role (server-side)
+ */
+export function checkUserRole(user: any, requiredRole: string | string[]): boolean {
+  if (!user) return false
+  
+  if (Array.isArray(requiredRole)) {
+    return requiredRole.includes(user.role)
+  }
+  
+  return user.role === requiredRole
+}
+
+/**
+ * Simple middleware for API routes
+ */
+export async function requireAuthMiddleware(request: Request) {
+  const user = await getCurrentUser(request)
+  
+  if (!user) {
+    return { error: 'Unauthorized', status: 401 }
+  }
+  
+  return { user }
 }

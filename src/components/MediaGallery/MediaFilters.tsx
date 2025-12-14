@@ -2,7 +2,7 @@
 'use client'
 
 import { Search, Filter } from 'lucide-react'
-import { MediaFilters } from './types'
+import type { MediaFilters } from './types'
 
 interface MediaFiltersProps {
   filters: MediaFilters
