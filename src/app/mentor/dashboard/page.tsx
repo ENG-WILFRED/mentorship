@@ -25,6 +25,7 @@ export default async function DashboardPage() {
         media={media}
         plans={plans}
         prayerRequests={dashboardData.prayerRequests}
+        transactions={dashboardData.transactions || []}
       />
       <Footer />
     </div>

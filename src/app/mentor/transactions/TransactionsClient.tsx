@@ -8,11 +8,14 @@ import { useToast } from "@/components/Toast";
 interface Transaction {
   id: number | string;
   date: string | Date;
-  description: string;
+  description: string | null;
   amount: number;
   status: string;
-  type?: string;
+  type: string;
   currency?: string;
+  createdAt?: Date;
+  userId?: number | null;
+  metadata?: any;
 }
 
 export default function TransactionsClient({ transactions = [] }: { transactions: Transaction[] }) {
@@ -26,9 +29,16 @@ export default function TransactionsClient({ transactions = [] }: { transactions
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailAdditionalInfo, setEmailAdditionalInfo] = useState("");
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isEmailing, setIsEmailing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     description: "",
@@ -37,6 +47,65 @@ export default function TransactionsClient({ transactions = [] }: { transactions
     status: "Completed"
   });
   const itemsPerPage = 5;
+
+  // Fetch latest transactions from the API
+  const fetchAll = async () => {
+    try {
+      const res = await fetch('/api/transactions?take=1000');
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
+      setLocalTransactions(data || []);
+    } catch (err) {
+      console.error('Failed to refresh transactions', err);
+    }
+  };
+
+  const downloadAll = () => {
+    setIsDownloading(true);
+    try {
+      window.location.href = '/api/transactions/download';
+      toast('Download started...', 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Download failed', 'error');
+    } finally {
+      setTimeout(() => setIsDownloading(false), 2000);
+    }
+  };
+
+  const emailAll = async () => {
+    if (!emailInput.trim()) {
+      toast('Please enter an email address', 'error');
+      return;
+    }
+    setIsEmailing(true);
+    try {
+      const res = await fetch('/api/transactions/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput, additionalInfo: emailAdditionalInfo }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('Transactions emailed successfully!', 'success');
+        setIsEmailModalOpen(false);
+        setEmailInput('');
+        setEmailAdditionalInfo('');
+      } else {
+        toast(data.error || 'Failed to send email', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      toast('Failed to send email', 'error');
+    } finally {
+      setIsEmailing(false);
+    }
+  };
+
+  // Ensure client state syncs with server-provided prop on mount
+  useEffect(() => {
+    setLocalTransactions(transactions || []);
+  }, [transactions]);
 
   const filteredTransactions = localTransactions.filter((t) => {
     const matchesFilter =
@@ -48,7 +117,7 @@ export default function TransactionsClient({ transactions = [] }: { transactions
         ? t.amount < 0
         : t.status.toLowerCase() === filter.toLowerCase();
     
-    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (t.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const tDate = new Date(t.date);
     const sDate = startDate ? new Date(startDate) : null;
@@ -130,36 +199,41 @@ export default function TransactionsClient({ transactions = [] }: { transactions
 
   const handleSaveTransaction = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     const amountVal = parseFloat(formData.amount);
     const finalAmount = formData.type === 'Expense' ? -Math.abs(amountVal) : Math.abs(amountVal);
-
-    if (isEditing && editId) {
-      setLocalTransactions(localTransactions.map(t => 
-        t.id === editId ? {
-          ...t,
-          date: formData.date,
-          description: formData.description,
-          amount: finalAmount,
-          status: formData.status,
-          type: formData.type
-        } : t
-      ));
-      toast("Transaction updated successfully", "success");
-    } else {
-      const newTransaction: Transaction = {
-        id: Date.now(),
-        date: formData.date,
-        description: formData.description,
-        amount: finalAmount,
-        status: formData.status,
-        type: formData.type
-      };
-      setLocalTransactions([newTransaction, ...localTransactions]);
-      toast("Transaction added successfully", "success");
-    }
-    setIsModalOpen(false);
-    resetForm();
+    (async () => {
+      try {
+        if (isEditing && editId) {
+          const res = await fetch('/api/transactions', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: editId, amount: finalAmount, type: formData.type, status: formData.status, description: formData.description }),
+          });
+          if (!res.ok) throw new Error('Update failed');
+          toast('✅ Transaction updated successfully!', 'success');
+        } else {
+          const res = await fetch('/api/transactions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: finalAmount, type: formData.type, status: formData.status, description: formData.description }),
+          });
+          if (!res.ok) throw new Error('Create failed');
+          toast('✅ Transaction added successfully!', 'success');
+        }
+        // refresh list
+        await fetchAll();
+      } catch (err) {
+        console.error(err);
+        toast('❌ Failed to save transaction', 'error');
+      } finally {
+        setIsLoading(false);
+        setIsModalOpen(false);
+        resetForm();
+      }
+    })();
   };
+  
 
   const resetForm = () => {
     setFormData({
@@ -181,7 +255,7 @@ export default function TransactionsClient({ transactions = [] }: { transactions
   const initiateEdit = (t: Transaction) => {
     setFormData({
       date: typeof t.date === 'string' ? t.date.split('T')[0] : new Date(t.date).toISOString().split('T')[0],
-      description: t.description,
+      description: t.description || '',
       amount: Math.abs(t.amount).toString(),
       type: t.type || (t.amount > 0 ? 'Income' : 'Expense'),
       status: t.status
@@ -197,12 +271,23 @@ export default function TransactionsClient({ transactions = [] }: { transactions
   };
 
   const confirmDelete = () => {
-    if (transactionToDelete) {
-      setLocalTransactions(localTransactions.filter((t) => t.id !== transactionToDelete.id));
-      setIsDeleteModalOpen(false);
-      setTransactionToDelete(null);
-      toast("Transaction deleted successfully", "success");
-    }
+    (async () => {
+      if (!transactionToDelete) return;
+      setIsDeleting(true);
+      try {
+        const res = await fetch(`/api/transactions?id=${transactionToDelete.id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Delete failed');
+        toast('✅ Transaction deleted successfully!', 'success');
+        await fetchAll();
+      } catch (err) {
+        console.error(err);
+        toast('❌ Failed to delete transaction', 'error');
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+        setTransactionToDelete(null);
+      }
+    })();
   };
 
   const downloadReceipt = (t: Transaction) => {
@@ -272,9 +357,24 @@ export default function TransactionsClient({ transactions = [] }: { transactions
         <div className="flex gap-3 w-full md:w-auto">
           <button
             onClick={openAddModal}
-            className="flex-1 md:flex-none px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-xl text-sm md:text-base"
+            disabled={isLoading}
+            className="flex-1 md:flex-none px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-xl text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            + Add Transaction
+            {isLoading ? <span className="animate-spin">⏳</span> : '+'} Add Transaction
+          </button>
+          <button
+            onClick={downloadAll}
+            disabled={isDownloading}
+            className="hidden md:inline-flex px-4 py-3 bg-white border border-purple-200 text-purple-700 font-bold rounded-lg hover:bg-purple-50 transition-all shadow-sm hover:shadow-md text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed items-center justify-center gap-2"
+          >
+            {isDownloading ? <span className="animate-spin">⏳</span> : '↓'} Download CSV
+          </button>
+          <button
+            onClick={() => setIsEmailModalOpen(true)}
+            disabled={isEmailing}
+            className="hidden md:inline-flex px-4 py-3 bg-white border border-purple-200 text-purple-700 font-bold rounded-lg hover:bg-purple-50 transition-all shadow-sm hover:shadow-md text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed items-center justify-center gap-2"
+          >
+            {isEmailing ? <span className="animate-spin">⏳</span> : '✉️'} Email CSV
           </button>
           <button
             onClick={() => router.back()}
@@ -330,7 +430,7 @@ export default function TransactionsClient({ transactions = [] }: { transactions
       {/* Chart Section */}
       <div className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow p-4 md:p-6 mb-8 hover:shadow-lg transition-shadow">
         <h2 className="text-lg font-bold text-purple-700 mb-4">Income vs Expenses</h2>
-        <div className="h-64 w-full">
+        <div className="h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -586,12 +686,57 @@ export default function TransactionsClient({ transactions = [] }: { transactions
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:opacity-90 transition-all shadow-md"
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:opacity-90 transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isEditing ? 'Update Transaction' : 'Save Transaction'}
+                  {isLoading ? <span className="animate-spin">⏳</span> : ''} {isEditing ? 'Update Transaction' : 'Save Transaction'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 flex justify-between items-center">
+              <h3 className="text-white font-bold text-lg">Email Transactions CSV</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="text-white/80 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-gray-600 text-sm">Enter the email address where you'd like to receive the transactions CSV file.</p>
+              <input
+                type="email"
+                placeholder="recipient@example.com"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              />
+              <textarea
+                placeholder="Additional information (optional)"
+                value={emailAdditionalInfo}
+                onChange={(e) => setEmailAdditionalInfo(e.target.value)}
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              />
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEmailModalOpen(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={emailAll}
+                  disabled={isEmailing}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:opacity-90 transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isEmailing ? <span className="animate-spin">⏳</span> : '✉️'} Send
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -614,9 +759,10 @@ export default function TransactionsClient({ transactions = [] }: { transactions
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Delete
+                {isDeleting ? <span className="animate-spin">⏳</span> : ''} Delete
               </button>
             </div>
           </div>

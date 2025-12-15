@@ -340,7 +340,7 @@ export default function DashboardClient({
               </thead>
               <tbody className="divide-y divide-purple-100">
                 {transactions && transactions.length > 0 ? (
-                  transactions.slice(0, 5).map((t: any, i: number) => (
+                  transactions.slice(0, 3).map((t: any, i: number) => (
                     <tr key={i} className="hover:bg-purple-50/30 transition-colors">
                       <td className="p-4 text-sm text-gray-600 whitespace-nowrap">{t.date ? new Date(t.date).toLocaleDateString() : '-'}</td>
                       <td className="p-4 text-sm text-gray-800 font-medium">{t.description || t.type || 'Transaction'}</td>
