@@ -28,6 +28,7 @@ interface DashboardClientProps {
   media: any[];
   plans: any[];
   prayerRequests: any[];
+  transactions?: any[];
 }
 
 export default function DashboardClient({
@@ -40,6 +41,7 @@ export default function DashboardClient({
   media,
   plans,
   prayerRequests,
+  transactions = [],
 }: DashboardClientProps) {
   const router = useRouter();
   const toast = useToast();
@@ -311,6 +313,61 @@ export default function DashboardClient({
 
       {/* we are the button*/}
       
+      {/* Transactions */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-purple-700">Latest Transactions</h2>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleViewAll('Transactions', '/mentor/transactions')}
+              disabled={loadingSection === 'Transactions'}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all text-sm disabled:opacity-60"
+            >
+              {loadingSection === 'Transactions' ? '⏳ Loading...' : 'View All →'}
+            </button>
+          </div>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-purple-50/50">
+                <tr>
+                  <th className="p-4 text-sm font-bold text-purple-800">Date</th>
+                  <th className="p-4 text-sm font-bold text-purple-800">Description</th>
+                  <th className="p-4 text-sm font-bold text-purple-800">Amount</th>
+                  <th className="p-4 text-sm font-bold text-purple-800">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-purple-100">
+                {transactions && transactions.length > 0 ? (
+                  transactions.slice(0, 5).map((t: any, i: number) => (
+                    <tr key={i} className="hover:bg-purple-50/30 transition-colors">
+                      <td className="p-4 text-sm text-gray-600 whitespace-nowrap">{t.date ? new Date(t.date).toLocaleDateString() : '-'}</td>
+                      <td className="p-4 text-sm text-gray-800 font-medium">{t.description || t.type || 'Transaction'}</td>
+                      <td className={`p-4 text-sm font-bold ${Number(t.amount) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {t.currency || '$'}{Math.abs(Number(t.amount) || 0).toFixed(2)}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          String(t.status || '').toLowerCase() === 'completed' || String(t.status || '').toLowerCase() === 'success' ? 'bg-green-100 text-green-700' :
+                          String(t.status || '').toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {t.status || 'Pending'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-500">No recent transactions.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       {/* Media Gallery */}
       <MediaGallery title="Mission Gallery" showFilters={true} showStats={true} />
